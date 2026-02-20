@@ -6,13 +6,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "redirects": [
-      {
-        "source": "**",
-        "destination": "https://www.pandishu.com",
-        "type": 301
-      }
     ]
   }
 }
