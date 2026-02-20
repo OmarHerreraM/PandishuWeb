@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <!-- Forzar actualización a HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Oficial v2.2 | Pandishú</title>
+    <meta name="description" content="Catálogo de equipos TP-Link Deco y cámaras Tapo con precios oficiales.">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <!-- Google Fonts & Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Configuración Custom Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#020617',
+                        },
+                        brand: {
+                            purple: '#7c3aed',
+                            blue: '#2563eb',
+                            cyan: '#0891b2',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .product-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            transition: all 0.3s ease;
+        }
+
+        .btn-buy:hover {
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Navegación -->
+    <nav class="sticky top-0 w-full z-50 glass-panel py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col">
+                    <span
+                        class="text-xl font-bold tracking-tight text-white uppercase italic leading-none">Pandishú</span>
+                    <span class="text-xs text-indigo-400 font-medium tracking-widest uppercase">Store</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <span class="text-white border-b-2 border-indigo-500 pb-1">Catálogo WiFi/Cámaras</span>
+                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
+                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Asesoría
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="py-16 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
+        <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <span
+                class="bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 inline-block">
+                Precios Oficiales 2026
+            </span>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight text-white uppercase italic">
+                Conectividad & <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Seguridad</span>
+            </h1>
+            <p class="text-slate-400 font-light text-xl leading-relaxed max-w-2xl mx-auto">
+                Equipos TP-Link Deco y Tapo certificados. Garantía directa y soporte de instalación.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-16 px-6">
+
+        <!-- Categoría: WiFi Mesh -->
+        <div class="mb-20">
+            <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3 italic uppercase">
+                <div class="p-2 bg-indigo-500/20 rounded-lg"><i data-lucide="wifi" class="text-indigo-400"></i></div>
+                Sistemas Mesh Deco
+            </h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Deco X20 -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">WiFi
+                            6</span>
+                        <img src="img/productos/Deco-X20-01.jpg" alt="Deco X20"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Deco+X20'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">TP-Link Deco X20 (2-Pack)</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        El estándar moderno. WiFi 6 AX1800 para streaming 4K sin buffer y cobertura total en casas
+                        medianas.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                            <span class="text-xl font-black text-white">$2,499</span>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Quiero%20el%20Deco%20X20." target="_blank"
+                            class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Deco M4 -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-slate-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">Gigabit</span>
+                        <img src="img/productos/Deco_M4_01.jpg" alt="Deco M4"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Deco+M4'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">TP-Link Deco M4 (2-Pack)</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        La mejor relación calidad-precio. Puertos Gigabit ideales para aprovechar tu fibra óptica al
+                        máximo.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                            <span class="text-xl font-black text-white">$1,599</span>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Quiero%20el%20Deco%20M4." target="_blank"
+                            class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Deco E4 (Economy) -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-slate-700 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">Entry</span>
+                        <img src="img/productos/Deco_E4_01.jpg" alt="Deco E4"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Deco+E4'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">TP-Link Deco E4 (2-Pack)</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        Excelente cobertura a bajo costo. Ideal para planes de internet básico (< 100 Mbps). </p>
+                            <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                                    <span class="text-xl font-black text-white">$1,299</span>
+                                </div>
+                                <a href="https://wa.me/525662580512?text=Quiero%20el%20Deco%20E4." target="_blank"
+                                    class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                </a>
+                            </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categoría: Seguridad -->
+        <div>
+            <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3 italic uppercase">
+                <div class="p-2 bg-red-500/20 rounded-lg"><i data-lucide="shield-check" class="text-red-400"></i></div>
+                Cámaras Tapo AI
+            </h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tapo C520WS -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">Exterior
+                            Pro</span>
+                        <img src="img/productos/Tapo_C520WS_01.jpg" alt="Tapo C520WS"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Tapo+C520WS'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">Tapo C520WS Exterior</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        Seguridad de grado profesional. Visión nocturna a color estelar, 2K QHD y detección inteligente
+                        de vehículos/humanos.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                            <span class="text-xl font-black text-white">$1,199</span>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Quiero%20la%20Tapo%20C520WS." target="_blank"
+                            class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tapo C210 -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">Interior
+                            2K</span>
+                        <img src="https://http2.mlstatic.com/D_NQ_NP_2X_968603-MLU74643058867_022024-F.webp"
+                            alt="Tapo C210"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Tapo+C210'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">Tapo C210 (3MP)</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        Claridad superior. Monitoriza tu hogar en ultra alta definición 2K. Rotación 360° y audio
+                        bidireccional.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                            <span class="text-xl font-black text-white">$599</span>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Quiero%20la%20Tapo%20C210." target="_blank"
+                            class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tapo C200 -->
+                <div class="product-card rounded-[32px] p-6 flex flex-col relative group">
+                    <div
+                        class="aspect-square bg-slate-800 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden p-4">
+                        <span
+                            class="absolute top-4 left-4 bg-slate-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10 shadow-lg">Bestseller</span>
+                        <img src="img/productos/Tapo-C200-01.png" alt="Tapo C200"
+                            class="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl"
+                            onerror="this.src='https://placehold.co/400/1e293b/ffffff?text=Tapo+C200'">
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase italic">Tapo C200 (1080p)</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow leading-relaxed">
+                        La cámara WiFi más vendida. Confiable, fácil de usar y con todas las funciones esenciales para
+                        tu tranquilidad.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Precio Contado</p>
+                            <span class="text-xl font-black text-white">$499</span>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Quiero%20la%20Tapo%20C200." target="_blank"
+                            class="btn-buy text-white p-3 rounded-xl shadow-lg">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-900">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Store</p>
+        <a href="index.html"
+            class="text-indigo-400 text-xs font-bold uppercase hover:text-white transition-colors">Volver al Inicio</a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

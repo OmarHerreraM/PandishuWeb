@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <!-- Forzar actualización a HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalaciones & Proyectos | Pandishú Real</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <!-- Google Fonts & Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Configuración Custom Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#020617',
+                        },
+                        brand: {
+                            purple: '#7c3aed',
+                            blue: '#2563eb',
+                            cyan: '#0891b2',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.3);
+        }
+
+        .gallery-overlay {
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Navegación -->
+    <nav class="sticky top-0 w-full z-50 glass-panel py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col">
+                    <span
+                        class="text-xl font-bold tracking-tight text-white uppercase italic leading-none">Pandishú</span>
+                    <span class="text-xs text-green-400 font-medium tracking-widest uppercase">Proyectos</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
+                <span class="text-white border-b-2 border-indigo-500 pb-1">Instalaciones</span>
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="calendar-plus" class="w-4 h-4"></i> Agendar
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="py-20 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
+        <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none">
+        </div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight text-white uppercase italic">
+                Resultados <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">Reales</span>
+            </h1>
+            <p class="text-slate-400 font-light text-xl leading-relaxed max-w-2xl mx-auto">
+                No vendemos cajas, vendemos soluciones. Mira cómo transformamos la conectividad y seguridad de nuestros
+                clientes.
+            </p>
+        </div>
+    </header>
+
+    <!-- Galería Masonryish -->
+    <main class="max-w-7xl mx-auto py-16 px-6">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Proyecto 1 -->
+            <div class="gallery-item aspect-square bg-slate-800"
+                onclick="openLightbox('img/proyectos/Cliente3WiFi03.jpeg')">
+                <img src="img/proyectos/Cliente3WiFi03.jpeg" class="w-full h-full object-cover"
+                    onerror="this.src='https://placehold.co/800?text=Instalacion+WiFi+Mesh'">
+                <div class="gallery-overlay absolute inset-0 flex flex-col justify-end p-6">
+                    <p class="text-green-400 text-xs font-bold uppercase tracking-widest mb-1">Residencial</p>
+                    <h3 class="text-white font-black text-xl italic uppercase">Red WiFi Mesh Total</h3>
+                    <p class="text-slate-300 text-xs mt-2">Cobertura 100% en casa de 3 pisos.</p>
+                </div>
+            </div>
+
+            <!-- Proyecto 2 -->
+            <div class="gallery-item aspect-square bg-slate-800"
+                onclick="openLightbox('img/proyectos/Cliente1Cam01.jpeg')">
+                <img src="img/proyectos/Cliente1Cam01.jpeg" class="w-full h-full object-cover"
+                    onerror="this.src='https://placehold.co/800?text=Camaras+Seguridad'">
+                <div class="gallery-overlay absolute inset-0 flex flex-col justify-end p-6">
+                    <p class="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">Seguridad Exterior</p>
+                    <h3 class="text-white font-black text-xl italic uppercase">Cámaras PTZ 2K</h3>
+                    <p class="text-slate-300 text-xs mt-2">Monitoreo perimetral y alertas AI.</p>
+                </div>
+            </div>
+
+            <!-- Proyecto 3 -->
+            <div class="gallery-item aspect-square bg-slate-800"
+                onclick="openLightbox('img/proyectos/Cliente2PC05.jpg')">
+                <img src="img/proyectos/Cliente2PC05.jpg" class="w-full h-full object-cover"
+                    onerror="this.src='https://placehold.co/800?text=PC+Gamer+Build'">
+                <div class="gallery-overlay absolute inset-0 flex flex-col justify-end p-6">
+                    <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-1">Hardware</p>
+                    <h3 class="text-white font-black text-xl italic uppercase">Master Workstation</h3>
+                    <p class="text-slate-300 text-xs mt-2">Ensamble personalizado para Arquitectura.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox"
+        class="fixed inset-0 z-[200] hidden bg-slate-950/95 backdrop-blur-xl items-center justify-center p-4 md:p-10 cursor-zoom-out"
+        onclick="closeLightbox()">
+        <button
+            class="absolute top-6 right-6 text-white hover:text-indigo-400 bg-white/10 p-3 rounded-full backdrop-blur-sm transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <img id="lightbox-img" src=""
+            class="max-w-full max-h-[85vh] rounded-3xl shadow-2xl object-contain transition-all duration-300 transform scale-95 opacity-0 ring-1 ring-white/10">
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-900">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Portfolio</p>
+        <a href="index.html"
+            class="text-indigo-400 text-xs font-bold uppercase hover:text-white transition-colors">Volver al Inicio</a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lb.classList.remove('hidden'); lb.classList.add('flex');
+            setTimeout(() => { img.classList.remove('scale-95', 'opacity-0'); img.classList.add('scale-100', 'opacity-100'); }, 50);
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.classList.remove('scale-100', 'opacity-100'); img.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { lb.classList.remove('flex'); lb.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+        }
+    </script>
+</body>
+
+</html>

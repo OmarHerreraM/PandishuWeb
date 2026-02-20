@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "pandishu-web-1d860",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

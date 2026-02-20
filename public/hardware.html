@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <!-- Forzar actualización a HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware High-End | Pandishú Tech</title>
+    <meta name="description"
+        content="Catálogo de componentes de PC y ensambles personalizados. Procesadores, tarjetas gráficas y hardware de alto rendimiento en CDMX.">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <!-- Google Fonts & Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Configuración Custom Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#020617',
+                        },
+                        brand: {
+                            purple: '#7c3aed',
+                            blue: '#2563eb',
+                            cyan: '#0891b2',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tech-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Tabla Estilo Spec Sheet */
+        .spec-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .spec-table th {
+            text-align: left;
+            padding: 1rem;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        .spec-table tr.item-row {
+            background: rgba(30, 41, 59, 0.4);
+            transition: all 0.2s;
+        }
+
+        .spec-table tr.item-row:hover {
+            background: rgba(51, 65, 85, 0.6);
+            transform: scale(1.01);
+        }
+
+        .spec-table td {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .spec-table td:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            border-left: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .spec-table td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-right: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        /* Botón Gradiente */
+        .btn-glow {
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #9333ea, #4f46e5);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+
+        .btn-glow:hover::before {
+            opacity: 1;
+        }
+
+        .stock-pulse {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Navegación -->
+    <nav class="sticky top-0 w-full z-50 glass-panel py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col">
+                    <span
+                        class="text-xl font-bold tracking-tight text-white uppercase italic leading-none">Pandishú</span>
+                    <span class="text-[10px] text-cyan-400 font-medium tracking-widest uppercase">Hardware
+                        Division</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">WiFi & Smart Home</a>
+                <span class="text-white border-b-2 border-indigo-500 pb-1">Hardware PC</span>
+                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-4 h-4"></i> Cotizar Build
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Hardware -->
+    <header class="py-20 px-6 relative overflow-hidden bg-slate-900">
+        <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/50 to-slate-900"></div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <span
+                class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 inline-block">
+                Authorized Reseller
+            </span>
+            <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight text-white uppercase italic">
+                Performance <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Unleashed</span>
+            </h1>
+            <p class="text-slate-400 font-light text-xl leading-relaxed max-w-2xl mx-auto">
+                Componentes de grado entusiasta. Ensambles profesionales con gestión de cables premium y pruebas de
+                estrés incluidas.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-6">
+
+        <!-- OFERTA DESTACADA -->
+        <div class="mb-24 relative group">
+            <div
+                class="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-[32px] blur opacity-25 group-hover:opacity-50 transition duration-500">
+            </div>
+            <div class="relative bg-slate-800 rounded-[30px] p-1 overflow-hidden">
+                <div class="bg-slate-900 rounded-[28px] p-8 md:p-12 relative overflow-hidden">
+                    <!-- Badge -->
+                    <div
+                        class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-6 py-3 rounded-bl-2xl uppercase tracking-widest z-10">
+                        Oferta Flash
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-12 items-center">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-red-500/20 rounded-full blur-[80px]"></div>
+                            <img src="img/ofertas/corsair-nautilus-240.jpg" alt="Corsair Nautilus"
+                                class="relative z-10 w-full max-w-md mx-auto object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-2xl"
+                                onerror="this.src='https://placehold.co/500x500/1e293b/ffffff?text=Corsair+Cooling'">
+                        </div>
+
+                        <div>
+                            <h2 class="text-red-500 font-bold uppercase tracking-widest text-sm mb-2">Liquid Cooling
+                                System</h2>
+                            <h3 class="text-4xl md:text-5xl font-black text-white italic uppercase mb-4 leading-none">
+                                Corsair Nautilus <br> 240 RS ARGB
+                            </h3>
+                            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                                Mantén tu CPU helado bajo carga extrema. Iluminación iCUE compatible.
+                            </p>
+
+                            <div class="flex items-center gap-6 mb-8">
+                                <div>
+                                    <p class="text-slate-500 text-lg line-through">$2,141</p>
+                                    <p class="text-5xl font-black text-white tracking-tighter">$1,799</p>
+                                </div>
+                                <div class="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                    <p class="text-green-400 text-xs font-bold uppercase flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-green-500 stock-pulse"></span> En Stock
+                                    </p>
+                                </div>
+                            </div>
+
+                            <a href="https://wa.me/525662580512?text=Quiero%20la%20Nautilus%20240%20RS%20de%20oferta."
+                                class="btn-glow inline-flex items-center justify-center bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest hover:scale-105 transition-all w-full md:w-auto">
+                                <i data-lucide="shopping-bag" class="w-5 h-5 mr-2"></i> Ordenar Ahora
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PC BUILDS -->
+        <div class="mb-20">
+            <h2 class="text-3xl font-black text-white mb-12 flex items-center gap-3">
+                <div class="w-12 h-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full"></div>
+                Ensambles Signature
+            </h2>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Build 1: Office -->
+                <div class="tech-card rounded-[24px] p-6 flex flex-col h-full relative">
+                    <div class="aspect-[4/3] bg-slate-800 rounded-xl mb-6 overflow-hidden relative group">
+                        <img src="img/hardware/img-pc-oficina.jpg"
+                            class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700"
+                            onerror="this.src='https://placehold.co/600x400/0f172a/ffffff?text=Office+PC'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60"></div>
+                        <span class="absolute bottom-4 left-4 text-white font-black uppercase text-lg italic">Office
+                            Base</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8 flex-grow">
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="cpu" class="w-4 h-4 mr-3 text-indigo-500"></i> Ryzen 7 5700G
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="memory-stick" class="w-4 h-4 mr-3 text-indigo-500"></i> 16GB RAM 3200MHz
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="hard-drive" class="w-4 h-4 mr-3 text-indigo-500"></i> 500GB NVMe Gen4
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Desde</p>
+                            <p class="text-2xl font-bold text-white">$10,449</p>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Me%20interesa%20la%20PC%20Office%20Base"
+                            class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-xl transition-colors">
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Build 2: Gamer -->
+                <div class="tech-card rounded-[24px] p-6 flex flex-col h-full relative border-indigo-500/30">
+                    <div
+                        class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-indigo-500/50">
+                        Best Seller
+                    </div>
+
+                    <div class="aspect-[4/3] bg-slate-800 rounded-xl mb-6 overflow-hidden relative group">
+                        <img src="img/hardware/img-pc-gamer-base.jpg"
+                            class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700"
+                            onerror="this.src='https://placehold.co/600x400/0f172a/ffffff?text=Gamer+PC'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60"></div>
+                        <span class="absolute bottom-4 left-4 text-white font-black uppercase text-lg italic">Gamer
+                            Pulse</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8 flex-grow">
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="cpu" class="w-4 h-4 mr-3 text-indigo-500"></i> Ryzen 7 8700F
+                        </div>
+                        <div class="flex items-center text-sm text-white font-bold border-b border-white/5 pb-2">
+                            <i data-lucide="monitor-play" class="w-4 h-4 mr-3 text-indigo-500"></i> RX 7600 8GB
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="memory-stick" class="w-4 h-4 mr-3 text-indigo-500"></i> 16GB DDR5
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="hard-drive" class="w-4 h-4 mr-3 text-indigo-500"></i> 1TB NVMe Gen4
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Desde</p>
+                            <p class="text-2xl font-bold text-white">$22,199</p>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Me%20interesa%20la%20Gamer%20Pulse."
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Build 3: Workstation -->
+                <div class="tech-card rounded-[24px] p-6 flex flex-col h-full relative">
+                    <div class="aspect-[4/3] bg-slate-800 rounded-xl mb-6 overflow-hidden relative group">
+                        <img src="img/hardware/img-pc-pro.jpg"
+                            class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700"
+                            onerror="this.src='https://placehold.co/600x400/0f172a/ffffff?text=Workstation'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60"></div>
+                        <span class="absolute bottom-4 left-4 text-white font-black uppercase text-lg italic">Master
+                            Workstation</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8 flex-grow">
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="cpu" class="w-4 h-4 mr-3 text-cyan-500"></i> Ryzen 7 7700 + AIO
+                        </div>
+                        <div class="flex items-center text-sm text-white font-bold border-b border-white/5 pb-2">
+                            <i data-lucide="monitor-play" class="w-4 h-4 mr-3 text-cyan-500"></i> RX 9070 XT 16GB
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="memory-stick" class="w-4 h-4 mr-3 text-cyan-500"></i> 32GB DDR5 RGB
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300 border-b border-white/5 pb-2">
+                            <i data-lucide="hard-drive" class="w-4 h-4 mr-3 text-cyan-500"></i> 2TB KC3000
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Desde</p>
+                            <p class="text-2xl font-bold text-white">$53,249</p>
+                        </div>
+                        <a href="https://wa.me/525662580512?text=Me%20interesa%20la%20Master%20Workstation."
+                            class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-xl transition-colors">
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nota Legal -->
+            <div class="mt-8 p-4 rounded-xl bg-slate-800/50 border border-white/5 flex gap-3">
+                <i data-lucide="info" class="text-indigo-400 shrink-0"></i>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Los precios están sujetos a cambios sin previo aviso según la volatilidad del costo de componentes.
+                    Las cotizaciones formales vía WhatsApp tienen una vigencia de 15 días.
+                </p>
+            </div>
+        </div>
+
+        <!-- COMPONENTES INDIVIDUALES (Table Section) -->
+        <div class="bg-slate-900/50 border border-white/5 rounded-[32px] p-8 md:p-12">
+            <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                <i data-lucide="layers" class="text-indigo-500"></i> Inventario Real
+            </h2>
+
+            <!-- Motherboards -->
+            <div class="mb-12">
+                <h3
+                    class="text-indigo-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2 border-l-2 border-indigo-500">
+                    Motherboards</h3>
+                <div class="overflow-x-auto">
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Modelo</th>
+                                <th>Specs</th>
+                                <th>Precio</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">ASUS Prime B760M-A AX</td>
+                                <td class="text-slate-400 text-xs">LGA1700, WiFi 6, PCIe 4.0</td>
+                                <td class="text-white font-mono font-bold">$3,228</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20ASUS%20B760M" target="_blank"
+                                        class="text-indigo-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">MSI B550M-A PRO</td>
+                                <td class="text-slate-400 text-xs">AM4, Ryzen 5000 Ready</td>
+                                <td class="text-white font-mono font-bold">$1,558</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20MSI%20B550M" target="_blank"
+                                        class="text-indigo-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">ASUS Prime B650M-A AX II</td>
+                                <td class="text-slate-400 text-xs">AM5, DDR5, WiFi 6</td>
+                                <td class="text-white font-mono font-bold">$3,892</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20ASUS%20B650M" target="_blank"
+                                        class="text-indigo-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RAM -->
+            <div>
+                <h3
+                    class="text-purple-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2 border-l-2 border-purple-500">
+                    Memoria RAM</h3>
+                <div class="overflow-x-auto">
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Modelo</th>
+                                <th>Specs</th>
+                                <th>Precio</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">XPG Gammix D35 8GB</td>
+                                <td class="text-slate-400 text-xs">DDR4 3200MHz, Negro</td>
+                                <td class="text-white font-mono font-bold">$1,109</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20RAM%208GB" target="_blank"
+                                        class="text-purple-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">TeamGroup Delta RGB 16GB</td>
+                                <td class="text-slate-400 text-xs">Kit 2x8GB, DDR4 3200MHz</td>
+                                <td class="text-white font-mono font-bold">$2,359</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20Delta%20RGB" target="_blank"
+                                        class="text-purple-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="item-row">
+                                <td class="font-bold text-white">Kingston Fury Beast 16GB</td>
+                                <td class="text-slate-400 text-xs">DDR5 5200MHz</td>
+                                <td class="text-white font-mono font-bold">$2,829</td>
+                                <td>
+                                    <a href="https://wa.me/525662580512?text=Cotizar%20DDR5%20Fury" target="_blank"
+                                        class="text-purple-400 hover:text-white uppercase text-[10px] font-bold tracking-widest flex items-center gap-1 group">
+                                        Cotizar <i data-lucide="arrow-right"
+                                            class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Simple -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-900">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Hardware Division</p>
+        <div class="flex justify-center gap-4 text-slate-400 text-xs">
+            <a href="index.html" class="hover:text-white">Volver al Inicio</a>
+            <span>•</span>
+            <a href="https://wa.me/525662580512" class="hover:text-white">Contacto Directo</a>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <!-- Forzar actualización a HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandishú v2.3 | Arquitectura de Redes & Hardware Premium CDMX</title>
+    <meta name="description"
+        content="Expertos en WiFi Mesh Enterprise, Seguridad IA y Hardware High-End en CDMX. Instalación profesional de redes y configuración de PC Gamer y Workstations a domicilio.">
+    <meta name="keywords"
+        content="WiFi Mesh CDMX, Instalación de Redes, Soporte Técnico CDMX, PC Gamer CDMX, Hardware High-End, Seguridad IA, Cámaras de Seguridad, Pandishú">
+    <link rel="canonical" href="https://www.pandishu.com/" />
+
+    <!-- Local SEO Tags -->
+    <meta name="geo.region" content="MX-CMX" />
+    <meta name="geo.placename" content="Ciudad de México" />
+    <meta name="geo.position" content="19.432608;-99.133209" />
+    <meta name="ICBM" content="19.432608, -99.133209" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.pandishu.com/" />
+    <meta property="og:title" content="Pandishú | Soluciones Tecnológicas Premium en CDMX" />
+    <meta property="og:description"
+        content="Transformamos tu hogar u oficina con WiFi Mesh, Seguridad Inteligente y Hardware de Alto Rendimiento. Servicio profesional en Ciudad de México." />
+    <meta property="og:image" content="https://www.pandishu.com/img/og-image.jpg" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" href="apple-icon-144x144.png">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Configuración Custom Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#020617',
+                        },
+                        brand: {
+                            purple: '#7c3aed',
+                            blue: '#2563eb',
+                            cyan: '#0891b2',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')",
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Efectos Premium Custom */
+        body {
+            background-color: #0f172a;
+            /* Slate 900 */
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
+            /* Purple Glow */
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-premium:hover {
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-premium:hover::after {
+            left: 100%;
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-whatsapp:hover {
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .grid-bg {
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Animaciones */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Modal Styles */
+        #review-modal,
+        #privacy-modal,
+        #returns-modal {
+            backdrop-filter: blur(8px);
+        }
+
+        .star.active {
+            color: #fbbf24;
+            fill: #fbbf24;
+        }
+
+        .star {
+            color: #475569;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- BANNER DE OFERTA (Diseño Dark) -->
+    <div
+        class="bg-gradient-to-r from-red-900 to-rose-950 text-white py-2 px-4 border-b border-red-500/20 relative overflow-hidden">
+        <div
+            class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10">
+        </div>
+        <div
+            class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-3 relative z-10 text-xs sm:text-sm">
+            <span
+                class="bg-red-500/20 border border-red-500/50 text-red-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                Flash Sale
+            </span>
+            <p class="font-medium text-center">
+                <span class="text-slate-300">Corsair Nautilus 240 RS ARGB:</span>
+                <span class="line-through text-slate-500 mx-1">$2,141</span>
+                <span class="text-white font-bold text-base">$1,799</span>
+            </p>
+            <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA%2C%20quiero%20la%20oferta%20del%20Corsair%20Nautilus%20en%20%241799"
+                target="_blank"
+                class="flex items-center gap-1 text-red-300 hover:text-white font-bold uppercase tracking-wide transition-colors text-xs underline decoration-red-500/50 hover:decoration-white">
+                Apartar <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN (Glassmorphism) -->
+    <nav class="sticky top-0 w-full z-50 glass-panel border-b border-white/5 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="relative">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200">
+                    </div>
+                    <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                        class="relative h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                        onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                </div>
+                <div class="flex flex-col">
+                    <span
+                        class="text-xl font-bold tracking-tight text-white uppercase italic leading-none">Pandishú</span>
+                    <span class="text-[10px] text-cyan-400 font-medium tracking-widest uppercase">Tech Solutions</span>
+                </div>
+            </a>
+
+            <!-- Menu Desktop -->
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-300">
+                <a href="#servicios"
+                    class="hover:text-white hover:shadow-[0_20px_20px_-10px_rgba(255,255,255,0.5)] transition-all">Servicios</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="hardware.html" class="relative group">
+                    <span
+                        class="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-cyan-400 transition-all">Hardware
+                        PC</span>
+                    <span
+                        class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 transition-all group-hover:w-full"></span>
+                </a>
+                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
+                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="btn-whatsapp px-6 py-2.5 rounded-full text-white flex items-center gap-2">
+                    <span>Agendar Cita</span>
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION (Diseño Impactante) -->
+    <header class="relative pt-32 pb-40 overflow-hidden">
+        <!-- Fondo Abstracto -->
+        <div class="absolute inset-0 bg-slate-950">
+            <div class="absolute inset-0 bg-hero-pattern opacity-20 bg-cover bg-center mix-blend-overlay"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-slate-900/0 via-slate-900/80 to-slate-900"></div>
+            <!-- Grid Cyberpunk -->
+            <div class="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
+        </div>
+
+        <!-- Efectos de Luz -->
+        <div
+            class="absolute top-20 left-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-[128px] pointer-events-none animate-pulse">
+        </div>
+        <div
+            class="absolute bottom-20 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-[128px] pointer-events-none">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Texto Principal -->
+            <div class="text-center lg:text-left">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span class="text-green-400 text-[10px] font-bold uppercase tracking-widest">Socio Tecnológico
+                        Certificado</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-white">
+                    Tecnología que <br>
+                    <span class="gradient-text italic">define el futuro.</span>
+                </h1>
+
+                <p class="text-lg text-slate-400 mb-10 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
+                    Elevamos tu estándar de vida y trabajo con redes WiFi Enterprise, Seguridad Inteligente y Hardware
+                    de Alto Rendimiento.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <a href="catalogo.html"
+                        class="btn-premium px-8 py-4 rounded-2xl font-bold text-lg text-white text-center uppercase tracking-wide flex items-center justify-center gap-2 group">
+                        Ver Catálogo <i data-lucide="arrow-right"
+                            class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a href="proyectos.html"
+                        class="px-8 py-4 rounded-2xl font-bold text-lg text-slate-300 border border-white/10 hover:bg-white/5 hover:text-white transition-all text-center uppercase tracking-wide backdrop-blur-sm">
+                        Ver Proyectos
+                    </a>
+                </div>
+            </div>
+
+            <!-- Visual Hero (Video/Imagen) -->
+            <div class="hidden lg:block relative animate-float">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-[40px] blur-2xl opacity-30">
+                </div>
+                <div class="relative bg-slate-900 border border-white/10 rounded-[35px] p-2 shadow-2xl overflow-hidden">
+                    <!-- Placeholder de video o imagen high-tech -->
+                    <video class="w-full rounded-[30px] shadow-inner" autoplay muted loop playsinline
+                        poster="img/hardware/img-pc-pro.jpg">
+                        <source src="e.mp4" type="video/mp4">
+                        <!-- Fallback visual -->
+                        <img src="img/hardware/img-pc-pro.jpg" class="w-full h-full object-cover rounded-[30px]"
+                            alt="PC Gamer Setup">
+                    </video>
+
+                    <!-- Floating Badge -->
+                    <div
+                        class="absolute bottom-8 left-8 bg-black/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-4">
+                        <div class="bg-indigo-600 p-2 rounded-lg">
+                            <i data-lucide="zap" class="text-white w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-white text-xs font-bold uppercase">Potencia Total</p>
+                            <p class="text-slate-400 text-[10px]">Instalaciones Pro</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATISTICS STRIP -->
+    <div class="border-y border-white/5 bg-slate-900/50 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <p class="text-3xl font-black text-white mb-1">+500</p>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Clientes Felices</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-black text-white mb-1">100%</p>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Cobertura WiFi</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-black text-white mb-1">24/7</p>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Soporte Vital</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-black text-white mb-1">5 Estrellas</p>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Calificación Google</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN: DIVISIÓN HARDWARE (High End) -->
+    <section class="py-24 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
+        <!-- Efecto de Fondo -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
+            <!-- Texto -->
+            <div class="order-2 lg:order-1">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 uppercase italic tracking-tight">
+                    <span
+                        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 mb-2">PC
+                        Master Race</span>
+                    Construye tu Legado
+                </h2>
+                <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                    No es solo una computadora, es tu herramienta de dominio. Workstations para arquitectura y Rigs de
+                    Gaming Extremo con los componentes más exclusivos del mercado.
+                </p>
+
+                <div class="flex gap-4 mb-10 overflow-x-auto pb-2">
+                    <span
+                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">AMD
+                        Ryzen 7000/9000</span>
+                    <span
+                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">NVIDIA
+                        RTX 40 Series</span>
+                    <span
+                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">DDR5
+                        High Speed</span>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="hardware.html"
+                        class="btn-premium px-8 py-4 rounded-xl font-bold uppercase tracking-wider text-sm text-white flex items-center justify-center w-full sm:w-auto">
+                        <i data-lucide="cpu" class="w-5 h-5 mr-3"></i> Explorar Hardware
+                    </a>
+                </div>
+            </div>
+
+            <!-- Visual 3D -->
+            <div class="order-1 lg:order-2 relative group">
+                <div
+                    class="absolute inset-0 bg-blue-500/20 rounded-full blur-[100px] group-hover:bg-blue-500/30 transition-all duration-500">
+                </div>
+                <img src="img/hardware/img-pc-pro.jpg" alt="Master PC Build"
+                    class="relative z-10 w-full rounded-[30px] border-2 border-white/10 shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-500"
+                    onerror="this.src='https://placehold.co/800x800/1e293b/ffffff?text=PC+GAMER+PANDISHU'">
+
+                <!-- Spec Card Overlay -->
+                <div
+                    class="absolute -bottom-6 -right-6 z-20 bg-slate-800/90 backdrop-blur border border-white/10 p-6 rounded-2xl hidden md:block shadow-xl">
+                    <p class="text-sky-400 text-xs font-bold uppercase mb-1">Configuración Top</p>
+                    <p class="text-white font-black text-xl mb-2">Ryzen 9 + RX 9070 XT</p>
+                    <div class="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-sky-500 w-[95%]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE SOLUCIONES (Servicios CDMX) -->
+    <section id="servicios" class="py-24 px-6 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-indigo-400 font-bold tracking-widest uppercase text-xs mb-2 block">Cobertura Total en
+                    Ciudad de México</span>
+                <h2 class="text-4xl font-black text-white mb-4 tracking-tight uppercase">Ecosistema Integral</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg font-light">
+                    Soluciones tecnológicas con servicio de instalación profesional a domicilio en CDMX y Zona
+                    Metropolitana.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card WiFi -->
+                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i data-lucide="wifi" class="w-32 h-32 text-indigo-500"></i>
+                    </div>
+
+                    <div
+                        class="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/30">
+                        <i data-lucide="router" class="w-7 h-7"></i>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-white mb-3">WiFi Mesh & Redes</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
+                        Diseño e instalación de redes empresariales en tu hogar. Eliminamos zonas muertas con sistemas
+                        Mesh de última generación.
+                    </p>
+                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-indigo-500"></i> Diagnóstico de cobertura en sitio</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-indigo-500"></i> Cableado estructurado estético</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-indigo-500"></i> Configuración optimizada</li>
+                    </ul>
+
+                    <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA%2C%20necesito%20una%20visita%20t%C3%A9cnica%20para%20mejorar%20mi%20WiFi%20en%20CDMX."
+                        target="_blank"
+                        class="mt-auto flex items-center text-indigo-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
+                        Agendar Visita Técnica <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Card Hardware/Seguridad -->
+                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i data-lucide="settings" class="w-32 h-32 text-red-500"></i>
+                    </div>
+
+                    <div
+                        class="w-14 h-14 bg-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mb-6 border border-red-500/30">
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-white mb-3">Hardware & Seguridad</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
+                        Instalación de cámaras de seguridad IA y armado de PC High-End a medida. Mantenimiento
+                        preventivo.
+                    </p>
+                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-red-500"></i> Armado de PC Gamer/Workstation</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-red-500"></i> Instalación de Cámaras Tapo/Ezviz</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-red-500"></i> Mantenimiento de Hardware</li>
+                    </ul>
+
+                    <a href="https://wa.me/525662580512?text=Me%20interesa%20una%20cotizaci%C3%B3n%20de%20hardware%20o%20seguridad."
+                        target="_blank"
+                        class="mt-auto flex items-center text-red-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
+                        Cotizar Hardware <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Card Web Dev -->
+                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i data-lucide="code-2" class="w-32 h-32 text-green-500"></i>
+                    </div>
+
+                    <div
+                        class="w-14 h-14 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center mb-6 border border-green-500/30">
+                        <i data-lucide="layout" class="w-7 h-7"></i>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-white mb-3">Diseño Web & Apps</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
+                        Presencia digital de alto impacto. Sitios web rápidos, tiendas en línea y aplicaciones a medida.
+                    </p>
+                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-green-500"></i> Landing Pages Premium</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-green-500"></i> E-commerce & Branding</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
+                                class="w-3 h-3 text-green-500"></i> SEO Técnico Incluido</li>
+                    </ul>
+
+                    <a href="https://wa.me/525662580512?text=Me%20interesa%20un%20sitio%20web%20profesional."
+                        target="_blank"
+                        class="mt-auto flex items-center text-green-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
+                        Iniciar Proyecto <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS (Clean Dark) -->
+    <section class="py-24 px-6 bg-slate-950 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div>
+                    <h2 class="text-3xl font-black text-white uppercase tracking-tight mb-2">Historias Reales</h2>
+                    <p class="text-slate-500">La confianza se construye con resultados.</p>
+                </div>
+                <!-- Botón Reseña -->
+                <button onclick="toggleReviewModal()"
+                    class="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 font-bold uppercase text-xs tracking-widest border border-yellow-500/30 px-4 py-2 rounded-full hover:bg-yellow-500/10 transition-colors">
+                    <i data-lucide="star" class="w-4 h-4 fill-current"></i> Escribir reseña
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Review 1 -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl relative">
+                    <div class="flex gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        "El cambio en la velocidad de internet fye brutal. Antes no podía tener videollamadas en mi
+                        cuarto, ahora con los Deco vuela. Súper profesionales."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-500 text-xs">
+                            BE</div>
+                        <div>
+                            <p class="text-white text-sm font-bold">Berenice E.</p>
+                            <p class="text-slate-500 text-xs">Instalación WiFi Mesh</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl relative">
+                    <div class="flex gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        "Me armaron una PC para arquitectura increíble. Los precios fueron mejores que en Amazon y me la
+                        entregaron lista con Windows instalado."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-500 text-xs">
+                            EM</div>
+                        <div>
+                            <p class="text-white text-sm font-bold">Eduardo M.</p>
+                            <p class="text-slate-500 text-xs">Workstation Build</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER PREMIUM -->
+    <footer class="bg-slate-950 pt-20 pb-10 px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
+            <div class="md:col-span-2">
+                <a href="#" class="flex items-center gap-3 mb-6">
+                    <img src="Pandishu-Logo-26.png" class="h-12 w-12 rounded-xl" alt="Logo">
+                    <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
+                </a>
+                <p class="text-slate-400 text-sm max-w-sm leading-relaxed mb-8">
+                    Somos tu departamento de TI personal. Soluciones de infraestructura de red y hardware de alto nivel
+                    para hogares exigentes y negocios modernos.
+                </p>
+                <div class="flex gap-4">
+                    <a href="https://www.facebook.com/PandishuTec" target="_blank"
+                        class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-blue-500 hover:bg-blue-600 transition-all">
+                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                    </a>
+                    <a href="https://www.instagram.com/pandishutec/" target="_blank"
+                        class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-pink-500 hover:bg-pink-600 transition-all">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Navegación</h4>
+                <ul class="space-y-4 text-sm text-slate-400">
+                    <li><a href="catalogo.html" class="hover:text-indigo-400 transition-colors">Catálogo WiFi</a></li>
+                    <li><a href="hardware.html" class="hover:text-indigo-400 transition-colors">PC Hardware</a></li>
+                    <li><a href="proyectos.html" class="hover:text-indigo-400 transition-colors">Portafolio</a></li>
+                    <li><a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda Oficial
+                            ML</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Legal</h4>
+                <ul class="space-y-4 text-sm text-slate-400">
+                    <li><button onclick="togglePrivacyModal()"
+                            class="hover:text-indigo-400 transition-colors text-left">Aviso de Privacidad</button></li>
+                    <li><button onclick="toggleReturnsModal()"
+                            class="hover:text-indigo-400 transition-colors text-left">Política de Garantía</button></li>
+                </ul>
+            </div>
+        </div>
+
+        <div
+            class="max-w-7xl mx-auto pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">© 2026 Pandishú Technology.</p>
+            <p class="text-slate-700 text-[10px] uppercase">Designed in CDMX</p>
+        </div>
+    </footer>
+
+    <!-- FAB WHATSAPP (Premium Redesign) -->
+    <a href="https://wa.me/525662580512" target="_blank" class="fixed bottom-8 right-8 z-50 group">
+        <!-- Pulse Effect -->
+        <span class="absolute inset-0 rounded-full bg-green-500 opacity-20 animate-ping"></span>
+        <span class="absolute inset-0 rounded-full bg-green-400 opacity-10 animate-pulse delay-75"></span>
+
+        <div
+            class="relative flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-green-500/30 p-2 pr-6 rounded-full shadow-[0_0_30px_rgba(37,211,102,0.3)] hover:shadow-[0_0_50px_rgba(37,211,102,0.5)] transition-all duration-300 group-hover:-translate-y-1">
+            <div
+                class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                <i data-lucide="message-circle" class="w-6 h-6 text-white fill-current"></i>
+            </div>
+            <div class="flex flex-col">
+                <span
+                    class="text-[10px] text-green-400 font-bold uppercase tracking-wider leading-none mb-0.5">Online</span>
+                <span class="text-white font-bold text-sm leading-none">Chat Venta</span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Modals (Hidden by default) -->
+    <div id="review-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-950/80">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-8 relative shadow-2xl">
+            <button onclick="toggleReviewModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i
+                    data-lucide="x"></i></button>
+            <h3 class="text-2xl font-black text-white mb-6 uppercase">Tu Opinión</h3>
+            <form onsubmit="sendReview(event)" class="space-y-4">
+                <div class="flex gap-2 justify-center mb-6">
+                    <!-- Stars handled by JS -->
+                    <div id="star-input" class="flex gap-2">
+                        <span class="star text-3xl" onclick="setRating(1)">★</span>
+                        <span class="star text-3xl" onclick="setRating(2)">★</span>
+                        <span class="star text-3xl" onclick="setRating(3)">★</span>
+                        <span class="star text-3xl" onclick="setRating(4)">★</span>
+                        <span class="star text-3xl" onclick="setRating(5)">★</span>
+                    </div>
+                </div>
+                <input type="text" id="review-name" placeholder="Tu Nombre"
+                    class="w-full bg-slate-800 border-none rounded-xl p-4 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500">
+                <textarea id="review-comment" rows="3" placeholder="Cuéntanos tu experiencia"
+                    class="w-full bg-slate-800 border-none rounded-xl p-4 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"></textarea>
+                <button type="submit"
+                    class="btn-premium w-full py-4 rounded-xl text-white font-bold uppercase tracking-wider">Enviar
+                    Reseña</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidad -->
+    <script>
+        lucide.createIcons();
+
+        // Modal Logic
+        function togglePrivacyModal() { alert("El Aviso de Privacidad completo se abriría aquí."); }
+        function toggleReturnsModal() { alert("La Política de Devoluciones completa se abriría aquí."); }
+
+        function toggleReviewModal() {
+            const modal = document.getElementById('review-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        let currentRating = 5;
+        function setRating(n) {
+            currentRating = n;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((s, i) => {
+                if (i < n) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        // Init rating
+        setRating(5);
+
+        function sendReview(e) {
+            e.preventDefault();
+            const name = document.getElementById('review-name').value;
+            const comment = document.getElementById('review-comment').value;
+            const stars = "⭐".repeat(currentRating);
+            const msg = `Hola Pandishú, quiero dejar una reseña:%0AName: ${name}%0ARating: ${stars}%0AComment: ${comment}`;
+            window.open(`https://wa.me/525662580512?text=${msg}`, '_blank');
+            toggleReviewModal();
+        }
+    </script>
+</body>
+
+</html>
