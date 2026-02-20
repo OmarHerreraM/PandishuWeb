@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consultoría Estratégica en Capital Humano. Lic. Eduardo Ulises Mejía Dueñas.">
+    <title>Eduardo Ulises Mejía Dueñas | Executive HR Consultant</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Plus Jakarta Sans (Modern) & Playfair Display (Luxury Serif) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Configuración personalizada de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            black: '#0a0a0a',
+                            navy: '#0f172a',
+                            gold: '#d4af37',
+                            goldlight: '#f3e5ab',
+                            darkglass: 'rgba(15, 23, 42, 0.6)',
+                            lightglass: 'rgba(255, 255, 255, 0.03)',
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'hero-pattern': "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'fade-in': 'fadeIn 1.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #020617;
+            color: #e2e8f0;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.4) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border-color: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Text Gradients */
+        .text-gradient-gold {
+            background: linear-gradient(to right, #d4af37, #f3e5ab);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-brand-gold selection:text-brand-navy">
+
+    <!-- Navbar Glass -->
+    <nav class="fixed w-full z-50 transition-all duration-300 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="glass-panel rounded-2xl px-6 py-3 flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex flex-col cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <h1
+                        class="text-xl font-serif font-bold text-white tracking-widest leading-none group-hover:text-brand-gold transition-colors">
+                        EDUARDO MEJÍA</h1>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1">HR Strategy</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#experiencia"
+                        class="text-xs font-medium text-slate-300 hover:text-white uppercase tracking-widest transition-colors relative group">
+                        Experiencia
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#servicios"
+                        class="text-xs font-medium text-slate-300 hover:text-white uppercase tracking-widest transition-colors relative group">
+                        Expertise
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#sobre-mi"
+                        class="text-xs font-medium text-slate-300 hover:text-white uppercase tracking-widest transition-colors relative group">
+                        Perfil
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#contacto"
+                        class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all hover:scale-105 backdrop-blur-sm">
+                        Contacto
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-24 left-6 right-6 z-40">
+            <div class="glass-panel rounded-2xl p-6 space-y-4 flex flex-col items-center">
+                <a href="#experiencia" class="text-white text-sm font-medium uppercase tracking-widest">Experiencia</a>
+                <a href="#servicios" class="text-white text-sm font-medium uppercase tracking-widest">Expertise</a>
+                <a href="#sobre-mi" class="text-white text-sm font-medium uppercase tracking-widest">Perfil</a>
+                <a href="#contacto" class="text-brand-gold text-sm font-bold uppercase tracking-widest">Contacto</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 bg-hero-pattern bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-navy/90 via-brand-navy/80 to-[#020617]"></div>
+        <div class="absolute inset-0 bg-grid-pattern opacity-20"></div>
+
+        <div class="relative max-w-7xl mx-auto px-6 w-full pt-20">
+            <div class="border-l border-brand-gold/30 pl-8 md:pl-12 py-8 animate-fade-in-up">
+                <div
+                    class="inline-block px-3 py-1 mb-6 border border-brand-gold/30 rounded-full bg-brand-gold/10 backdrop-blur-md">
+                    <p class="text-brand-gold font-bold tracking-[0.2em] uppercase text-[10px]">Capital Humano de Alto
+                        Nivel</p>
+                </div>
+                <h1
+                    class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white leading-tight mb-8 drop-shadow-2xl">
+                    Estrategia, <br />
+                    <span class="text-gradient-gold italic pr-4">Personas</span> <br />
+                    & Resultados.
+                </h1>
+                <p
+                    class="text-lg md:text-xl text-slate-400 mb-10 font-light leading-relaxed max-w-2xl border-l-4 border-slate-700 pl-6">
+                    Ingeniería de cultura organizacional para empresas que demandan transformación real.
+                    Alineación directiva con objetivos financieros.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6">
+                    <a href="#contacto"
+                        class="group relative px-8 py-4 bg-brand-gold text-brand-navy font-bold uppercase tracking-widest text-xs overflow-hidden rounded-lg transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                        <span class="relative z-10 flex items-center gap-2">Agendar Consultoría <i
+                                data-lucide="arrow-right"
+                                class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i></span>
+                    </a>
+                    <a href="#experiencia"
+                        class="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-white/10 hover:border-white/40 transition-all backdrop-blur-sm">
+                        Ver Trayectoria
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="text-slate-500 w-6 h-6"></i>
+        </div>
+    </section>
+
+    <!-- Brands Section -->
+    <div class="bg-[#020617] py-16 border-y border-white/5 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <p class="text-center text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-12">Trayectoria en
+                Corporaciones Globales</p>
+            <div
+                class="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-700 reveal">
+                <span
+                    class="text-2xl font-black text-slate-400 tracking-tighter hover:text-white transition-colors cursor-default">WALMART</span>
+                <span
+                    class="text-2xl font-black text-slate-400 tracking-tighter hover:text-white transition-colors cursor-default">STARBUCKS</span>
+                <span
+                    class="text-2xl font-black text-slate-400 tracking-tighter hover:text-white transition-colors cursor-default">FEMSA</span>
+                <span
+                    class="text-2xl font-black text-slate-400 tracking-tighter hover:text-white transition-colors cursor-default">BODEGA
+                    AURRERA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="sobre-mi" class="py-32 relative overflow-hidden">
+        <!-- Decoration -->
+        <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-gold/5 blur-[120px] rounded-full pointing-events-none">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+
+                <!-- Image -->
+                <div class="relative group reveal">
+                    <div
+                        class="absolute -inset-4 bg-gradient-to-r from-brand-gold to-brand-navy opacity-30 blur-lg rounded-2xl group-hover:opacity-50 transition duration-1000">
+                    </div>
+                    <div class="relative rounded-2xl overflow-hidden glass-panel border-0">
+                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80"
+                            alt="Eduardo Mejía"
+                            class="w-full h-auto object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#020617] to-transparent opacity-60"></div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="reveal">
+                    <span class="text-brand-gold text-xs font-bold uppercase tracking-widest mb-4 block">Perfil
+                        Profesional</span>
+                    <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-8 leading-tight">
+                        La Psicología del Trabajo <br />
+                        <span class="text-slate-500 italic text-3xl">como pilar de rentabilidad.</span>
+                    </h2>
+
+                    <div class="space-y-6 text-slate-400 leading-relaxed font-light text-lg">
+                        <p>
+                            Más de <span class="text-white font-semibold">15 años de alta dirección</span>. Mi enfoque
+                            no es la gestión administrativa de RRHH, sino la <strong
+                                class="text-brand-gold font-normal">ingeniería de la cultura organizacional</strong>
+                            para maximizar el desempeño financiero.
+                        </p>
+                        <p>
+                            Liderando estrategias para gigantes como <strong>Walmart</strong> y
+                            <strong>Starbucks</strong>, aprendí que la agilidad y la alineación cultural son imperativos
+                            de supervivencia.
+                        </p>
+                    </div>
+
+                    <div class="mt-12 grid grid-cols-2 gap-6">
+                        <div class="glass-card p-6 rounded-xl text-center">
+                            <span class="block text-4xl font-serif font-bold text-brand-gold mb-1">15+</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Años de
+                                Experiencia</span>
+                        </div>
+                        <div class="glass-card p-6 rounded-xl text-center">
+                            <span class="block text-4xl font-serif font-bold text-brand-gold mb-1">COE</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Centros de
+                                Excelencia</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servicios" class="py-32 bg-[#050b1d] relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-20 text-center reveal">
+                <h2 class="text-4xl font-serif font-bold text-white mb-4">Soluciones Corporativas</h2>
+                <div
+                    class="w-24 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto opacity-50">
+                </div>
+                <p class="text-slate-400 mt-6 max-w-2xl mx-auto font-light">Intervenciones estratégicas para rediseñar
+                    estructuras y potenciar el liderazgo directivo.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Servicio 1 -->
+                <div class="glass-card p-8 rounded-2xl group reveal">
+                    <div
+                        class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-gold/20 transition-colors">
+                        <i data-lucide="compass" class="w-6 h-6 text-brand-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 uppercase tracking-wide">Transformación Agile</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Rediseño de estructuras jerárquicas hacia modelos flexibles y células de trabajo autónomas.
+                    </p>
+                </div>
+
+                <!-- Servicio 2 -->
+                <div class="glass-card p-8 rounded-2xl group reveal" style="transition-delay: 100ms;">
+                    <div
+                        class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-gold/20 transition-colors">
+                        <i data-lucide="bar-chart-2" class="w-6 h-6 text-brand-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 uppercase tracking-wide">HR Business Partner</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Evolución del rol de RRHH: de administrativo a socio estratégico alineado al P&L.
+                    </p>
+                </div>
+
+                <!-- Servicio 3 -->
+                <div class="glass-card p-8 rounded-2xl group reveal" style="transition-delay: 200ms;">
+                    <div
+                        class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-gold/20 transition-colors">
+                        <i data-lucide="users" class="w-6 h-6 text-brand-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 uppercase tracking-wide">Gestión de Talento</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Sistemas de evaluación 360°, calibración de talento (9Box) y planes de sucesión directiva.
+                    </p>
+                </div>
+
+                <!-- Servicio 4 -->
+                <div class="glass-card p-8 rounded-2xl group reveal" style="transition-delay: 300ms;">
+                    <div
+                        class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-gold/20 transition-colors">
+                        <i data-lucide="crosshair" class="w-6 h-6 text-brand-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 uppercase tracking-wide">Headhunting</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Búsqueda confidencial y estratégica de perfiles C-Level y mandos medios especializados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Timeline -->
+    <section id="experiencia" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col lg:flex-row gap-20">
+
+                <div class="lg:w-1/3 reveal">
+                    <h2 class="text-4xl font-serif font-bold text-white mb-6">Trayectoria</h2>
+                    <p class="text-slate-400 font-light mb-8">
+                        Gestión de operaciones complejas en entornos multinacionales. Resultados probados en escala
+                        masiva.
+                    </p>
+                    <a href="https://www.linkedin.com/in/eduardo-ulises-mej%C3%ADa-due%C3%B1as-b7ba67157/"
+                        target="_blank"
+                        class="inline-flex items-center text-brand-gold font-bold uppercase text-xs tracking-widest hover:text-white transition gap-2">
+                        <span>Ver LinkedIn</span> <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <div class="lg:w-2/3 border-l border-white/10 pl-8 md:pl-16 space-y-16 reveal">
+                    <!-- Item 1 -->
+                    <div class="relative group">
+                        <span
+                            class="absolute -left-[41px] md:-left-[73px] top-2 w-4 h-4 bg-[#020617] border-2 border-brand-gold rounded-full group-hover:bg-brand-gold transition-colors shadow-[0_0_10px_rgba(212,175,55,0.5)]"></span>
+                        <h4 class="text-brand-gold font-bold text-[10px] uppercase tracking-widest mb-2">Retail & Gran
+                            Consumo</h4>
+                        <h3 class="text-2xl font-serif font-bold text-white">Walmart México y CAM</h3>
+                        <p class="text-sm font-semibold text-slate-500 mb-4">Director de RRHH - Bodega Aurrera</p>
+                        <p class="text-slate-400 font-light leading-relaxed text-sm">
+                            Liderazgo integral de la estrategia de capital humano para el formato más grande de la
+                            cadena. Enfoque en eficiencia operativa y cultura de servicio.
+                        </p>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="relative group">
+                        <span
+                            class="absolute -left-[41px] md:-left-[73px] top-2 w-4 h-4 bg-[#020617] border-2 border-brand-gold rounded-full group-hover:bg-brand-gold transition-colors"></span>
+                        <h4 class="text-brand-gold font-bold text-[10px] uppercase tracking-widest mb-2">Bebidas &
+                            Comercio</h4>
+                        <h3 class="text-2xl font-serif font-bold text-white">FEMSA</h3>
+                        <p class="text-sm font-semibold text-slate-500 mb-4">Gestión de Talento y Desarrollo</p>
+                        <p class="text-slate-400 font-light leading-relaxed text-sm">
+                            Diseño de modelos de competencias y planes de carrera. Consolidación de estructuras
+                            organizacionales para expansión.
+                        </p>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="relative group">
+                        <span
+                            class="absolute -left-[41px] md:-left-[73px] top-2 w-4 h-4 bg-[#020617] border-2 border-brand-gold rounded-full group-hover:bg-brand-gold transition-colors"></span>
+                        <h4 class="text-brand-gold font-bold text-[10px] uppercase tracking-widest mb-2">Hospitalidad
+                        </h4>
+                        <h3 class="text-2xl font-serif font-bold text-white">Starbucks</h3>
+                        <p class="text-sm font-semibold text-slate-500 mb-4">Partner Resources</p>
+                        <p class="text-slate-400 font-light leading-relaxed text-sm">
+                            Gestión de Partner Experience y alineación cultural en una de las marcas con mayor
+                            engagement del mercado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacto -->
+    <section id="contacto" class="py-24 relative overflow-hidden bg-[#0a0f1e]">
+        <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+                <div class="reveal">
+                    <h2 class="text-4xl font-serif font-bold text-white mb-6">Inicie la conversación.</h2>
+                    <p class="text-slate-400 font-light text-lg mb-12 max-w-md">
+                        Discutamos cómo una estrategia de capital humano alineada puede transformar los resultados de su
+                        organización.
+                    </p>
+
+                    <div class="space-y-8">
+                        <div class="flex items-center group">
+                            <div
+                                class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mr-6 group-hover:border border-brand-gold/30 transition-all">
+                                <i data-lucide="mail" class="w-5 h-5 text-brand-gold"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Email</p>
+                                <a href="mailto:contacto@eduardomejia.com"
+                                    class="text-white text-lg hover:text-brand-gold transition">contacto@eduardomejia.com</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center group">
+                            <div
+                                class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mr-6 group-hover:border border-brand-gold/30 transition-all">
+                                <i data-lucide="linkedin" class="w-5 h-5 text-brand-gold"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">LinkedIn</p>
+                                <a href="https://www.linkedin.com/in/eduardo-ulises-mej%C3%ADa-due%C3%B1as-b7ba67157/"
+                                    target="_blank" class="text-white text-lg hover:text-brand-gold transition">Ver
+                                    Perfil Completo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-10 rounded-3xl border border-white/5 reveal" style="transition-delay: 200ms;">
+                    <form onsubmit="event.preventDefault(); alert('Mensaje enviado con éxito.');" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="group">
+                                <label
+                                    class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 group-focus-within:text-brand-gold transition-colors">Nombre</label>
+                                <input type="text"
+                                    class="w-full bg-white/5 border border-white/10 rounded-lg text-white px-4 py-3 focus:outline-none focus:border-brand-gold/50 focus:bg-white/10 transition-all"
+                                    placeholder="Su nombre">
+                            </div>
+                            <div class="group">
+                                <label
+                                    class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 group-focus-within:text-brand-gold transition-colors">Empresa</label>
+                                <input type="text"
+                                    class="w-full bg-white/5 border border-white/10 rounded-lg text-white px-4 py-3 focus:outline-none focus:border-brand-gold/50 focus:bg-white/10 transition-all"
+                                    placeholder="Compañía">
+                            </div>
+                        </div>
+                        <div class="group">
+                            <label
+                                class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 group-focus-within:text-brand-gold transition-colors">Email
+                                Corporativo</label>
+                            <input type="email"
+                                class="w-full bg-white/5 border border-white/10 rounded-lg text-white px-4 py-3 focus:outline-none focus:border-brand-gold/50 focus:bg-white/10 transition-all"
+                                placeholder="email@empresa.com">
+                        </div>
+                        <div class="group">
+                            <label
+                                class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 group-focus-within:text-brand-gold transition-colors">Consulta</label>
+                            <textarea rows="4"
+                                class="w-full bg-white/5 border border-white/10 rounded-lg text-white px-4 py-3 focus:outline-none focus:border-brand-gold/50 focus:bg-white/10 transition-all resize-none"
+                                placeholder="¿Cómo podemos colaborar?"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 bg-gradient-to-r from-brand-gold to-[#b49b67] text-brand-navy font-bold uppercase tracking-widest text-xs rounded-lg hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all transform hover:-translate-y-1">
+                            Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 text-center md:text-left">
+        <div
+            class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-slate-600 text-[10px] tracking-widest uppercase">
+            <div class="mb-4 md:mb-0">
+                &copy; 2026 Eduardo Mejía Dueñas. Todos los derechos reservados.
+            </div>
+            <div class="flex space-x-8">
+                <a href="#" class="hover:text-brand-gold transition">Aviso de Privacidad</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Navbar Transition
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('py-2', 'backdrop-blur-md');
+                nav.classList.remove('py-4');
+            } else {
+                nav.classList.remove('py-2', 'backdrop-blur-md');
+                nav.classList.add('py-4');
+            }
+        });
+
+        // Reveal on Scroll
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); // Trigger once on load
+    </script>
+</body>
+
+</html>
