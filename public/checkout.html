@@ -365,8 +365,6 @@
             lucide.createIcons();
 
             try {
-                /*
-                // AQUI IRÁ LA CONEXIÓN A LA CLOUD FUNCTION QUE CREA LA SESIÓN DE STRIPE / MERCADOPAGO
                 const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/createCheckoutSession', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -375,28 +373,22 @@
                         customer: customerData
                     })
                 });
-                
+
                 const data = await response.json();
-                
-                if(data.url) {
-                    // Redirigir al cliente a Stripe
+
+                if (data.url) {
+                    // Redirigir al cliente de forma segura a Stripe
                     window.location.href = data.url;
                 } else {
-                    alert('Error al iniciar el pago. Intenta nuevamente.');
-                }
-                */
-
-                // Temporalmente, simulamos la respuesta de éxito
-                setTimeout(() => {
-                    alert(`¡Perfecto!\n\nEn un entorno real (Stripe/Mercado Pago conectado), aquí serás redirigido a la pasarela bancaria oficial para procesar un total de $${orderTotal.toFixed(2)} USD.\n\nTus productos serán enviados por Ingram Dropshipping a: ${customerData.address.street}.`);
+                    alert('Error al iniciar el pago. ' + (data.error || 'Intenta nuevamente.'));
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Continuar al Pago Seguro <i data-lucide="arrow-right" class="w-5 h-5"></i>';
                     lucide.createIcons();
-                }, 2000);
+                }
 
             } catch (e) {
                 console.error(e);
-                alert("Ocurrió un error de conexión.");
+                alert("Ocurrió un error de conexión con el banco. Intenta nuevamente.");
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Continuar al Pago Seguro <i data-lucide="arrow-right" class="w-5 h-5"></i>';
                 lucide.createIcons();

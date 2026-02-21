@@ -1,0 +1,17 @@
+{
+    "name": "pandishu-ingram-proxy",
+    "description": "Firebase Functions - Ingram Micro API Proxy for Pandishú",
+    "engines": {
+        "node": "22"
+    },
+    "main": "index.js",
+    "dependencies": {
+        "@google-cloud/firestore": "^8.3.0",
+        "cors": "^2.8.5",
+        "firebase-admin": "^12.7.0",
+        "firebase-functions": "^5.0.0",
+        "stripe": "^20.3.1",
+        "xi_sdk_resellers": "^1.0.0"
+    },
+    "private": true
+}
