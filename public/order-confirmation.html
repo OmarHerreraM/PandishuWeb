@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden Confirmada | Pandishú</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-300 min-h-screen flex items-center justify-center p-6">
+    <div class="glass-panel w-full max-w-2xl p-8 md:p-14 rounded-3xl text-center relative overflow-hidden">
+
+        <!-- Glow effects -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/20 blur-[80px] rounded-full">
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center">
+            <div
+                class="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-500/50 flex items-center justify-center mb-8 shadow-lg shadow-emerald-500/20">
+                <i data-lucide="check" class="w-10 h-10 text-emerald-400"></i>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tight mb-4">¡Pago Exitoso!
+            </h1>
+            <p class="text-lg text-slate-400 max-w-lg mb-8">Tu orden ha sido procesada de manera segura. Nuestro sistema
+                está enviando las instrucciones directas a la bodega de <strong class="text-white">Ingram Micro</strong>
+                para su preparación.</p>
+
+            <div
+                class="bg-slate-900/80 border border-white/5 w-full rounded-2xl p-6 text-left mb-10 flex items-start gap-4">
+                <i data-lucide="mail-check" class="w-8 h-8 text-indigo-400 flex-shrink-0 mt-1"></i>
+                <div>
+                    <h3 class="font-bold text-white mb-1">Confirmación por correo</h3>
+                    <p class="text-slate-400 text-sm">Hemos enviado tu nota de compra y el código de seguimiento (una
+                        vez generado por la paquetería) al correo electrónico que proporcionaste durante el checkout.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-4 w-full">
+                <a href="tienda.html"
+                    class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold px-6 py-4 rounded-xl border border-white/10 transition-colors uppercase tracking-widest text-xs">Volver
+                    a la tienda</a>
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-4 rounded-xl shadow-lg transition-colors uppercase tracking-widest text-xs flex justify-center items-center gap-2"><i
+                        data-lucide="headset" class="w-4 h-4"></i> Asistencia</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        // Limpiamos el carrito al confirmar la orden
+        localStorage.removeItem('pandishu_cart');
+    </script>
+</body>
+
+</html>
