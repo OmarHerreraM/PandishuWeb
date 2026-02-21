@@ -1,99 +1,278 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-6VQC13MZ6E');
-</script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Política de Devoluciones | Pandishú</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .gradient-brand { background: linear-gradient(135deg, #1e40af 0%, #312e81 100%); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.4) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 leading-relaxed">
 
-    <!-- Header Simple -->
-    <header class="py-12 gradient-brand text-white text-center">
-        <div class="max-w-4xl mx-auto px-6">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 italic uppercase">Política de Devoluciones</h1>
-            <p class="text-blue-100 font-light italic text-sm">Garantizamos transparencia y confianza en cada compra y servicio.</p>
+<body class="bg-slate-950 text-slate-300 leading-relaxed antialiased">
+
+    <!-- NAVEGACIÓN (Universal) -->
+    <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tech Solutions</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+
+                <!-- Highlighted Tienda Link -->
+                <a href="tienda.html" class="relative group flex items-center gap-2">
+                    <span
+                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
+                    <span
+                        class="relative text-white font-black tracking-widest border border-indigo-500/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i> Tienda
+                    </span>
+                </a>
+
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Agendar
+                </a>
+            </div>
+            <button onclick="toggleMenu()"
+                class="md:hidden text-white p-2 rounded-xl border border-white/10 hover:border-indigo-500/50 transition bg-slate-800/50">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+            <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+            <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+            <a href="tienda.html" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
+            </a>
+            <a href="https://wa.me/525662580512" target="_blank"
+                class="text-green-400 flex items-center gap-2 border-t border-white/10 pt-4 mt-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+            </a>
+        </div>
+    </nav>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.remove('flex');
+                menu.classList.add('hidden');
+            }
+        }
+    </script>
+
+    <!-- Header -->
+    <header class="py-20 relative overflow-hidden bg-slate-900 border-b border-white/5 text-center">
+        <!-- Decoración de fondo -->
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 blur-[100px] pointer-events-none rounded-full">
+        </div>
+
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <div
+                class="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/50 px-4 py-1.5 rounded-full mb-6">
+                <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+                <span class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Información Legal</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4 italic uppercase text-white">Política de
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Garantía</span>
+            </h1>
+            <p class="text-slate-400 font-light text-lg">Garantizamos transparencia y confianza en cada compra y
+                servicio de Pandishú.</p>
         </div>
     </header>
 
     <!-- Contenido -->
     <main class="max-w-4xl mx-auto py-16 px-6">
-        <div class="bg-white rounded-[40px] shadow-xl p-8 md:p-16 border border-slate-100">
-            
-            <div class="space-y-12">
+        <div class="glass-panel rounded-3xl p-8 md:p-14 mb-16 relative">
+
+            <div class="space-y-12 relative z-10">
                 <!-- Sección 1 -->
                 <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic font-bold">01</span>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">01</span>
                         Hardware y Equipos
                     </h2>
-                    <p class="mb-4 text-slate-600">Para equipos como **Deco WiFi Mesh** y **Cámaras de Seguridad**, ofrecemos un periodo de devolución de **30 días naturales** a partir de la entrega.</p>
-                    <ul class="space-y-3">
-                        <li class="flex items-start"><span class="text-green-600 mr-2 font-bold">✓</span> El equipo debe estar sellado y en su empaque original sin daños.</li>
-                        <li class="flex items-start"><span class="text-green-600 mr-2 font-bold">✓</span> Debe incluir todos los accesorios, manuales y pólizas de garantía.</li>
-                    </ul>
-                </section>
-
-                <!-- Sección 2 -->
-                <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic font-bold">02</span>
-                        Servicios de Instalación
-                    </h2>
-                    <p class="text-slate-600">La mano de obra por servicios de instalación y configuración técnica **no es reembolsable** una vez ejecutado el servicio en sitio. Sin embargo, todas nuestras instalaciones cuentan con **30 días de garantía técnica** para asegurar la optimización del sistema.</p>
-                </section>
-
-                <!-- Sección 3 -->
-                <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic font-bold">03</span>
-                        Proceso de Reembolso
-                    </h2>
-                    <p class="mb-4 text-slate-600">Una vez recibido y verificado el estado del equipo, el reembolso se procesará en un plazo de **5 a 10 días hábiles** a la cuenta de origen del pago (Banamex o Mercado Pago).</p>
-                </section>
-
-                <!-- Sección 4 -->
-                <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic font-bold">04</span>
-                        Contacto para Devoluciones
-                    </h2>
-                    <p>Para iniciar una solicitud, favor de contactar por los siguientes medios oficiales:</p>
-                    <div class="mt-4 space-y-2">
-                        <div class="bg-indigo-50 p-4 rounded-2xl inline-block border border-indigo-100 font-bold text-indigo-900 mr-4">
-                            pandipandishu@gmail.com
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-2xl inline-block border border-green-100 font-bold text-green-900">
-                            WhatsApp: 56 6258 0512
+                    <div class="pl-14">
+                        <p class="mb-6 text-slate-400">Para equipos como <strong class="text-slate-300 font-bold">Deco
+                                WiFi Mesh</strong> y <strong class="text-slate-300 font-bold">Cámaras de
+                                Seguridad</strong>, ofrecemos un periodo de devolución de <strong
+                                class="text-emerald-400">30 días naturales</strong> a partir de la entrega.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="package-check" class="text-emerald-500 w-6 h-6 mr-4 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">El equipo debe estar sellado y en su empaque original
+                                    sin daños físicos, golpes o rastros de humedad.</span>
+                            </div>
+                            <div class="flex items-start bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="book-open-check"
+                                    class="text-emerald-500 w-6 h-6 mr-4 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">Debe incluir absolutamente todos los accesorios
+                                    originales, manuales y pólizas de garantía de fábrica.</span>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Pie de página del documento -->
-                <footer class="pt-12 border-t border-slate-100 text-center">
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-6">Última actualización: Enero 2026</p>
-                    <a href="index.html" class="text-indigo-600 font-bold hover:underline italic">← Volver a Pandishú</a>
-                </footer>
+                <div class="h-px bg-white/5 w-full"></div>
+
+                <!-- Sección 2 -->
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">02</span>
+                        Servicios de Instalación
+                    </h2>
+                    <div class="pl-14">
+                        <p class="text-slate-400 leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/5">La
+                            mano de obra por servicios de instalación y configuración técnica <strong
+                                class="text-rose-400">no es reembolsable</strong> una vez ejecutado el servicio en
+                            sitio. Sin embargo, todas nuestras instalaciones cuentan con <strong
+                                class="text-emerald-400">30 días de garantía técnica</strong> (cobertura en mano de
+                            obra) para asegurar la optimización y funcionamiento correcto del sistema desplegado.</p>
+                    </div>
+                </section>
+
+                <div class="h-px bg-white/5 w-full"></div>
+
+                <!-- Sección 3 -->
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">03</span>
+                        Proceso de Reembolso
+                    </h2>
+                    <div class="pl-14">
+                        <p class="text-slate-400">Una vez recibido y verificado el estado del equipo por nuestro
+                            departamento técnico, el reembolso se procesará en un plazo de <strong class="text-white">5
+                                a 10 días hábiles</strong> directamente a la cuenta de origen del pago (Banamex, Mercado
+                            Pago, o transferencia CLABE asociada).</p>
+                    </div>
+                </section>
+
+                <div class="h-px bg-white/5 w-full"></div>
+
+                <!-- Sección 4 -->
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">04</span>
+                        Contacto para devoluciones
+                    </h2>
+                    <div class="pl-14">
+                        <p class="mb-6 text-slate-400">Para iniciar una solicitud de garantía o devolución, favor de
+                            contactar por los siguientes medios oficiales y tener a la mano tu comprobante de compra o
+                            número de orden:</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="mailto:pandipandishu@gmail.com"
+                                class="flex-1 bg-white/5 hover:bg-white/10 p-5 rounded-2xl border border-white/10 flex items-center gap-4 transition-all group">
+                                <div
+                                    class="bg-indigo-500/20 p-3 rounded-xl group-hover:bg-indigo-500/40 transition-colors">
+                                    <i data-lucide="mail" class="w-6 h-6 text-indigo-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">
+                                        Correo Electrónico</p>
+                                    <p class="text-slate-300 font-bold break-all text-sm">pandipandishu@gmail.com</p>
+                                </div>
+                            </a>
+                            <a href="https://wa.me/525662580512" target="_blank"
+                                class="flex-1 bg-white/5 hover:bg-emerald-500/10 p-5 rounded-2xl border border-white/10 hover:border-emerald-500/30 flex items-center gap-4 transition-all group">
+                                <div
+                                    class="bg-emerald-500/20 p-3 rounded-xl group-hover:bg-emerald-500/40 transition-colors">
+                                    <i data-lucide="message-circle" class="w-6 h-6 text-emerald-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">
+                                        WhatsApp Soporte</p>
+                                    <p class="text-emerald-400 font-bold text-sm">56 6258 0512</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
+        <p class="text-center text-xs text-slate-500 font-medium tracking-widest uppercase mb-12">Última actualización:
+            Enero 2026</p>
     </main>
+
+    <!-- Footer Simple -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-900">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Legal</p>
+        <div class="flex flex-wrap justify-center gap-4 text-slate-400 text-xs">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <span>•</span>
+            <a href="https://wa.me/525662580512" class="hover:text-white transition-colors">Soporte</a>
+            <span>•</span>
+            <a href="privacidad.html" class="hover:text-white transition-colors">Privacidad</a>
+            <span>•</span>
+            <span class="text-indigo-400 border-b border-indigo-400/50 pb-0.5">Garantía / Devoluciones</span>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
+
 </html>

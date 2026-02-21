@@ -1,125 +1,313 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-6VQC13MZ6E');
-</script>
-
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviso de Privacidad | Pandishú</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .gradient-brand { background: linear-gradient(135deg, #1e40af 0%, #312e81 100%); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.4) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 leading-relaxed">
 
-    <!-- Header Simple -->
-    <header class="py-12 gradient-brand text-white text-center">
-        <div class="max-w-4xl mx-auto px-6">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 italic uppercase">Aviso de Privacidad</h1>
-            <p class="text-blue-100 font-light italic">Tu confianza y la seguridad de tus datos son nuestra prioridad.</p>
+<body class="bg-slate-950 text-slate-300 leading-relaxed antialiased">
+
+    <!-- NAVEGACIÓN (Universal) -->
+    <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tech Solutions</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+
+                <!-- Highlighted Tienda Link -->
+                <a href="tienda.html" class="relative group flex items-center gap-2">
+                    <span
+                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
+                    <span
+                        class="relative text-white font-black tracking-widest border border-indigo-500/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i> Tienda
+                    </span>
+                </a>
+
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Agendar
+                </a>
+            </div>
+            <button onclick="toggleMenu()"
+                class="md:hidden text-white p-2 rounded-xl border border-white/10 hover:border-indigo-500/50 transition bg-slate-800/50">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+            <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+            <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+            <a href="tienda.html" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
+            </a>
+            <a href="https://wa.me/525662580512" target="_blank"
+                class="text-green-400 flex items-center gap-2 border-t border-white/10 pt-4 mt-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+            </a>
+        </div>
+    </nav>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.remove('flex');
+                menu.classList.add('hidden');
+            }
+        }
+    </script>
+
+    <!-- Header -->
+    <header class="py-20 relative overflow-hidden bg-slate-900 border-b border-white/5 text-center">
+        <!-- Decoración de fondo -->
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 blur-[100px] pointer-events-none rounded-full">
+        </div>
+
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <div
+                class="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/50 px-4 py-1.5 rounded-full mb-6">
+                <i data-lucide="lock" class="w-4 h-4 text-indigo-400"></i>
+                <span class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Legal</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4 italic uppercase text-white">Aviso de <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Privacidad</span>
+            </h1>
+            <p class="text-slate-400 font-light text-lg">Tu confianza y la seguridad de tus datos son nuestra máxima
+                prioridad.</p>
         </div>
     </header>
 
     <!-- Contenido -->
     <main class="max-w-4xl mx-auto py-16 px-6">
-        <div class="bg-white rounded-[40px] shadow-xl p-8 md:p-16 border border-slate-100">
-            
-            <div class="space-y-12">
+        <div class="glass-panel rounded-3xl p-8 md:p-14 mb-16 relative">
+
+            <div class="space-y-12 relative z-10">
                 <!-- Sección 1 -->
                 <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic">01</span>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">01</span>
                         Responsable de la Protección
                     </h2>
-                    <p class="text-slate-600">Para efectos del presente aviso, el responsable del tratamiento de sus datos es <strong>Pandishú</strong>, con operación en la Ciudad de México (CDMX) y gestión a través de sus medios de contacto oficiales.</p>
+                    <div class="pl-14">
+                        <p class="text-slate-400">Para efectos del presente aviso, el responsable del tratamiento y la
+                            confidencialidad de sus datos es <strong class="text-white">Pandishú Tech
+                                Solutions</strong>, con operación centralizada en la Ciudad de México (CDMX) y gestión a
+                            través de todos nuestros canales y medios de contacto oficiales.</p>
+                    </div>
                 </section>
+
+                <div class="h-px bg-white/5 w-full"></div>
 
                 <!-- Sección 2 -->
                 <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic">02</span>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">02</span>
                         Datos Personales que Recabamos
                     </h2>
-                    <p class="mb-4">Para brindarle nuestros servicios de instalación de redes WiFi Mesh y sistemas de videovigilancia, solicitamos:</p>
-                    <ul class="grid md:grid-cols-2 gap-4">
-                        <li class="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">Nombre del cliente</li>
-                        <li class="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">Teléfono de contacto</li>
-                        <li class="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">Correo electrónico</li>
-                        <li class="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">Dirección del sitio técnico</li>
-                    </ul>
+                    <div class="pl-14">
+                        <p class="mb-6 text-slate-400">Para brindarle nuestros servicios profesionales, como la
+                            instalación de redes WiFi Mesh, sistemas de videovigilancia o cotizaciones de hardware,
+                            podemos recabar de usted:</p>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="flex items-center gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="user" class="text-indigo-400 w-5 h-5 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">Nombre completo del cliente</span>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="phone" class="text-indigo-400 w-5 h-5 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">Teléfono de contacto / celular</span>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="at-sign" class="text-indigo-400 w-5 h-5 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">Correo electrónico oficial</span>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <i data-lucide="map-pin" class="text-indigo-400 w-5 h-5 flex-shrink-0"></i>
+                                <span class="text-sm font-medium">Dirección del sitio técnico / envío</span>
+                            </div>
+                        </div>
+                    </div>
                 </section>
+
+                <div class="h-px bg-white/5 w-full"></div>
 
                 <!-- Sección 3 -->
                 <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic">03</span>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">03</span>
                         Finalidad del Uso
                     </h2>
-                    <p class="mb-4">Sus datos serán utilizados exclusivamente para:</p>
-                    <div class="space-y-3">
-                        <div class="flex items-start">
-                            <span class="text-blue-600 mr-2">✓</span>
-                            <span>Programar visitas técnicas e instalaciones.</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="text-blue-600 mr-2">✓</span>
-                            <span>Procesar garantías con proveedores y mayoristas (ej. Ingram Micro).</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="text-blue-600 mr-2">✓</span>
-                            <span>Brindar soporte técnico remoto o presencial.</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="text-blue-600 mr-2">✓</span>
-                            <span>Emisión de comprobantes de pago o facturación.</span>
+                    <div class="pl-14">
+                        <p class="mb-6 text-slate-400">Sus datos personales serán utilizados única y exclusivamente
+                            dentro del marco operativo para las siguientes finalidades primarias:</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-emerald-500/20 p-1 rounded-md mr-4 mt-0.5">
+                                    <i data-lucide="check" class="text-emerald-400 w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Agendar, programar y coordinar visitas técnicas e
+                                    instalaciones físicas.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-emerald-500/20 p-1 rounded-md mr-4 mt-0.5">
+                                    <i data-lucide="check" class="text-emerald-400 w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Procesamiento logístico de garantías con
+                                    proveedores y mayoristas (ej. Ingram Micro) a su nombre.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-emerald-500/20 p-1 rounded-md mr-4 mt-0.5">
+                                    <i data-lucide="check" class="text-emerald-400 w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Proveer seguimiento y soporte técnico de manera
+                                    remota post-instalación.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-emerald-500/20 p-1 rounded-md mr-4 mt-0.5">
+                                    <i data-lucide="check" class="text-emerald-400 w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Facturación fiscal y comprobación de pagos.</span>
+                            </div>
                         </div>
                     </div>
                 </section>
+
+                <div class="h-px bg-white/5 w-full"></div>
 
                 <!-- Sección 4 -->
                 <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic">04</span>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">04</span>
                         Transferencia de Datos
                     </h2>
-                    <p class="text-slate-600 italic">Pandishú no vende ni alquila sus datos personales.</p>
-                    <p class="mt-2">Únicamente se podrán compartir datos con fabricantes (como TP-Link o Ring) o mayoristas cuando sea estrictamente necesario para el registro de garantías o soporte técnico avanzado.</p>
-                </section>
-
-                <!-- Sección 5 -->
-                <section>
-                    <h2 class="text-xl font-extrabold text-indigo-950 mb-4 uppercase tracking-wider flex items-center">
-                        <span class="bg-indigo-900 text-white w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs italic">05</span>
-                        Derechos ARCO
-                    </h2>
-                    <p>Usted tiene derecho a conocer qué datos tenemos, corregirlos o solicitar su eliminación. Para ejercer estos derechos, envíe una solicitud a:</p>
-                    <div class="mt-4 bg-indigo-50 p-4 rounded-2xl inline-block border border-indigo-100 font-bold text-indigo-900">
-                        pandipandishu@gmail.com
+                    <div class="pl-14">
+                        <p class="text-slate-400 bg-white/5 p-6 rounded-2xl border border-white/5"><strong
+                                class="text-indigo-300">Pandishú NO vende, comercia, ni alquila</strong> sus datos
+                            personales a terceros con fines de lucro o marketing invasivo. Únicamente se compartirán
+                            datos muy específicos con cadenas de suministro o fabricantes (como TP-Link, ASUS, Ingram)
+                            cuando sea estrictamente requerido para tramitar licencias y garantías de sus productos a
+                            nivel de canal de distribución.</p>
                     </div>
                 </section>
 
-                <!-- Pie de página del documento -->
-                <footer class="pt-12 border-t border-slate-100 text-center">
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-6">Última actualización: Enero 2026</p>
-                    <a href="index.html" class="text-indigo-600 font-bold hover:underline">← Volver al inicio</a>
-                </footer>
+                <div class="h-px bg-white/5 w-full"></div>
+
+                <!-- Sección 5 -->
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-4">
+                        <span
+                            class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black italic">05</span>
+                        Derechos ARCO
+                    </h2>
+                    <div class="pl-14">
+                        <p class="mb-6 text-slate-400">Usted goza plenamente del derecho a conocer qué datos personales
+                            resguardamos, solicitar su corrección o demandar su eliminación (siempre que la legislación
+                            lo permita). Para ejercer sus derechos, dirija su solicitud a:</p>
+
+                        <div
+                            class="inline-flex bg-white/5 hover:bg-white/10 p-5 rounded-2xl border border-white/10 items-center gap-4 transition-all group">
+                            <div class="bg-indigo-500/20 p-3 rounded-xl group-hover:bg-indigo-500/40 transition-colors">
+                                <i data-lucide="mail" class="w-6 h-6 text-indigo-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Contacto
+                                    Legal</p>
+                                <p class="text-slate-300 font-bold break-all text-sm">pandipandishu@gmail.com</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
             </div>
         </div>
+        <p class="text-center text-xs text-slate-500 font-medium tracking-widest uppercase mb-12">Última actualización:
+            Febrero 2026</p>
     </main>
+
+    <!-- Footer Simple -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-900">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Legal</p>
+        <div class="flex flex-wrap justify-center gap-4 text-slate-400 text-xs">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <span>•</span>
+            <a href="https://wa.me/525662580512" class="hover:text-white transition-colors">Soporte</a>
+            <span>•</span>
+            <span class="text-indigo-400 border-b border-indigo-400/50 pb-0.5">Privacidad</span>
+            <span>•</span>
+            <a href="devoluciones.html" class="hover:text-white transition-colors">Garantía / Devoluciones</a>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
+
 </html>
