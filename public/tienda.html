@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6VQC13MZ6E');
+    </script>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Tech | Pandishú — Catálogo con precios en tiempo real</title>
+    <meta name="description"
+        content="Compra routers, switches, cámaras, laptops y más con precios reales de Ingram Micro. Cotiza al momento por WhatsApp.">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 950: '#020617' },
+                        brand: { purple: '#7c3aed', blue: '#2563eb', cyan: '#0891b2', dark: '#0f172a' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Search */
+        .search-glow:focus-within {
+            box-shadow: 0 0 0 2px var(--accent), 0 0 40px var(--accent-glow);
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Vendor badge */
+        .vendor-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+        }
+
+        /* Availability dot */
+        .dot-green {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        .dot-yellow {
+            background: #eab308;
+            box-shadow: 0 0 8px #eab308;
+        }
+
+        .dot-red {
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
+
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.6) 50%, rgba(30, 41, 59, 0.8) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 12px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Filter chip */
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #a5b4fc;
+        }
+
+        /* WhatsApp btn */
+        .btn-wa {
+            background: linear-gradient(135deg, #25d366, #128c52);
+            border-radius: 12px;
+            transition: all 0.25s;
+        }
+
+        .btn-wa:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+        }
+
+        /* Price tag */
+        .price-tag {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 10px;
+            padding: 8px 14px;
+        }
+
+        /* Hero gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* DEMO banner */
+        .demo-banner {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+        }
+
+        /* Scroll custom */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            display: none;
+        }
+
+        #mobile-menu.open {
+            display: block;
+        }
+
+        /* modal */
+        #modal-backdrop.show {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen">
+
+    <!-- ═══════════════════════════════════════
+         NAVIGATION
+    ═══════════════════════════════════════ -->
+    <nav class="sticky top-0 w-full z-50 glass-nav py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tienda Tech</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
+                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+                <span class="text-indigo-400 border-b-2 border-indigo-500 pb-1">Tienda</span>
+                <a href="https://wa.me/525662580512" target="_blank"
+                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
+                    <i data-lucide="calendar-plus" class="w-4 h-4"></i> Agendar
+                </a>
+            </div>
+            <button onclick="toggleMenu()"
+                class="md:hidden text-white p-2 rounded-xl border border-white/10 hover:border-indigo-500/50 transition">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="md:hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400">
+            <a href="index.html" class="hover:text-white">Inicio</a>
+            <a href="catalogo.html" class="hover:text-white">Catálogo</a>
+            <a href="hardware.html" class="hover:text-white">Hardware PC</a>
+            <a href="mercadolibre.html" class="hover:text-yellow-400">Tienda ML</a>
+            <a href="proyectos.html" class="hover:text-white">Proyectos</a>
+            <a href="https://wa.me/525662580512" target="_blank" class="text-green-400">WhatsApp</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════ -->
+    <header class="relative overflow-hidden py-20 px-6 border-b border-white/5">
+        <!-- Background elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]">
+            </div>
+            <div class="absolute inset-0"
+                style="background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px); background-size: 40px 40px;">
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div
+                class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-5 py-2 text-xs font-bold uppercase tracking-widest text-indigo-400 mb-8">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                Catálogo Ingram Micro • Precios en tiempo real
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black tracking-tight text-white uppercase italic mb-6 leading-none">
+                Tu Tienda<br><span class="gradient-text">Tech Premium</span>
+            </h1>
+            <p class="text-slate-400 text-xl font-light leading-relaxed max-w-2xl mx-auto mb-10">
+                Accede al catálogo completo de <strong class="text-white">Ingram Micro</strong> — routers, switches,
+                cámaras, laptops y más. Precios mayoristas, entrega garantizada.
+            </p>
+
+            <!-- Search Bar -->
+            <div class="relative max-w-2xl mx-auto">
+                <div id="search-container"
+                    class="search-glow flex items-center bg-slate-800/80 border border-white/10 rounded-2xl px-4 py-3 transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0 mr-3"></i>
+                    <input id="search-input" type="text"
+                        placeholder='Busca por nombre, SKU o marca... ej: "Ubiquiti UniFi", "Dell Laptop"'
+                        class="flex-1 bg-transparent text-white placeholder-slate-500 text-sm font-medium outline-none"
+                        onkeydown="if(event.key==='Enter') doSearch()">
+                    <button onclick="doSearch()" id="search-btn"
+                        class="ml-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════
+         DEMO BANNER
+    ═══════════════════════════════════════ -->
+    <div class="max-w-7xl mx-auto px-6 mt-6">
+        <div class="demo-banner flex items-center gap-4 px-5 py-4">
+            <i data-lucide="flask-conical" class="w-5 h-5 text-amber-400 flex-shrink-0"></i>
+            <div>
+                <p class="text-amber-300 text-sm font-bold">Modo Demostración</p>
+                <p class="text-amber-200/60 text-xs">Mostrando productos de ejemplo basados en el catálogo real de
+                    Ingram Micro. La integración en vivo se activará cuando lleguen las credenciales API.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         FILTERS + GRID
+    ═══════════════════════════════════════ -->
+    <main class="max-w-7xl mx-auto px-6 py-10">
+
+        <!-- Filter chips -->
+        <div class="flex flex-wrap items-center gap-3 mb-8">
+            <span class="text-xs text-slate-500 font-bold uppercase tracking-widest mr-2">Filtrar:</span>
+            <button class="filter-chip active" onclick="filterBy('all', this)" id="chip-all">Todos</button>
+            <button class="filter-chip" onclick="filterBy('networking', this)">
+                <span class="mr-1">🌐</span> Networking
+            </button>
+            <button class="filter-chip" onclick="filterBy('security', this)">
+                <span class="mr-1">📷</span> Seguridad
+            </button>
+            <button class="filter-chip" onclick="filterBy('laptop', this)">
+                <span class="mr-1">💻</span> Laptops
+            </button>
+            <button class="filter-chip" onclick="filterBy('server', this)">
+                <span class="mr-1">🖥️</span> Servidores
+            </button>
+            <button class="filter-chip" onclick="filterBy('storage', this)">
+                <span class="mr-1">💾</span> Almacenamiento
+            </button>
+            <button class="filter-chip" onclick="filterBy('printing', this)">
+                <span class="mr-1">🖨️</span> Impresión
+            </button>
+        </div>
+
+        <!-- Results info bar -->
+        <div class="flex items-center justify-between mb-6">
+            <p class="text-slate-400 text-sm font-medium">
+                Mostrando <span id="result-count" class="text-white font-bold">18</span> productos
+                <span id="search-term-display" class="text-indigo-400"></span>
+            </p>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500 uppercase tracking-wider">Ordenar:</span>
+                <select id="sort-select" onchange="sortProducts()"
+                    class="bg-slate-800 border border-white/10 text-slate-300 text-xs rounded-xl px-4 py-2 outline-none cursor-pointer hover:border-indigo-500/50 transition">
+                    <option value="default">Relevancia</option>
+                    <option value="price-asc">Precio: Menor a mayor</option>
+                    <option value="price-desc">Precio: Mayor a menor</option>
+                    <option value="vendor">Marca A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Products rendered by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden py-32 text-center">
+            <div class="text-6xl mb-6">🔍</div>
+            <h3 class="text-2xl font-black text-white uppercase italic mb-3">Sin resultados</h3>
+            <p class="text-slate-400 text-sm">Intenta con otro término de búsqueda</p>
+            <button onclick="resetSearch()"
+                class="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-xl transition uppercase tracking-wider">
+                Ver todos los productos
+            </button>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center gap-3 mt-14">
+            <button
+                class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+            </button>
+            <div class="flex items-center gap-2">
+                <button class="bg-indigo-600 text-white w-10 h-10 rounded-xl text-sm font-bold">1</button>
+                <button
+                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">2</button>
+                <button
+                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">3</button>
+                <span class="text-slate-600 px-2">...</span>
+                <button
+                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">12</button>
+            </div>
+            <button
+                class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════
+         CTA SECTION
+    ═══════════════════════════════════════ -->
+    <section class="bg-slate-900 border-t border-white/5 py-20 px-6 mt-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <div
+                class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-5 py-2 text-xs font-bold uppercase tracking-widest text-green-400 mb-8">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                Garantía Pandishú
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black text-white uppercase italic mb-6">
+                ¿No encontraste lo que buscas?
+            </h2>
+            <p class="text-slate-400 text-lg font-light max-w-2xl mx-auto mb-10">
+                Con acceso completo al catálogo de <strong class="text-white">Ingram Micro</strong>, podemos conseguir
+                prácticamente cualquier producto tech. Escríbenos y cotizamos en minutos.
+            </p>
+            <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA!%20Busco%20un%20producto%20que%20no%20vi%20en%20la%20tienda..."
+                target="_blank"
+                class="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-black text-sm px-10 py-4 rounded-2xl transition-all shadow-lg shadow-green-500/20 hover:shadow-green-500/30 hover:scale-105 uppercase tracking-wider">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                Cotizar por WhatsApp
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════ -->
+    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-950">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú © 2025 • Distribuidor
+            Autorizado Ingram Micro</p>
+        <div class="flex justify-center gap-6 text-xs text-slate-600 font-medium">
+            <a href="index.html" class="hover:text-indigo-400 transition">Inicio</a>
+            <a href="catalogo.html" class="hover:text-indigo-400 transition">Catálogo</a>
+            <a href="proyectos.html" class="hover:text-indigo-400 transition">Proyectos</a>
+            <a href="privacidad.html" class="hover:text-indigo-400 transition">Privacidad</a>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════
+         QUICK QUOTE MODAL
+    ═══════════════════════════════════════ -->
+    <div id="modal-backdrop"
+        class="fixed inset-0 z-[200] hidden bg-slate-950/90 backdrop-blur-xl items-center justify-center p-4"
+        onclick="closeModal(event)">
+        <div class="bg-slate-900 border border-white/10 rounded-3xl max-w-md w-full p-8 relative"
+            onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-500 hover:text-white transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="modal-product-badge" class="vendor-badge inline-block mb-4">—</div>
+            <h3 id="modal-title" class="text-2xl font-black text-white uppercase italic mb-2">Producto</h3>
+            <p id="modal-sku" class="text-xs text-slate-500 font-mono mb-1">SKU: —</p>
+            <p id="modal-vendor-part" class="text-xs text-slate-500 font-mono mb-6">Vendor PN: —</p>
+            <div class="bg-slate-800/60 rounded-2xl p-4 mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-slate-400 text-sm">Tu precio de reventa</span>
+                    <span id="modal-price" class="text-2xl font-black text-indigo-300">$—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-sm">Disponibilidad</span>
+                    <span id="modal-availability" class="text-green-400 text-sm font-bold">—</span>
+                </div>
+            </div>
+            <a id="modal-wa-link" href="#" target="_blank"
+                class="btn-wa flex items-center justify-center gap-3 text-white font-black text-sm w-full py-4 rounded-2xl uppercase tracking-wider">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                Cotizar por WhatsApp
+            </a>
+            <p class="text-center text-slate-600 text-xs mt-4">Respuesta en minutos · Envío incluido en pedidos mayores
+            </p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         JAVASCRIPT
+    ═══════════════════════════════════════ -->
+    <script>
+        lucide.createIcons();
+
+        /* ─── MOCK DATA (Ingram Micro-based) ─── */
+        const MOCK_PRODUCTS = [
+            // Networking
+            { id: 1, sku: 'JL675A', vendorPN: 'JL675A#ABA', name: 'HPE Aruba Instant On 1830 8G Switch', vendor: 'HPE Aruba', category: 'networking', price: 124.50, retailPrice: 169.99, available: true, stock: 'En Stock', stockQty: 142, location: 'Fort Worth, TX', description: 'Switch inteligente 8 puertos GbE, ideal para pequeñas empresas.' },
+            { id: 2, sku: 'UAP-AC-PRO', vendorPN: 'UAP-AC-PRO-US', name: 'Ubiquiti UniFi AP AC Pro', vendor: 'Ubiquiti', category: 'networking', price: 149.00, retailPrice: 189.00, available: true, stock: 'En Stock', stockQty: 87, location: 'Carol Stream, IL', description: 'Access point dual-band 802.11ac, cobertura hasta 900Mbps.' },
+            { id: 3, sku: 'RB4011', vendorPN: 'RB4011iGS+RM', name: 'MikroTik RB4011 Router 10-Port', vendor: 'MikroTik', category: 'networking', price: 189.00, retailPrice: 229.00, available: true, stock: 'En Stock', stockQty: 23, location: 'Mira Loma, CA', description: 'Router 10 puertos GbE, 1 SFP+, ideal para ISPs y empresas.' },
+            { id: 4, sku: 'C9300-24P', vendorPN: 'C9300-24P-A', name: 'Cisco Catalyst 9300 24-Port PoE+', vendor: 'Cisco', category: 'networking', price: 2850.00, retailPrice: 3799.00, available: true, stock: 'En Stock', stockQty: 8, location: 'Fort Worth, TX', description: 'Switch empresarial stackable, 24 puertos PoE+, Cisco DNA ready.' },
+            { id: 5, sku: 'UDMPRO', vendorPN: 'UDM-PRO-US', name: 'Ubiquiti UniFi Dream Machine Pro', vendor: 'Ubiquiti', category: 'networking', price: 379.00, retailPrice: 499.00, available: false, stock: 'Backorder', stockQty: 0, location: 'Jonestown, PA', description: 'Gateway SD-WAN all-in-one, gestión centralizada UniFi.' },
+            // Security
+            { id: 6, sku: 'IPC3614SB', vendorPN: 'IPC3614SB-ADF28KM', name: 'Dahua WizMind 4MP Cámara IP Domo', vendor: 'Dahua', category: 'security', price: 89.00, retailPrice: 129.00, available: true, stock: 'En Stock', stockQty: 215, location: 'Carol Stream, IL', description: 'Cámara IP domo 4MP, IR 60m, AI perimetral, IP67.' },
+            { id: 7, sku: 'DS-2CD2143', vendorPN: 'DS-2CD2143G2-I', name: 'Hikvision AcuSense 4MP Fixed Dome', vendor: 'Hikvision', category: 'security', price: 95.00, retailPrice: 140.00, available: true, stock: 'En Stock', stockQty: 178, location: 'Fort Worth, TX', description: 'AcuSense IR 40m, clasificación humano/vehículo, vista 2.8mm.' },
+            { id: 8, sku: 'NVR308', vendorPN: 'NVR308-32X', name: 'Dahua NVR 32 Canales 4K', vendor: 'Dahua', category: 'security', price: 420.00, retailPrice: 589.00, available: true, stock: 'En Stock', stockQty: 42, location: 'Mira Loma, CA', description: 'NVR 32CH 4K, 8 bahías HDD, salidas HDMI+VGA, IA integrado.' },
+            // Laptops
+            { id: 9, sku: '82QD000BMX', vendorPN: '82QD000BMX', name: 'Lenovo IdeaPad 3 15" Core i5 12th Gen', vendor: 'Lenovo', category: 'laptop', price: 549.00, retailPrice: 729.99, available: true, stock: 'En Stock', stockQty: 64, location: 'Fort Worth, TX', description: 'Core i5-1235U, 8GB RAM, 512GB SSD, pantalla FHD 15.6".' },
+            { id: 10, sku: '8Y8Y4UT', vendorPN: '8Y8Y4UT#ABA', name: 'HP EliteBook 840 G10 14" Intel Evo', vendor: 'HP', category: 'laptop', price: 1199.00, retailPrice: 1599.00, available: true, stock: 'En Stock', stockQty: 31, location: 'Carol Stream, IL', description: 'Core i7-1355U, 16GB DDR5, 512GB SSD NVMe, Intel Evo.' },
+            { id: 11, sku: 'DN2-00030', vendorPN: 'DN2-00030', name: 'Microsoft Surface Pro 9 13" i5', vendor: 'Microsoft', category: 'laptop', price: 999.00, retailPrice: 1299.00, available: false, stock: 'Backorder', stockQty: 0, location: 'Jonestown, PA', description: 'Core i5-1245U, 8GB RAM, 256GB SSD, pantalla 2880x1920.' },
+            // Servers
+            { id: 12, sku: 'P44720-B21', vendorPN: 'P44720-B21', name: 'HPE ProLiant DL380 Gen10 Plus', vendor: 'HPE', category: 'server', price: 4850.00, retailPrice: 6499.00, available: true, stock: 'En Stock', stockQty: 5, location: 'Fort Worth, TX', description: 'Xeon Silver 4310, 32GB DDR4, controlador P408i-a, 2U rack.' },
+            { id: 13, sku: 'R440-SFF', vendorPN: '210-ARXD', name: 'Dell PowerEdge R440 1U Rack Server', vendor: 'Dell', category: 'server', price: 2199.00, retailPrice: 2999.00, available: true, stock: 'En Stock', stockQty: 12, location: 'Mira Loma, CA', description: 'Xeon Silver 4214R, 16GB RDIMM, SSD 480GB, PERC H750.' },
+            // Storage
+            { id: 14, sku: 'WD40EFRX', vendorPN: 'WD40EFRX', name: 'WD Red Plus 4TB NAS HDD', vendor: 'Western Digital', category: 'storage', price: 89.99, retailPrice: 109.99, available: true, stock: 'En Stock', stockQty: 320, location: 'Carol Stream, IL', description: 'Disco duro 4TB para NAS, CMR, 5400RPM, caché 256MB, 7/24.' },
+            { id: 15, sku: 'DS923PLUS', vendorPN: 'DS923+', name: 'Synology DiskStation DS923+ NAS 4-bay', vendor: 'Synology', category: 'storage', price: 599.00, retailPrice: 749.00, available: true, stock: 'En Stock', stockQty: 19, location: 'Fort Worth, TX', description: 'NAS 4-bay Ryzen R1600, 4GB ECC, 2x10GbE op., DSM 7.' },
+            // Printing
+            { id: 16, sku: '4RA83A', vendorPN: '4RA83A#BGJ', name: 'HP LaserJet Enterprise M507dn', vendor: 'HP', category: 'printing', price: 449.00, retailPrice: 599.00, available: true, stock: 'En Stock', stockQty: 28, location: 'Mira Loma, CA', description: 'Laser monocromático A4, 45 ppm, dúplex auto, red Ethernet.' },
+            { id: 17, sku: 'C11CH70301', vendorPN: 'C11CH70301', name: 'Epson WorkForce WF-2930 Color Inkjet', vendor: 'Epson', category: 'printing', price: 79.99, retailPrice: 99.99, available: true, stock: 'En Stock', stockQty: 92, location: 'Carol Stream, IL', description: 'Inyección de tinta color, impresión/copia/escaneo/fax, Wi-Fi.' },
+            { id: 18, sku: 'UDR', vendorPN: 'UDR-US', name: 'Ubiquiti UniFi Dream Router', vendor: 'Ubiquiti', category: 'networking', price: 199.00, retailPrice: 249.00, available: true, stock: 'En Stock', stockQty: 55, location: 'Fort Worth, TX', description: 'Router WiFi 6, controlador UniFi integrado, doble WAN.' },
+        ];
+
+        let filteredProducts = [...MOCK_PRODUCTS];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        /* ─── RENDER ─── */
+        function renderProducts(products) {
+            const grid = document.getElementById('product-grid');
+            const empty = document.getElementById('empty-state');
+            const count = document.getElementById('result-count');
+
+            count.textContent = products.length;
+
+            if (products.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            grid.innerHTML = products.map(p => `
+                <div class="product-card p-5 flex flex-col gap-4" data-category="${p.category}" data-id="${p.id}">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="vendor-badge">${p.vendor}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full ${p.available ? 'dot-green' : 'dot-yellow'}"></span>
+                            <span class="text-xs font-bold ${p.available ? 'text-green-400' : 'text-yellow-400'}">${p.stock}</span>
+                        </div>
+                    </div>
+
+                    <!-- Product name -->
+                    <div>
+                        <h3 class="text-white font-black text-sm leading-snug mb-1">${p.name}</h3>
+                        <p class="text-slate-500 text-xs font-mono">SKU: ${p.sku}</p>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="text-slate-400 text-xs leading-relaxed flex-1">${p.description}</p>
+
+                    <!-- Price -->
+                    <div class="price-tag">
+                        <div class="flex items-baseline justify-between">
+                            <div>
+                                <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Tu precio</p>
+                                <p class="text-xl font-black text-indigo-300">$${p.price.toFixed(2)} <span class="text-xs text-slate-500 font-normal">USD</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-slate-600 text-xs line-through">$${p.retailPrice.toFixed(2)}</p>
+                                <p class="text-green-400 text-xs font-bold">${Math.round((1 - p.price / p.retailPrice) * 100)}% off</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Availability bar -->
+                    ${p.available ? `
+                    <div class="text-xs text-slate-500 flex items-center gap-2">
+                        <i data-lucide="warehouse" class="w-3.5 h-3.5"></i>
+                        <span>${p.stockQty} unidades · ${p.location}</span>
+                    </div>` : `
+                    <div class="text-xs text-yellow-500/70 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                        <span>Disponible en 7-14 días hábiles</span>
+                    </div>`}
+
+                    <!-- CTA -->
+                    <button onclick="openModal(${p.id})"
+                        class="btn-wa flex items-center justify-center gap-2 text-white font-black text-xs py-3 rounded-xl uppercase tracking-wider w-full">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        Cotizar por WhatsApp
+                    </button>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        /* ─── FILTER ─── */
+        function filterBy(cat, btn) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let result = [...MOCK_PRODUCTS];
+            if (currentFilter !== 'all') {
+                result = result.filter(p => p.category === currentFilter);
+            }
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                result = result.filter(p =>
+                    p.name.toLowerCase().includes(q) ||
+                    p.vendor.toLowerCase().includes(q) ||
+                    p.sku.toLowerCase().includes(q) ||
+                    p.description.toLowerCase().includes(q)
+                );
+            }
+            filteredProducts = result;
+            const display = document.getElementById('search-term-display');
+            display.textContent = currentSearch ? `para "${currentSearch}"` : '';
+            renderProducts(filteredProducts);
+        }
+
+        /* ─── SEARCH ─── */
+        function doSearch() {
+            currentSearch = document.getElementById('search-input').value.trim();
+            applyFilters();
+        }
+
+        function resetSearch() {
+            currentSearch = '';
+            document.getElementById('search-input').value = '';
+            currentFilter = 'all';
+            document.querySelectorAll('.filter-chip').forEach((c, i) => {
+                c.classList.remove('active');
+                if (i === 0) c.classList.add('active');
+            });
+            applyFilters();
+        }
+
+        /* ─── SORT ─── */
+        function sortProducts() {
+            const sort = document.getElementById('sort-select').value;
+            let sorted = [...filteredProducts];
+            if (sort === 'price-asc') sorted.sort((a, b) => a.price - b.price);
+            else if (sort === 'price-desc') sorted.sort((a, b) => b.price - a.price);
+            else if (sort === 'vendor') sorted.sort((a, b) => a.vendor.localeCompare(b.vendor));
+            renderProducts(sorted);
+        }
+
+        /* ─── MODAL ─── */
+        function openModal(id) {
+            const p = MOCK_PRODUCTS.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('modal-product-badge').textContent = p.vendor;
+            document.getElementById('modal-title').textContent = p.name;
+            document.getElementById('modal-sku').textContent = `SKU: ${p.sku}`;
+            document.getElementById('modal-vendor-part').textContent = `Vendor PN: ${p.vendorPN}`;
+            document.getElementById('modal-price').textContent = `$${p.price.toFixed(2)} USD`;
+            document.getElementById('modal-availability').textContent = p.available ? `✅ ${p.stockQty} unidades disponibles` : '⏳ Backorder ~14 días';
+
+            const msg = encodeURIComponent(`¡Hola Pandishú! Me interesa cotizar:\n\n🔷 *${p.name}*\nSKU: ${p.sku}\nVendor PN: ${p.vendorPN}\nPrecio ref: $${p.price.toFixed(2)} USD\n\n¿Podrías darme más información y precio final?`);
+            document.getElementById('modal-wa-link').href = `https://wa.me/525662580512?text=${msg}`;
+
+            document.getElementById('modal-backdrop').classList.add('show');
+            document.getElementById('modal-backdrop').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeModal(e) {
+            if (e && e.target !== document.getElementById('modal-backdrop')) return;
+            document.getElementById('modal-backdrop').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        /* ─── MOBILE MENU ─── */
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+        }
+
+        /* ─── INIT ─── */
+        renderProducts(MOCK_PRODUCTS);
+    </script>
+</body>
+
+</html>
