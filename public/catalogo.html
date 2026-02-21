@@ -97,32 +97,72 @@
 <body class="antialiased">
 
     <!-- Navegación -->
-    <nav class="sticky top-0 w-full z-50 glass-panel py-4">
+    <!-- NAVEGACIÓN (Universal) -->
+    <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
             <a href="index.html" class="flex items-center gap-3">
                 <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
                     class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
                     onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
-                <div class="flex flex-col">
-                    <span
-                        class="text-xl font-bold tracking-tight text-white uppercase italic leading-none">Pandishú</span>
-                    <span class="text-xs text-indigo-400 font-medium tracking-widest uppercase">Store</span>
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tech Solutions</span>
                 </div>
             </a>
-            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
                 <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
-                <span class="text-white border-b-2 border-indigo-500 pb-1">Catálogo WiFi/Cámaras</span>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
                 <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
-                <a href="mercadolibre.html" class="hover:text-yellow-400 transition-colors">Tienda ML</a>
                 <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
-                <a href="tienda.html" class="hover:text-indigo-400 transition-colors">Tienda Ingram</a>
+
+                <!-- Highlighted Tienda Link -->
+                <a href="tienda.html" class="relative group flex items-center gap-2">
+                    <span
+                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
+                    <span
+                        class="relative text-white font-black tracking-widest border border-indigo-500/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i> Tienda
+                    </span>
+                </a>
+
                 <a href="https://wa.me/525662580512" target="_blank"
                     class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> Asesoría
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Agendar
                 </a>
             </div>
+            <button onclick="toggleMenu()"
+                class="md:hidden text-white p-2 rounded-xl border border-white/10 hover:border-indigo-500/50 transition bg-slate-800/50">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+            <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
+            <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+            <a href="tienda.html" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
+            </a>
+            <a href="https://wa.me/525662580512" target="_blank"
+                class="text-green-400 flex items-center gap-2 border-t border-white/10 pt-4 mt-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+            </a>
         </div>
     </nav>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.remove('flex');
+                menu.classList.add('hidden');
+            }
+        }
+    </script>
 
     <!-- Hero -->
     <header class="py-16 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
