@@ -102,7 +102,7 @@ async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItem
         itemsHtml += `
             <tr>
                 <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #e2e8f0;">${item.name} (x${item.quantity})</td>
-                <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; text-align: right;">$${Number(item.price * item.quantity).toFixed(2)} USD</td>
+                <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; text-align: right;">$${Number(item.price * item.quantity).toFixed(2)} MXN</td>
             </tr>
         `;
     });
@@ -124,7 +124,7 @@ async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItem
                     ${itemsHtml}
                     <tr>
                         <td style="padding: 10px; font-weight: bold; color: #fff; text-align: right;">TOTAL:</td>
-                        <td style="padding: 10px; font-weight: bold; color: #a855f7; text-align: right; font-size: 18px;">$${Number(totalAmount).toFixed(2)} USD</td>
+                        <td style="padding: 10px; font-weight: bold; color: #a855f7; text-align: right; font-size: 18px;">$${Number(totalAmount).toFixed(2)} MXN</td>
                     </tr>
                 </table>
             </div>
@@ -509,11 +509,22 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
                 return {
                     id: item.sku,
                     title: item.name,
-                    description: `Vendor: ${item.vendor}`, // MP allows description
+                    description: `Vendor: ${item.vendor || 'Pandishú'}`,
                     quantity: item.quantity,
-                    currency_id: 'USD',
+                    currency_id: 'MXN',
                     unit_price: Number(item.price)
                 };
+            });
+
+            // Agregamos el costo de envío fijo mandatorio
+            const shippingCost = 149.00;
+            preferenceItems.push({
+                id: 'SHIPPING-01',
+                title: 'Envío Estándar',
+                description: 'Costo fijo de envío a domicilio',
+                quantity: 1,
+                currency_id: 'MXN',
+                unit_price: shippingCost
             });
 
             // Metadata must be serialized as external_reference or saved before/after
@@ -526,8 +537,9 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
                     createdAt: FieldValue.serverTimestamp(),
                     customerInfo: customer,
                     items: items,
+                    shippingCost: shippingCost,
                     ingramStatus: 'pending',
-                    amountTotal: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                    amountTotal: items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingCost
                 });
                 orderRefId = orderRef.id;
             } catch (dbErr) {

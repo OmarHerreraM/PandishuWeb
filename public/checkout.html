@@ -245,12 +245,12 @@
                                 <span id="checkout-subtotal">$0.00</span>
                             </div>
                             <div class="flex justify-between text-sm text-slate-400">
-                                <span>Envío Asegurado y Directo</span>
-                                <span class="text-emerald-400 font-bold">Gratis</span>
+                                <span>Envío Estándar</span>
+                                <span id="checkout-shipping" class="text-white font-bold">$149.00</span>
                             </div>
                             <div
                                 class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
-                                <span>Total (USD)</span>
+                                <span>Total (MXN)</span>
                                 <span id="checkout-total" class="text-indigo-400">$0.00</span>
                             </div>
                         </div>
@@ -334,9 +334,11 @@
                 </div>`;
             }).join('');
 
-            orderTotal = subtotal;
+            const shippingCost = 149;
+            orderTotal = subtotal + shippingCost;
             document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('checkout-total').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('checkout-shipping').textContent = `$${shippingCost.toFixed(2)}`;
+            document.getElementById('checkout-total').textContent = `$${orderTotal.toFixed(2)}`;
             lucide.createIcons();
         }
 
@@ -382,7 +384,7 @@
                     // Fallback de demostración si la variable de entorno MP_ACCESS_TOKEN no está puesta en el servidor
                     console.warn('API error or missing token', data.error);
                     setTimeout(() => {
-                        alert(`¡Perfecto!\n\nEn un entorno real (Mercado Pago conectado con Token), aquí serás redirigido a la pasarela bancaria oficial para procesar un total de $${orderTotal.toFixed(2)} USD.\n\nTus productos serán enviados a: ${customerData.address.street}.`);
+                        alert(`¡Perfecto!\n\nEn un entorno real (Mercado Pago conectado con Token), aquí serás redirigido a la pasarela bancaria oficial para procesar un total de $${orderTotal.toFixed(2)} MXN.\n\nTus productos serán enviados a: ${customerData.address.street}.`);
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Continuar al Pago Seguro <i data-lucide="arrow-right" class="w-5 h-5"></i>';
                         lucide.createIcons();
