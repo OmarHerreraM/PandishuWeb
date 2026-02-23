@@ -240,7 +240,13 @@ function getMockSearchData(queryKeyword) {
     ];
 
     let filteredMocks = mockCatalog;
-    const keyword = queryKeyword ? queryKeyword.toLowerCase() : '';
+
+    // Ensure queryKeyword is a string (it might arrive as an array like ["Tapo"] from the POST body)
+    let keyword = '';
+    if (queryKeyword) {
+        keyword = Array.isArray(queryKeyword) ? queryKeyword[0].toString().toLowerCase() : queryKeyword.toString().toLowerCase();
+    }
+
     if (keyword && keyword !== 'all') {
         filteredMocks = mockCatalog.filter(p =>
             p.description.toLowerCase().includes(keyword) ||
