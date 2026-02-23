@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda Tech | Pandishú — Catálogo con precios en tiempo real</title>
     <meta name="description"
-        content="Compra routers, switches, cámaras, laptops y más con precios reales de Ingram Micro. Cotiza al momento por WhatsApp.">
+        content="Compra routers, switches, cámaras, laptops y más con los mejores precios del mercado. Cotiza al momento por WhatsApp.">
 
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -214,14 +214,7 @@
             background: #6366f1;
         }
 
-        /* Mobile menu */
-        #mobile-menu {
-            display: none;
-        }
 
-        #mobile-menu.open {
-            display: block;
-        }
 
         /* modal */
         #modal-backdrop.show {
@@ -536,7 +529,8 @@
                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                 Agregar al Carrito
             </button>
-            <p class="text-center text-slate-600 text-xs mt-4">Procesamiento inmediato · Conexión directa a Ingram Micro
+            <p class="text-center text-slate-600 text-xs mt-4">Procesamiento inmediato · Conexión directa a bodegas
+                mayoristas
             </p>
         </div>
     </div>
@@ -781,7 +775,7 @@
             const price = p.price || 0;
             const hasStock = p.availability?.availableQuantity > 0;
 
-            document.getElementById('modal-product-badge').textContent = p.vendorName || 'Ingram';
+            document.getElementById('modal-product-badge').textContent = p.vendorName || 'Fabricante';
             document.getElementById('modal-title').textContent = p.description;
             document.getElementById('modal-sku').textContent = `SKU: ${p.ingramPartNumber}`;
             document.getElementById('modal-vendor-part').textContent = `Vendor PN: ${p.vendorPartNumber}`;
@@ -942,7 +936,7 @@
                         <i data-lucide="x" class="w-3 h-3"></i>
                     </button>
                     <div class="flex-1">
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-500">${item.vendor || 'Ingram'}</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-500">${item.vendor || 'Fabricante'}</span>
                         <h4 class="text-white text-xs font-bold leading-tight mb-2 line-clamp-2">${item.name}</h4>
                         <div class="flex items-center justify-between mt-3">
                             <div class="flex items-center bg-slate-900 rounded-lg p-1 border border-white/10">

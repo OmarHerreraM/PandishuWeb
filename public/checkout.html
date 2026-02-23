@@ -245,7 +245,7 @@
                                 <span id="checkout-subtotal">$0.00</span>
                             </div>
                             <div class="flex justify-between text-sm text-slate-400">
-                                <span>Envío Asegurado Ingram Micro</span>
+                                <span>Envío Asegurado y Directo</span>
                                 <span class="text-emerald-400 font-bold">Gratis</span>
                             </div>
                             <div
@@ -262,8 +262,7 @@
                                 class="w-4 h-4 text-emerald-500"></i> Pagos encriptados con seguridad de nivel bancario
                             a través de Mercado Pago.</p>
                         <p class="flex items-center gap-2 mt-2"><i data-lucide="package-check"
-                                class="w-4 h-4 text-indigo-400"></i> Envío directo desde almacenes y bodegas de Ingram
-                            Micro.</p>
+                                class="w-4 h-4 text-indigo-400"></i> Envío directo desde bodegas mayoristas.</p>
                     </div>
                 </div>
             </div>
@@ -383,7 +382,7 @@
                     // Fallback de demostración si la variable de entorno MP_ACCESS_TOKEN no está puesta en el servidor
                     console.warn('API error or missing token', data.error);
                     setTimeout(() => {
-                        alert(`¡Perfecto!\n\nEn un entorno real (Mercado Pago conectado con Token), aquí serás redirigido a la pasarela bancaria oficial para procesar un total de $${orderTotal.toFixed(2)} USD.\n\nTus productos serán enviados por Ingram a: ${customerData.address.street}.`);
+                        alert(`¡Perfecto!\n\nEn un entorno real (Mercado Pago conectado con Token), aquí serás redirigido a la pasarela bancaria oficial para procesar un total de $${orderTotal.toFixed(2)} USD.\n\nTus productos serán enviados a: ${customerData.address.street}.`);
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Continuar al Pago Seguro <i data-lucide="arrow-right" class="w-5 h-5"></i>';
                         lucide.createIcons();

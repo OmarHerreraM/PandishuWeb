@@ -186,15 +186,18 @@ exports.ingramWebhook = functions.https.onRequest(async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ─── PAYMENTS: STRIPE INTEGRATION ────────────────────────────────────────────
+// ─── PAYMENTS: MERCADO PAGO INTEGRATION ──────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getStripe = () => {
-    if (!process.env.STRIPE_SECRET_KEY) {
-        console.warn("Missing STRIPE_SECRET_KEY env variable");
+const { MercadoPagoConfig, Preference } = require('mercadopago');
+
+const getMercadoPagoClient = () => {
+    if (!process.env.MP_ACCESS_TOKEN) {
+        console.warn("Missing MP_ACCESS_TOKEN env variable");
         return null;
     }
-    return require('stripe')(process.env.STRIPE_SECRET_KEY);
+    // Set up MercadoPago client
+    return new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 };
 
 const YOUR_DOMAIN = 'https://pandishu-web-1d860.web.app'; // Production URL
@@ -202,14 +205,14 @@ const YOUR_DOMAIN = 'https://pandishu-web-1d860.web.app'; // Production URL
 /**
  * FUNCTION 4 — createCheckoutSession
  * POST body: { items: [...], customer: {...} }
- * Crea una sesión de Checkout de Stripe y devuelve la URL para redirigir al usuario.
+ * Crea una preferencia de pago en Mercado Pago y devuelve el init_point para redirigir al usuario.
  */
 exports.createCheckoutSession = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-        const stripe = getStripe();
-        if (!stripe) return res.status(500).json({ error: 'Stripe is not configured in environment variables' });
+        const client = getMercadoPagoClient();
+        if (!client) return res.status(500).json({ error: 'Mercado Pago is not configured in environment variables' });
 
         try {
             const { items, customer } = req.body;
@@ -218,124 +221,145 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
                 return res.status(400).json({ error: 'El carrito está vacío' });
             }
 
-            // Mapear los items del carrito a la estructura de Stripe (line_items)
-            const lineItems = items.map(item => {
+            // Mapear los items del carrito a la estructura de Mercado Pago
+            const preferenceItems = items.map(item => {
                 return {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: item.name,
-                            description: `SKU: ${item.sku} | Vendor: ${item.vendor}`,
-                            metadata: {
-                                sku: item.sku,
-                                vendor: item.vendor
-                            }
-                        },
-                        // Stripe espera el monto en la unidad más pequeña (centavos para USD)
-                        unit_amount: Math.round(item.price * 100),
-                    },
+                    id: item.sku,
+                    title: item.name,
+                    description: `Vendor: ${item.vendor}`, // MP allows description
                     quantity: item.quantity,
+                    currency_id: 'USD',
+                    unit_price: Number(item.price)
                 };
             });
 
-            // Crear la sesión en Stripe
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: lineItems,
-                mode: 'payment',
-                success_url: `${YOUR_DOMAIN}/order-confirmation.html?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${YOUR_DOMAIN}/checkout.html`,
-                submit_type: 'pay',
-                // Pasamos los datos del cliente y envío en la metadata para recuperarlos en el webhook
-                metadata: {
-                    customer_name: customer.name,
-                    customer_email: customer.email,
-                    customer_phone: customer.phone,
-                    shipping_street: customer.address.street,
-                    shipping_colonia: customer.address.colonia,
-                    shipping_zip: customer.address.zip,
-                    shipping_city: customer.address.city,
-                    shipping_state: customer.address.state,
-                    shipping_notes: customer.address.notes || '',
-                    items_json: JSON.stringify(items.map(i => ({ sku: i.sku, qty: i.quantity, price: i.price, name: i.name, vendor: i.vendor })))
-                },
-                customer_email: customer.email,
+            // Metadata must be serialized as external_reference or saved before/after
+            // We use external_reference as a unique ID to link back to Firestore
+            // Let's create an order document IN ADVANCE with status "pending"
+
+            const orderRef = await admin.firestore().collection('orders').add({
+                status: 'pending_payment',
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                customerInfo: customer,
+                items: items,
+                ingramStatus: 'pending',
+                amountTotal: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
             });
 
-            return res.status(200).json({ url: session.url });
+            // Crear la preferencia usando la nueva sintaxis (v2)
+            const preference = new Preference(client);
+
+            const prefResponse = await preference.create({
+                body: {
+                    items: preferenceItems,
+                    payer: {
+                        name: customer.name,
+                        email: customer.email,
+                        phone: { number: customer.phone },
+                        address: {
+                            zip_code: customer.address.zip,
+                            street_name: customer.address.street,
+                        }
+                    },
+                    back_urls: {
+                        success: `${YOUR_DOMAIN}/order-confirmation.html`,
+                        failure: `${YOUR_DOMAIN}/checkout.html?error=failed`,
+                        pending: `${YOUR_DOMAIN}/order-confirmation.html?status=pending`
+                    },
+                    auto_return: 'approved',
+                    external_reference: orderRef.id, // Vínculo con nuestra BD
+                    statement_descriptor: 'Pandishu Tech',
+                    // Redirigir notificaciones de pago aquí
+                    notification_url: 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/mpWebhook'
+                }
+            });
+
+            // Retornamos el init_point (o sandbox_init_point si estamos en dev)
+            return res.status(200).json({ url: prefResponse.init_point });
 
         } catch (err) {
-            console.error('Error createCheckoutSession:', err);
+            console.error('Error createCheckoutSession MP:', err);
             return res.status(500).json({ error: err.message });
         }
     });
 });
 
 /**
- * FUNCTION 5 — stripeWebhook
- * Webhook Seguro de Stripe (Solo se dispara cuando el pago ha sido exitoso: checkout.session.completed)
+ * FUNCTION 5 — mpWebhook
+ * Webhook de Mercado Pago para notificaciones IPN/Webhooks
  */
-exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
-    const stripe = getStripe();
-    if (!stripe) return res.status(500).send('Stripe is not configured');
+exports.mpWebhook = functions.https.onRequest(async (req, res) => {
+    const client = getMercadoPagoClient();
+    if (!client) return res.status(500).send('MP is not configured');
 
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    const sig = req.headers['stripe-signature'];
+    const topic = req.query.topic || req.body.type;
+    const paymentId = req.query.id || (req.body.data && req.body.data.id);
 
-    let event;
+    // Validar firma x-signature de Mercado Pago
+    const xSignature = req.headers['x-signature'];
+    const xRequestId = req.headers['x-request-id'];
+    const secret = process.env.MP_WEBHOOK_SECRET;
 
-    try {
-        // En Firebase Functions, req.rawBody contiene el raw Buffer necesario para verificar la firma
-        event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
-    } catch (err) {
-        console.error(`⚠️ Webhook signature verification failed:`, err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+    if (xSignature && xRequestId && paymentId && secret) {
+        const crypto = require('crypto');
+        const parts = xSignature.split(',');
+        let ts, hash;
+        parts.forEach(part => {
+            const [key, value] = part.split('=');
+            if (key === 'ts') ts = value;
+            if (key === 'v1') hash = value;
+        });
 
-    // Manejar el evento
-    if (event.type === 'checkout.session.completed') {
-        const session = event.data.object;
+        const manifest = `id:${paymentId};request-id:${xRequestId};ts:${ts};`;
+        const hmac = crypto.createHmac('sha256', secret);
+        const digest = hmac.update(manifest).digest('hex');
 
-        console.log(`🎉 Pago Exitoso! Sesión ID: ${session.id}`);
-
-        const metadata = session.metadata;
-
-        // Crear un documento en Firestore con la orden
-        try {
-            const orderRef = await admin.firestore().collection('orders').add({
-                stripeSessionId: session.id,
-                paymentIntentId: session.payment_intent,
-                amountTotal: session.amount_total / 100, // De centavos a dólares
-                status: 'paid', // Status interno 'paid', luego cambiará a 'sent_to_ingram' o 'shipped'
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                customerInfo: {
-                    name: metadata.customer_name,
-                    email: metadata.customer_email,
-                    phone: metadata.customer_phone,
-                },
-                shippingAddress: {
-                    street: metadata.shipping_street,
-                    colonia: metadata.shipping_colonia,
-                    zip: metadata.shipping_zip,
-                    city: metadata.shipping_city,
-                    state: metadata.shipping_state,
-                    notes: metadata.shipping_notes,
-                },
-                items: JSON.parse(metadata.items_json),
-                ingramStatus: 'pending' // Estado de integración con Ingram
-            });
-
-            console.log(`✅ Orden guardada en Firestore. Documento: ${orderRef.id}`);
-
-            // TODO: Integración Order Entry API de Ingram
-            // Aquí en el futuro leeremos la orden de Firestore y generaremos la petición
-            // a la API de Ingram para ejecutar el Dropshipping
-
-        } catch (dbError) {
-            console.error("Error guardando la orden en Firestore:", dbError);
-            return res.status(500).json({ error: 'Database write failed', details: dbError.message });
+        if (digest !== hash) {
+            console.error('Invalid Mercado Pago Webhook Signature!');
+            return res.status(403).send('Invalid signature');
         }
+    } else {
+        console.warn('Skipping MP webhook validation (missing headers/secret/id).');
     }
 
-    res.json({ received: true });
+    console.log("MP Webhook received:", req.query, req.body);
+
+    if (topic === 'payment' && paymentId) {
+        try {
+            // Obtener detalles completos del pago usando la SDK v2
+            const { Payment } = require('mercadopago');
+            const paymentClient = new Payment(client);
+
+            const paymentInfo = await paymentClient.get({ id: paymentId });
+
+            console.log(`Payment Status: ${paymentInfo.status}, Reference: ${paymentInfo.external_reference}`);
+
+            if (paymentInfo.status === 'approved') {
+                const orderId = paymentInfo.external_reference;
+
+                if (orderId) {
+                    // Update the order in Firestore
+                    await admin.firestore().collection('orders').doc(orderId).update({
+                        status: 'paid',
+                        mpPaymentId: paymentId,
+                        paidAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    console.log(`✅ Orden ${orderId} marcada como pagada en Firestore.`);
+
+                    // TODO: Integración Order Entry API de Ingram
+                    // Aquí llamaremos a Ingram
+                }
+            }
+
+            res.status(200).send('OK');
+
+        } catch (error) {
+            console.error('Error fetching payment details from MP:', error);
+            res.status(500).send('Error processing payment notification');
+        }
+    } else {
+        // Obviar otros notificaciones (mercadoenvios, tests)
+        res.status(200).send('Not a payment event, ignored.');
+    }
 });
