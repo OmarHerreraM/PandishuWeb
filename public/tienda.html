@@ -240,7 +240,7 @@
     ═══════════════════════════════════════ -->
     <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
-            <a href="index.html" class="flex items-center gap-3">
+            <a href="" class="flex items-center gap-3">
                 <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
                     class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
                     onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
@@ -250,13 +250,13 @@
                 </div>
             </a>
             <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
-                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
-                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
-                <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
-                <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
+                <a href="" class="hover:text-white transition-colors">Inicio</a>
+                <a href="" class="hover:text-white transition-colors">Catálogo</a>
+                <a href="" class="hover:text-white transition-colors">Hardware PC</a>
+                <a href="" class="hover:text-white transition-colors">Proyectos</a>
 
                 <!-- Highlighted Tienda Link -->
-                <a href="tienda.html" class="relative group flex items-center gap-2">
+                <a href="" class="relative group flex items-center gap-2">
                     <span
                         class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
                     <span
@@ -296,11 +296,11 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu"
             class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
-            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
-            <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
-            <a href="hardware.html" class="hover:text-white transition-colors">Hardware PC</a>
-            <a href="proyectos.html" class="hover:text-white transition-colors">Proyectos</a>
-            <a href="tienda.html" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+            <a href="" class="hover:text-white transition-colors">Inicio</a>
+            <a href="" class="hover:text-white transition-colors">Catálogo</a>
+            <a href="" class="hover:text-white transition-colors">Hardware PC</a>
+            <a href="" class="hover:text-white transition-colors">Proyectos</a>
+            <a href="" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
                 <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
             </a>
             <a href="https://wa.me/525662580512" target="_blank"
@@ -491,11 +491,11 @@
             Soluciones Tecnológicas</p>
         <div
             class="flex flex-wrap justify-center gap-6 text-[11px] text-slate-600 font-medium uppercase tracking-widest">
-            <a href="index.html" class="hover:text-indigo-400 transition">Inicio</a>
-            <a href="catalogo.html" class="hover:text-indigo-400 transition">Catálogo</a>
-            <a href="proyectos.html" class="hover:text-indigo-400 transition">Proyectos</a>
-            <a href="privacidad.html" class="hover:text-indigo-400 transition">Privacidad</a>
-            <a href="devoluciones.html" class="hover:text-indigo-400 transition">Devoluciones y Garantía</a>
+            <a href="" class="hover:text-indigo-400 transition">Inicio</a>
+            <a href="" class="hover:text-indigo-400 transition">Catálogo</a>
+            <a href="" class="hover:text-indigo-400 transition">Proyectos</a>
+            <a href="" class="hover:text-indigo-400 transition">Privacidad</a>
+            <a href="" class="hover:text-indigo-400 transition">Devoluciones y Garantía</a>
         </div>
     </footer>
 
@@ -660,14 +660,14 @@
                     </div>
 
                     <!-- CTA -->
-                    <div class="flex gap-2 mt-auto">
-                        <button onclick="openModal('${p.ingramPartNumber}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-3 rounded-xl transition">
-                            <i data-lucide="info" class="w-5 h-5"></i>
+                    <div class="flex gap-2 mt-auto relative z-10">
+                        <button onclick="openModal('${p.ingramPartNumber}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-3 rounded-xl transition cursor-pointer">
+                            <i data-lucide="info" class="w-5 h-5 pointer-events-none"></i>
                         </button>
                         <button onclick="addToCart('${p.ingramPartNumber}')"
-                            class="${price > 0 && hasStock ? 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} flex-1 flex items-center justify-center gap-2 text-white font-black text-xs py-3 rounded-xl uppercase tracking-wider transition-all"
+                            class="${price > 0 && hasStock ? 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer pointer-events-auto' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} flex-1 flex items-center justify-center gap-2 text-white font-black text-xs py-3 rounded-xl uppercase tracking-wider transition-all"
                             ${!(price > 0 && hasStock) ? 'disabled title="Producto sin precio o stock"' : ''}>
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            <i data-lucide="shopping-bag" class="w-4 h-4 pointer-events-none"></i>
                             Agregar al carrito
                         </button>
                     </div>
@@ -970,15 +970,21 @@
             const savedCart = localStorage.getItem('pandishu_cart');
             if (savedCart) {
                 cart = JSON.parse(savedCart);
+                if (!Array.isArray(cart)) {
+                    cart = [];
+                    localStorage.removeItem('pandishu_cart');
+                }
                 updateCartBadges();
             }
         } catch (e) {
             console.error('Error loading cart', e);
+            cart = [];
+            localStorage.removeItem('pandishu_cart');
         }
 
-        /* ─── INIT ─── */
-        // Carga inicial (búsqueda por defecto)
-        fetchProducts('Ubiquiti');
+        /* ─── STARTUP ─── */
+        // Carga inicial (mostrar todo el catálogo MOCK disponible en vez de solo Ubiquiti)
+        fetchProducts('');
 
     </script>
 </body>
