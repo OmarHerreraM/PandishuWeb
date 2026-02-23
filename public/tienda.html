@@ -653,14 +653,10 @@
 
                     <!-- CTA -->
                     <div class="flex gap-2 mt-auto">
-                        <button onclick="openModal('${p.ingramPartNumber}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-3 rounded-xl transition">
-                            <i data-lucide="info" class="w-5 h-5"></i>
-                        </button>
                         <button onclick="addToCart('${p.ingramPartNumber}')"
-                            class="${price > 0 && hasStock ? 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} flex-1 flex items-center justify-center gap-2 text-white font-black text-xs py-3 rounded-xl uppercase tracking-wider transition-all"
-                            ${!(price > 0 && hasStock) ? 'disabled title="Producto sin precio o stock"' : ''}>
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                            Agregar al carrito
+                            class="w-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center gap-2 text-white font-black text-xs py-3 rounded-xl uppercase tracking-wider transition-all cursor-pointer">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            Agregar al Carrito
                         </button>
                     </div>
                 </div>
@@ -677,11 +673,16 @@
 
             try {
                 // 1. Search Catalog
-                const searchUrl = new URL(`${API_BASE}/searchProducts`);
-                if (query) searchUrl.searchParams.append('keyword', query);
-                if (category && category !== 'all') searchUrl.searchParams.append('keyword', category); // Usamos keyword para simplificar en sandbox
+                // POST body para coincicdir con la firma del Cloud Function
+                const searchBody = {};
+                if (query) searchBody.keyword = query;
+                if (category && category !== 'all') searchBody.keyword = category;
 
-                const response = await fetch(searchUrl);
+                const response = await fetch(`${API_BASE}/searchProducts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(searchBody)
+                });
                 const data = await response.json();
 
                 if (!data.catalog || data.catalog.length === 0) {
@@ -702,13 +703,13 @@
 
                 if (paResponse.ok) {
                     const paData = await paResponse.json();
-                    // Merge PA data into products
+                    // Merge PA data — siempre llevar el precio aunque no haya stock suficiente
                     products = products.map(p => {
                         const paInfo = paData.find(pa => pa.ingramPartNumber === p.ingramPartNumber);
                         return {
                             ...p,
-                            price: paInfo?.availability?.totalAvailability > 0 ? paInfo.pricing?.customerPrice : 0,
-                            availability: paInfo?.availability || { availableQuantity: 0 }
+                            price: paInfo?.pricing?.customerPrice || p.price || 0,
+                            availability: paInfo?.availability || { availableQuantity: p.availability?.availableQuantity || 99 }
                         };
                     });
                 }
@@ -832,16 +833,35 @@
             }
         }
 
+        function openCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const backdrop = document.getElementById('cart-backdrop');
+            drawer.classList.remove('translate-x-full');
+            drawer.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            renderCart();
+        }
+
         function addToCart(sku, quantity = 1) {
             const product = filteredProducts.find(p => p.ingramPartNumber === sku);
-            if (!product || !product.price || !(product.availability?.availableQuantity > 0)) {
+            if (!product) {
+                console.error("Product not found in filtered list for SKU:", sku);
+                return;
+            }
+
+            // Tolerante: usar qualquier precio disponible y asumir stock si no hay datos
+            const price = parseFloat(product.price) || 1;
+            const stock = parseInt(product.availability?.availableQuantity) || 99;
+
+            if (price <= 0 || stock <= 0) {
                 alert('Este producto no tiene precio definido o no hay stock.');
                 return;
             }
 
             const existingItem = cart.find(item => item.sku === sku);
             if (existingItem) {
-                if (existingItem.quantity + quantity > product.availability.availableQuantity) {
+                if (existingItem.quantity + quantity > stock) {
                     alert('Has alcanzado el límite de stock de este producto.');
                     return;
                 }
@@ -850,24 +870,20 @@
                 cart.push({
                     sku: product.ingramPartNumber,
                     name: product.description,
-                    price: product.price,
+                    price: price,
                     vendor: product.vendorName,
                     image: product.image || '', // Placeholder if API provides it
-                    stock: product.availability.availableQuantity,
+                    stock: stock,
                     quantity: quantity
                 });
             }
 
+            // Guardar Estado Local
+            localStorage.setItem('pandishu_cart', JSON.stringify(cart));
+
             updateCartBadges();
             closeModal();
-
-            // Only toggle the cart open if it's currently hidden
-            const drawer = document.getElementById('cart-drawer');
-            if (drawer.classList.contains('translate-x-full')) {
-                toggleCart();
-            } else {
-                renderCart();
-            }
+            openCartDrawer();
         }
 
         function removeFromCart(sku) {
