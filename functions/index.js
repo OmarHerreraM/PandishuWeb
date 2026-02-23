@@ -157,23 +157,24 @@ async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItem
 // ─────────────────────────────────────────────────────────────────────────────
 exports.searchProducts = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
-        if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
 
         try {
+            const body = req.body || {};
             // Usa los Mocks explícitamente si está configurado así en las variables
             if (process.env.USE_MOCK_DATA === 'true') {
                 console.log('🔹 Sirviendo catálogo MOCK por configuración USE_MOCK_DATA=true');
-                return res.status(200).json(getMockSearchData(req.query.keyword));
+                return res.status(200).json(getMockSearchData(body.keyword));
             }
 
             await getApiClient();
 
             const api = new XiSdk.ProductCatalogApi();
             const opts = {
-                keyword: req.query.keyword ? [req.query.keyword] : undefined,
-                vendor: req.query.vendor ? [req.query.vendor] : undefined,
-                pageNumber: parseInt(req.query.pageNumber) || 1,
-                pageSize: Math.min(parseInt(req.query.pageSize) || 24, 100),
+                keyword: body.keyword ? [body.keyword] : undefined,
+                vendor: body.vendor ? [body.vendor] : undefined,
+                pageNumber: parseInt(body.pageNumber) || 1,
+                pageSize: Math.min(parseInt(body.pageSize) || 24, 100),
             };
 
             const correlationId = `pandishu-search-${Date.now()}`;
@@ -199,8 +200,8 @@ exports.searchProducts = functions.https.onRequest((req, res) => {
             // Guardar en Firestore Cache (Búsquedas completas)
             // Esto ahorra cuota de la API para búsquedas repetidas
             try {
-                if (req.query.keyword) {
-                    await admin.firestore().collection('products_cache').doc(`search_${req.query.keyword}`).set({
+                if (body.keyword) {
+                    await admin.firestore().collection('products_cache').doc(`search_${body.keyword}`).set({
                         catalog: safeCatalog,
                         timestamp: FieldValue.serverTimestamp()
                     });
@@ -216,7 +217,7 @@ exports.searchProducts = functions.https.onRequest((req, res) => {
         } catch (err) {
             console.error('searchProducts falló (Error de API):', err.message || err);
             console.warn('⚠️ ENTRANDO EN MOCK DATA FALLBACK POR ERROR DE API');
-            return res.status(200).json(getMockSearchData(req.query.keyword));
+            return res.status(200).json(getMockSearchData(body.keyword));
         }
     });
 });
