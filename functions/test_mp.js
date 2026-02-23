@@ -1,47 +1,39 @@
-require('dotenv').config();
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+const fetch = require('node-fetch');
 
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
-
-async function createTestLink() {
-    try {
-        const preference = new Preference(client);
-
-        const prefResponse = await preference.create({
-            body: {
-                items: [
-                    {
-                        id: 'TEST-SKU',
-                        title: 'Producto de Prueba Pandishú',
-                        description: 'Generado desde script de prueba',
-                        quantity: 1,
-                        currency_id: 'USD',
-                        unit_price: 10.00
-                    }
-                ],
-                back_urls: {
-                    success: 'https://pandishu-web-1d860.web.app/order-confirmation.html',
-                    failure: 'https://pandishu-web-1d860.web.app/checkout.html?error=failed',
-                    pending: 'https://pandishu-web-1d860.web.app/order-confirmation.html?status=pending'
-                },
-                auto_return: 'approved',
-                external_reference: 'ORDER-TEST-123',
-                statement_descriptor: 'Pandishu Tech',
+async function testCheckout() {
+    const url = 'http://127.0.0.1:5001/pandishu-web-1d860/us-central1/createCheckoutSession';
+    const payload = {
+        items: [
+            { sku: "MOCK-UBI-01", name: "Ubiquiti UniFi AC Pro AP", vendor: "UBIQUITI", quantity: 2, price: 149.99 },
+            { sku: "MOCK-DEL-01", name: "Dell XPS 13", vendor: "DELL", quantity: 1, price: 1250.00 }
+        ],
+        customer: {
+            name: "Test User",
+            email: "test@example.com",
+            phone: "5551234567",
+            address: {
+                street: "123 Test St",
+                colonia: "Test Colonia",
+                zip: "12345",
+                city: "Test City",
+                state: "CDMX"
             }
+        }
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
-        console.log('\n=============================================');
-        console.log('✅ ENLACE DE PAGO GENERADO CON ÉXITO');
-        console.log('=============================================');
-        console.log('Abre este enlace en tu navegador para probar el flujo de Mercado Pago:');
-        console.log('');
-        console.log(prefResponse.init_point);
-        console.log('');
-        console.log(`(Asegúrate de iniciar sesión con una cuenta de "Comprador de prueba" de Mercado Pago, no con tu cuenta de vendedor)`);
-
+        const data = await response.json();
+        console.log("Checkout Response Status:", response.status);
+        console.log("Checkout Response Data:", data);
     } catch (error) {
-        console.error('Error generando el enlace:', error);
+        console.error("Test failed:", error);
     }
 }
 
-createTestLink();
+testCheckout();

@@ -1,0 +1,88 @@
+# Ingram Micro Webhook Documentation (Received from User)
+
+## Events Coverage
+- **Order Status Notification Event**: Shipped (im::order_shipped), Invoiced (im::order_invoiced), On Hold (im::order_hold), Voided (im::order_voided), Backorder (im::order_backordered)
+- **Stock Update**: Availability of Stock (IM::STOCK_UPDATE)
+- **Quote Create**: Quote Create (IM::quote_create)
+
+## Sample Payload: Order Status
+```json
+{
+  "topic": "resellers/orders",
+  "event": "im::updated",
+  "evenTtimeStamp": "event_occured",
+  "eventId": "unique_event_id",
+  "resource": [
+    {
+      "eventType": "im::order_shipped",
+      "orderNumber": "20-RD128",
+      "customerOrderNumber": "ZENPO",
+      "orderEntryTimeStamp": "2020-04-03T08:54:39-07:00",
+      "lines": [
+        {
+          "lineNumber": "01",
+          "subOrderNumber": "20-RD128-21",
+          "lineStatus": "IM::shipped",
+          "ingramPartNumber": "5CX895",
+          "vendorPartNumber": "TC57HO-1PEZU4P-NA",
+          "requestedQuantity": "3",
+          "shippedQuantity": "2",   
+          "backOrderedQuantity": "1",
+          "shipmentDetails": [
+            {
+              "shipmentDate": "2019-11-06",
+              "shipFromWarehouseId": "10",
+              "warehouseName": "New York",
+              "carrierCode": "4M",
+              "carrierName": "SMARTPOST-BM",                  
+              "packageDetails": [
+                {
+                  "cartonNumber": "",
+                  "quantityInbox": "",
+                  "trackingNumber": ""
+                }
+              ]
+            }
+          ],
+          "serialNumberDetails": [ { "serialNumber": "123123123" } ]
+        }
+      ],
+      "links": [
+        ...
+      ]
+    }
+  ]
+}
+```
+
+## Sample Payload: Stock Update
+```json
+{
+  "topic":"resellers/catalog",
+  "event":"im::updated",
+  "eventTimeStamp":"2020-10-27T15:50:05.339+08:30",
+  "eventId":"AH7ESSIWSIO22Y77DD",
+  "resource":[
+    {
+      "eventType":"IM::STOCK_UPDATE",
+      "ingramPartNumber":"5CX579",
+      "vendorPartNumber":"710412-001-BTI",
+      "vendorName":"BATTERY TECHNOLOGY INC.",
+      "upcCode":"0886734869201",
+      "skuStatus":null,
+      "backOrderFlag":"Y",
+      "totalAvailability":"120",
+      "links":[...]
+    }
+  ]
+}
+```
+
+## Security (Secret Keys)
+Ingram Micro sends the signature token in the HTTP header (usually `x-hub-signature` or `authorization`).
+The signature is generated using: HMAC-SHA512.
+Important parameters for hashing:
+- Message to hash: The `eventId` from the payload (clientid).
+- Secret Key: `INGRAM_SECRET_KEY` (shared secret).
+The result is then Base64 encoded.
+Note: If signature in the HTTP header matches the dynamically generated Base64 encoded HMAC-SHA512 of EventID, the webhook is valid.

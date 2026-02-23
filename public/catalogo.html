@@ -165,21 +165,28 @@
     </script>
 
     <!-- Hero -->
-    <header class="py-16 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
-        <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+    <header class="py-16 px-6 relative overflow-hidden bg-slate-950 border-b border-white/5">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]">
+            </div>
+            <div class="absolute inset-0"
+                style="background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px); background-size: 40px 40px;">
+            </div>
+        </div>
 
         <div class="max-w-4xl mx-auto text-center relative z-10">
             <span
-                class="bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 inline-block">
-                Precios Oficiales 2026
+                class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 inline-block">
+                Equipamiento Residencial 2026
             </span>
             <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight text-white uppercase italic">
                 Conectividad & <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Seguridad</span>
+                    class="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 text-transparent bg-clip-text">Seguridad</span>
             </h1>
             <p class="text-slate-400 font-light text-xl leading-relaxed max-w-2xl mx-auto">
-                Equipos TP-Link Deco y Tapo certificados. Garantía directa y soporte de instalación.
+                <strong class="text-white">Pandishú Tech Solutions</strong> presenta: Equipos TP-Link Deco y Tapo
+                certificados. Garantía directa y soporte de instalación.
             </p>
         </div>
     </header>
