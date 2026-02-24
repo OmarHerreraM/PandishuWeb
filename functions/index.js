@@ -501,6 +501,22 @@ exports.ingramWebhook = functions.https.onRequest(async (req, res) => {
                             });
                             if (trackingNums.length > 0) {
                                 updateData.trackingNumbers = trackingNums;
+
+                                // 🚚 Notificar al cliente por correo con el número de guía
+                                try {
+                                    const orderDoc = await admin.firestore().collection('orders').doc(customerOrderNumber).get();
+                                    if (orderDoc.exists) {
+                                        const orderData = orderDoc.data();
+                                        await enviarCorreoEnvio(
+                                            orderData.customerInfo.email,
+                                            orderData.customerInfo.name,
+                                            customerOrderNumber,
+                                            trackingNums[0] // Primer número de guía
+                                        );
+                                    }
+                                } catch (mailErr) {
+                                    console.warn('⚠️ No se pudo enviar correo de envío:', mailErr.message);
+                                }
                             }
                         }
 
@@ -975,86 +991,100 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     }
 });
 
-/**
- * FUNCTION 6 — ingramWebhook
- * Webhook para recibir actualizaciones de estado de Ingram Micro
- */
-exports.ingramWebhook = functions.https.onRequest(async (req, res) => {
-    const payload = req.body;
-    const signature = req.headers['x-hub-signature'];
-    const secret = process.env.INGRAM_SECRET_KEY;
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 7 — getInvoiceDetails
+// GET — Consulta el detalle de una factura de Ingram usando su número de factura
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getInvoiceDetails = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
-    console.log("Ingram Webhook received:", JSON.stringify(payload));
-
-    // 1) Validar firma (Ingram usa HMAC-SHA512 sobre el eventId)
-    if (signature && secret && payload.eventId) {
-        const crypto = require('crypto');
-        const hmac = crypto.createHmac('sha512', secret);
-        hmac.update(payload.eventId, 'utf-8');
-        const expectedSignature = hmac.digest('base64');
-
-        if (signature !== expectedSignature) {
-            console.warn('⚠️ Ingram Webhook Signature mismatch. Logged for debugging.');
-            // En producción podrías querer retornar 401, aquí logging preventivo
+        const invoiceNumber = req.query.invoiceNumber;
+        if (!invoiceNumber) {
+            return res.status(400).json({ error: 'Se requiere el parámetro invoiceNumber.' });
         }
-    } else {
-        console.warn('Missing signature or secret for Ingram webhook validation.');
-    }
 
-    // 2) Procesar el evento
-    try {
-        const topic = payload.topic;
-        const event = payload.event;
+        try {
+            await getApiClient();
+            const api = new XiSdk.InvoicesApi();
+            const correlationId = `pandishu-inv-${Date.now()}`;
 
-        if (topic === 'resellers/orders' && event === 'im::updated') {
-            const resources = payload.resource || [];
+            const data = await new Promise((resolve, reject) => {
+                api.getInvoicedetailsV61(
+                    invoiceNumber,
+                    IM_CUSTOMER_NUM,
+                    IM_COUNTRY_CODE,
+                    correlationId,
+                    'Pandishu', // iMApplicationID
+                    { customerType: 'invoice', includeSerialNumbers: false },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
 
-            for (const resItem of resources) {
-                if (resItem.eventType === 'im::order_shipped') {
-                    const orderId = resItem.customerOrderNumber; // Nuestro ID interno
-                    const ingramOrderNum = resItem.orderNumber;
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Invoice] getInvoiceDetails error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al consultar la factura.' });
+        }
+    });
+});
 
-                    // Extraer tracking del primer paquete que encontremos
-                    let trackingNum = 'N/A';
-                    if (resItem.lines && resItem.lines.length > 0) {
-                        const line = resItem.lines[0];
-                        if (line.shipmentDetails && line.shipmentDetails.length > 0) {
-                            const shipDetail = line.shipmentDetails[0];
-                            if (shipDetail.packageDetails && shipDetail.packageDetails.length > 0) {
-                                trackingNum = shipDetail.packageDetails[0].trackingNumber || trackingNum;
-                            }
-                        }
-                    }
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 8 — searchInvoices
+// GET — Busca facturas por número de orden de cliente para asociarlas automáticamente
+// ─────────────────────────────────────────────────────────────────────────────
+exports.searchInvoices = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
-                    if (orderId && trackingNum !== 'N/A') {
-                        console.log(`🚚 Procesando envío para Orden: ${orderId}, Tracking: ${trackingNum}`);
+        const { customerOrderNumber, orderNumber } = req.query;
+        if (!customerOrderNumber && !orderNumber) {
+            return res.status(400).json({ error: 'Se requiere customerOrderNumber o orderNumber.' });
+        }
 
-                        // Actualizar Firestore
-                        await admin.firestore().collection('orders').doc(orderId).update({
-                            status: 'shipped',
-                            trackingNumber: trackingNum,
-                            shippedAt: FieldValue.serverTimestamp()
-                        });
+        try {
+            await getApiClient();
+            const api = new XiSdk.InvoicesApi();
+            const correlationId = `pandishu-invsrch-${Date.now()}`;
 
-                        // Obtener datos del cliente para el correo
-                        const orderDoc = await admin.firestore().collection('orders').doc(orderId).get();
-                        if (orderDoc.exists) {
-                            const orderData = orderDoc.data();
-                            await enviarCorreoEnvio(
-                                orderData.customerInfo.email,
-                                orderData.customerInfo.name,
-                                orderId,
-                                trackingNum
-                            );
-                        }
-                    }
+            const data = await new Promise((resolve, reject) => {
+                api.getResellersV6Invoicesearch(
+                    'Pandishu',
+                    IM_CUSTOMER_NUM,
+                    IM_COUNTRY_CODE,
+                    correlationId,
+                    {
+                        customerOrderNumber: customerOrderNumber || undefined,
+                        orderNumber: orderNumber || undefined,
+                        pageSize: 10,
+                        pageNumber: 1
+                    },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
+
+            // Si hay facturas, guardarlas en Firestore asociadas a la orden
+            if (data && data.invoices && data.invoices.length > 0 && customerOrderNumber) {
+                try {
+                    await admin.firestore().collection('orders').doc(customerOrderNumber).update({
+                        invoices: data.invoices.map(inv => ({
+                            invoiceNumber: inv.invoiceNumber,
+                            invoiceDate: inv.invoiceDate,
+                            invoiceStatus: inv.invoiceStatus,
+                            invoiceDueDate: inv.invoiceDueDate,
+                            invoiceAmount: inv.invoiceAmount
+                        }))
+                    });
+                    console.log(`✅ Facturas guardadas en Orden ${customerOrderNumber}`);
+                } catch (dbErr) {
+                    console.warn('⚠️ No se pudo guardar facturas en Firestore:', dbErr.message);
                 }
             }
-        }
 
-        return res.status(200).json({ status: 'success' });
-    } catch (err) {
-        console.error('Error processing Ingram webhook:', err.message);
-        return res.status(500).send('Internal Error');
-    }
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Invoice] searchInvoices error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al buscar facturas.' });
+        }
+    });
 });
