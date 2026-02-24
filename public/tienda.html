@@ -553,7 +553,7 @@
 
         <div class="p-6 bg-slate-950 border-t border-white/5">
             <div class="flex justify-between items-center mb-4 text-sm font-bold text-slate-400">
-                <span>Subtotal (USD)</span>
+                <span>Subtotal (MXN)</span>
                 <span id="cart-subtotal" class="text-white text-lg">$0.00</span>
             </div>
             <button onclick="proceedToCheckout()"
@@ -629,10 +629,18 @@
                         </div>
                     </div>
 
+                    <!-- Image -->
+                    <div class="h-32 flex items-center justify-center bg-slate-950/50 rounded-xl overflow-hidden group">
+                        <img src="${p.image || 'https://via.placeholder.com/150?text=No+Image'}" 
+                             alt="${p.description}"
+                             class="max-h-full max-w-full object-contain transition-transform group-hover:scale-110"
+                             onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                    </div>
+
                     <!-- Product name -->
                     <div>
                         <h3 class="text-white font-black text-sm leading-snug mb-1 line-clamp-2" title="${p.description}">${p.description}</h3>
-                        <p class="text-slate-500 text-[10px] font-mono">SKU: ${p.ingramPartNumber} | PN: ${p.vendorPartNumber}</p>
+                        <p class="text-slate-500 text-[10px] font-mono uppercase">CLAVE: ${p.ingramPartNumber}</p>
                     </div>
 
                     <!-- Price -->
@@ -641,12 +649,12 @@
                             <div>
                                 <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Precio estimado</p>
                                 <p class="text-xl font-black ${price > 0 ? 'text-indigo-300' : 'text-slate-500'}">
-                                    ${price > 0 ? `$${price.toFixed(2)}` : 'Sujeto a cotización'} 
-                                    <span class="text-xs text-slate-500 font-normal">USD</span>
+                                    ${price > 0 ? `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Sujeto a cotización'} 
+                                    <span class="text-xs text-slate-500 font-normal">MXN</span>
                                 </p>
                             </div>
                             <div class="text-right">
-                                <p class="text-slate-600 text-[10px]">PVP Ref: $${retailPrice.toFixed(2)}</p>
+                                <p class="text-slate-600 text-[10px]">PVP Ref: $${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</p>
                             </div>
                         </div>
                     </div>
@@ -772,7 +780,7 @@
             document.getElementById('modal-title').textContent = p.description;
             document.getElementById('modal-sku').textContent = `SKU: ${p.ingramPartNumber}`;
             document.getElementById('modal-vendor-part').textContent = `Vendor PN: ${p.vendorPartNumber}`;
-            document.getElementById('modal-price').textContent = price > 0 ? `$${price.toFixed(2)} USD` : 'Cotización requerida';
+            document.getElementById('modal-price').textContent = price > 0 ? `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : 'Cotización requerida';
             document.getElementById('modal-availability').textContent = hasStock ? `✅ ${p.availability.availableQuantity} unidades en stock` : '⏳ Consultar disponibilidad / Backorder';
 
             const cartBtn = document.getElementById('modal-cart-btn');
@@ -961,13 +969,13 @@
                                 <span class="text-xs font-bold text-white w-6 text-center">${item.quantity}</span>
                                 <button onclick="updateItemQuantity('${item.sku}', 1)" class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-white"><i data-lucide="plus" class="w-3 h-3"></i></button>
                             </div>
-                            <span class="text-indigo-300 font-black text-sm">$${itemTotal.toFixed(2)}</span>
+                            <span class="text-indigo-300 font-black text-sm">$${itemTotal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
                         </div>
                     </div>
                 </div>`;
             }).join('');
 
-            subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+            subtotalEl.textContent = `$${subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
             lucide.createIcons();
         }
 

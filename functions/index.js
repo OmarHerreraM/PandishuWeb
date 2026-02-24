@@ -9,7 +9,13 @@ const nodemailer = require('nodemailer');
 
 admin.initializeApp();
 
-// ─── CREDENTIALS (from functions/.env) ──────────────────────────────────────
+// ─── CT CONNECT CONFIG ──────────────────────────────────────────────────────
+const CT_API_BASE = process.env.CT_API_BASE || 'https://api.ctonline.mx';
+const CT_CLIENT_NUM = process.env.CT_CLIENT_NUMBER;
+const CT_EMAIL = process.env.CT_EMAIL;
+const CT_RFC = process.env.CT_RFC;
+
+// ─── INGRAM CREDENTIALS (Migration Reference) ──────────────────────────────────
 const IM_CLIENT_ID = process.env.INGRAM_CLIENT_ID;
 const IM_CLIENT_SECRET = process.env.INGRAM_CLIENT_SECRET;
 const IM_SECRET_KEY = process.env.INGRAM_SECRET_KEY;
@@ -28,34 +34,51 @@ function usdToMxn(usdPrice) {
     return { price: Math.round(usdPrice * MXN_RATE * 100) / 100, currency: 'MXN' };
 }
 
-// ─── TOKEN CACHE ─────────────────────────────────────────────────────────────
-let cachedToken = null;
-let tokenExpiry = 0;
+// ─── TOKEN CACHE (CT CONNECT) ────────────────────────────────────────────────
+let cachedCTToken = null;
+let ctTokenExpiry = 0;
 
 /**
- * Obtiene (o reutiliza si no venció) el OAuth2 Bearer token de Ingram Micro.
+ * Obtiene (o reutiliza si no venció) el token 'x-auth' de CT Internacional.
  */
-async function getAccessToken() {
-    if (cachedToken && Date.now() < tokenExpiry) return cachedToken;
+async function getCTToken() {
+    if (cachedCTToken && Date.now() < ctTokenExpiry) return cachedCTToken;
 
-    console.log('Fetching new access token with Client ID:', IM_CLIENT_ID ? 'Present' : 'MISSING');
+    console.log('Fetching new CT Connect Token for client:', CT_CLIENT_NUM);
 
-    return new Promise((resolve, reject) => {
-        const api = new XiSdk.AccesstokenApi();
-        api.getAccesstoken('client_credentials', IM_CLIENT_ID, IM_CLIENT_SECRET,
-            (err, data) => {
-                if (err) {
-                    console.error('getAccesstoken raw error:', err);
-                    return reject(new Error(`Auth error: ${err.message || err}`));
-                }
-                console.log('Token obtained successfully');
-                cachedToken = data.access_token;
-                // Cache por 55 minutos (token dura 60 min)
-                tokenExpiry = Date.now() + 55 * 60 * 1000;
-                resolve(cachedToken);
-            }
-        );
-    });
+    if (!CT_EMAIL || !CT_CLIENT_NUM || !CT_RFC) {
+        throw new Error('CT credentials missing in .env (CT_EMAIL, CT_CLIENT_NUMBER, CT_RFC)');
+    }
+
+    try {
+        const response = await fetch(`${CT_API_BASE}/cliente/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: CT_EMAIL,
+                cliente: CT_CLIENT_NUM,
+                rfc: CT_RFC
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`CT Auth Failed (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (!data.token) throw new Error('CT Auth response did not contain a token');
+
+        cachedCTToken = data.token;
+        // CT tokens suelen durar bastante, pero renovamos cada 2 horas por seguridad o lo que indique la API
+        ctTokenExpiry = Date.now() + 2 * 60 * 60 * 1000;
+
+        console.log('CT Token obtained successfully');
+        return cachedCTToken;
+    } catch (error) {
+        console.error('getCTToken error:', error);
+        throw error;
+    }
 }
 
 /**
@@ -216,69 +239,94 @@ async function enviarCorreoEnvio(toEmail, customerName, orderId, trackingNumber)
 // GET /resellers/v6/catalog?keyword=...
 // Llamado desde tienda.html
 // ─────────────────────────────────────────────────────────────────────────────
-exports.searchProducts = functions.https.onRequest((req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 1 — searchProducts
+// GET /existencia/promociones (CT Connect)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.searchProducts = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
 
         try {
             const body = req.body || {};
-            // Usa los Mocks explícitamente si está configurado así en las variables
+
             if (process.env.USE_MOCK_DATA === 'true') {
                 console.log('🔹 Sirviendo catálogo MOCK por configuración USE_MOCK_DATA=true');
                 return res.status(200).json(getMockSearchData(body.keyword));
             }
 
-            await getApiClient();
+            const token = await getCTToken();
 
-            const api = new XiSdk.ProductCatalogApi();
-            const opts = {
-                keyword: body.keyword ? [body.keyword] : undefined,
-                vendor: body.vendor ? [body.vendor] : undefined,
-                pageNumber: parseInt(body.pageNumber) || 1,
-                pageSize: Math.min(parseInt(body.pageSize) || 24, 100),
-            };
-
-            const correlationId = `pandishu-search-${Date.now()}`;
-
-            const data = await new Promise((resolve, reject) => {
-                api.getResellerV6Productsearch(
-                    IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId,
-                    opts,
-                    (err, result) => err ? reject(err) : resolve(result)
-                );
+            console.log('Fetching CT promotions/catalog...');
+            const response = await fetch(`${CT_API_BASE}/existencia/promociones`, {
+                headers: { 'x-auth': token }
             });
 
-            // Mapeo defensivo para asegurar que el Front-end siempre reciba la estructura esperada:
-            const safeCatalog = (data.catalog || []).map(p => ({
-                ingramPartNumber: p.ingramPartNumber || '',
-                vendorName: p.vendorName || 'Desconocido',
-                vendorPartNumber: p.vendorPartNumber || '',
-                description: p.description || 'Producto sin descripción',
+            if (!response.ok) {
+                throw new Error(`CT Catalog Fetch Failed: ${response.status}`);
+            }
+
+            const fullCatalog = await response.json();
+
+            // Filtrado por keyword (CT no tiene buscador en API, filtramos en memoria)
+            let keyword = '';
+            if (body.keyword) {
+                keyword = Array.isArray(body.keyword) ? body.keyword[0].toString().toLowerCase() : body.keyword.toString().toLowerCase();
+            }
+
+            let filteredResults = fullCatalog;
+            if (keyword && keyword !== 'all') {
+                filteredResults = fullCatalog.filter(p =>
+                    (p.nombre && p.nombre.toLowerCase().includes(keyword)) ||
+                    (p.descripcion && p.descripcion.toLowerCase().includes(keyword)) ||
+                    (p.marca && p.marca.toLowerCase().includes(keyword)) ||
+                    (p.codigo && p.codigo.toLowerCase().includes(keyword))
+                );
+            }
+
+            // Mapeo al formato esperado por el Frontend (Pandishú)
+            const safeCatalog = filteredResults.map(p => ({
+                ingramPartNumber: p.codigo || '', // Mantenemos el nombre de la key por compatibilidad
+                vendorName: p.marca || 'Desconocido',
+                vendorPartNumber: p.numParte || '',
+                description: p.nombre || p.descripcion || 'Producto sin descripción',
                 upc: p.upc || '',
-                productCategory: p.productCategory || ''
+                productCategory: p.subcategoria || '',
+                image: p.imagen || '', // CT sí entrega imagen
+                price: p.precio, // Precio directo de CT
+                currency: p.moneda || 'MXN'
             }));
 
-            // Guardar en Firestore Cache (Búsquedas completas)
-            // Esto ahorra cuota de la API para búsquedas repetidas
-            try {
-                if (body.keyword) {
-                    await admin.firestore().collection('products_cache').doc(`search_${body.keyword}`).set({
-                        catalog: safeCatalog,
+            // Cache opcional en Firestore
+            if (keyword && keyword !== 'all') {
+                try {
+                    await admin.firestore().collection('products_cache').doc(`search_${keyword}`).set({
+                        catalog: safeCatalog.slice(0, 50), // Guardamos top 50
                         timestamp: FieldValue.serverTimestamp()
                     });
+                } catch (e) {
+                    console.warn("Cache warning:", e.message);
                 }
-            } catch (cacheErr) {
-                console.warn("⚠️ No se pudo guardar en cache:", cacheErr.message);
             }
 
             return res.status(200).json({
-                recordsFound: data.recordsFound || safeCatalog.length,
-                catalog: safeCatalog
+                recordsFound: safeCatalog.length,
+                catalog: safeCatalog.slice(0, 100) // Limitamos a 100 para no saturar el front
             });
+
         } catch (err) {
-            console.error('searchProducts falló (Error de API):', err.message || err);
-            console.warn('⚠️ ENTRANDO EN MOCK DATA FALLBACK POR ERROR DE API');
-            return res.status(200).json(getMockSearchData(body.keyword));
+            console.error('searchProducts (CT) error:', err.message);
+            return res.status(200).json(getMockSearchData(req.body.keyword));
         }
     });
 });
@@ -345,16 +393,27 @@ function getMockPricingData(skus) {
 // FUNCTION 2 — getPriceAndAvailability
 // POST body: { skus: ["SKU1", "SKU2"] }  (máx 50)
 // ─────────────────────────────────────────────────────────────────────────────
-exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
+// FUNCTION 2 — getPriceAndAvailability
+// POST body: { skus: ["SKU1", "SKU2"] }  (CT Connect)
+// GET /existencia/promociones/:codigo → { codigo, precio, moneda, almacenes:[{almacen, existencia}] }
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getPriceAndAvailability = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
         const { skus } = req.body;
         if (!Array.isArray(skus) || skus.length === 0) {
             return res.status(400).json({ error: 'Se requiere el array skus' });
-        }
-        if (skus.length > 50) {
-            return res.status(400).json({ error: 'Máximo 50 SKUs por petición' });
         }
 
         try {
@@ -363,44 +422,57 @@ exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
                 return res.status(200).json(getMockPricingData(skus));
             }
 
-            await getApiClient();
+            const token = await getCTToken();
 
-            const api = new XiSdk.ProductCatalogApi();
-            const body = XiSdk.PriceAndAvailabilityRequest.constructFromObject({
-                products: skus.map(sku => ({ ingramPartNumber: sku })),
-            });
+            // Consultamos cada SKU en paralelo usando el endpoint correcto de CT
+            const results = await Promise.all(skus.map(async (sku) => {
+                try {
+                    // Endpoint correcto: GET /existencia/promociones/:codigo
+                    // Respuesta: { codigo, precio, moneda, almacenes: [{almacen, existencia}] }
+                    const response = await fetch(`${CT_API_BASE}/existencia/promociones/${sku}`, {
+                        headers: { 'x-auth': token }
+                    });
 
-            const correlationId = `pandishu-pa-${Date.now()}`;
+                    if (!response.ok) return null;
 
-            const data = await new Promise((resolve, reject) => {
-                api.postPriceandavailability(
-                    IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId,
-                    true, true,   // includeAvailability, includePricing
-                    { priceAndAvailabilityRequest: body },
-                    (err, result) => err ? reject(err) : resolve(result)
-                );
-            });
+                    const data = await response.json();
 
-            // Extraemos solo lo necesario y convertimos a MXN
-            const safePricing = (data || []).map(p => {
-                const usdPrice = p.pricing ? p.pricing.customerPrice : 0;
-                const mxn = usdToMxn(usdPrice);
-                return {
-                    ingramPartNumber: p.ingramPartNumber || '',
-                    pricing: {
-                        customerPrice: mxn.price,
-                        customerPriceUSD: usdPrice,
-                        currencyCode: mxn.currency
-                    },
-                    availability: {
-                        availableQuantity: p.availability ? p.availability.availableQuantity : 0,
-                        totalAvailability: p.availability ? p.availability.totalAvailability : 0,
-                        availabilityByWarehouse: p.availability ? p.availability.availabilityByWarehouse : []
+                    // La moneda puede ser USD o MXN según la documentación oficial
+                    let precioMXN = data.precio || 0;
+                    const moneda = data.moneda || 'USD';
+
+                    if (moneda === 'USD') {
+                        // Convertir a MXN usando el tipo de cambio configurado
+                        const mxn = usdToMxn(precioMXN);
+                        precioMXN = mxn.price;
                     }
-                };
-            });
 
-            // Actualizar Cache local de inventario
+                    // Sumar existencias de todos los almacenes
+                    const almacenes = Array.isArray(data.almacenes) ? data.almacenes : [];
+                    const totalExistencia = almacenes.reduce((sum, alm) => sum + (alm.existencia || 0), 0);
+
+                    return {
+                        ingramPartNumber: sku, // key por compatibilidad con el front-end
+                        pricing: {
+                            customerPrice: precioMXN,
+                            customerPriceOriginal: data.precio || 0,
+                            currencyCode: 'MXN' // Siempre devolvemos en MXN
+                        },
+                        availability: {
+                            availableQuantity: totalExistencia,
+                            totalAvailability: totalExistencia,
+                            availabilityByWarehouse: almacenes
+                        }
+                    };
+                } catch (e) {
+                    console.error(`Error fetching SKU ${sku} from CT:`, e.message);
+                    return null;
+                }
+            }));
+
+            const safePricing = results.filter(r => r !== null);
+
+            // Actualizar Cache local
             try {
                 const batch = admin.firestore().batch();
                 safePricing.forEach(item => {
@@ -408,16 +480,18 @@ exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
                     batch.set(docRef, { ...item, lastPaUpdate: FieldValue.serverTimestamp() }, { merge: true });
                 });
                 await batch.commit();
-            } catch (e) { console.warn("⚠️ Error guardando caché de P&A", e.message); }
+            } catch (e) { console.warn("Cache warning:", e.message); }
 
             return res.status(200).json(safePricing);
+
         } catch (err) {
-            console.error('getPriceAndAvailability error:', err.message || err);
-            console.warn('⚠️ USING MOCK DATA FOR PRICE/AVAIL DUE TO API ERROR');
+            console.error('getPriceAndAvailability (CT) error:', err.message);
             return res.status(200).json(getMockPricingData(skus));
         }
     });
 });
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FUNCTION 3 — ingramWebhook
@@ -580,7 +654,17 @@ const YOUR_DOMAIN = 'https://www.pandishu.com'; // Production URL
  * POST body: { items: [...], customer: {...} }
  * Crea una preferencia de pago en Mercado Pago y devuelve el init_point para redirigir al usuario.
  */
-exports.createCheckoutSession = functions.https.onRequest((req, res) => {
+exports.createCheckoutSession = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -681,7 +765,17 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
  * POST body: { token, payment_method_id, installments, issuer_id, customer, items }
  * Crea un Customer en MP, asocia la tarjeta y procesa el pago de inmediato.
  */
-exports.processCustomPayment = functions.https.onRequest((req, res) => {
+exports.processCustomPayment = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -842,63 +936,101 @@ exports.processCustomPayment = functions.https.onRequest((req, res) => {
 });
 
 /**
- * FUNCTION — placeIngramOrder
- * Crea la orden real en Ingram Micro usando su SDK v6.
+ * FUNCTION — placeCTOrder
+ * Crea el pedido real en CT Internacional usando su API Connect (Dropshipping).
  */
-async function placeIngramOrder(orderId, orderData) {
-    console.log(`[Ingram] Iniciando colocación de orden para ID: ${orderId}`);
+async function placeCTOrder(orderId, orderData) {
+    console.log(`[CT Connect] Iniciando colocación de pedido para ID: ${orderId}`);
     try {
-        await getApiClient(); // Configura el singleton de la SDK
-        const api = new XiSdk.OrdersApi();
-
+        const token = await getCTToken();
         const customer = orderData.customerInfo;
         const items = orderData.items || [];
 
-        // Mapear items al formato de Ingram
-        const lines = items.map((item, index) => ({
-            customerLineNumber: (index + 1).toString(),
-            ingramPartNumber: item.sku || item.id,
-            quantity: parseInt(item.quantity) || 1
+        // Para CT, necesitamos mapear los productos al formato de listado
+        const productos = items.map(item => ({
+            cantidad: parseInt(item.quantity) || 1,
+            clave: item.sku || item.id, // Es la clave única de CT
+            precio: parseFloat(item.price) || 0,
+            moneda: 'MXN'
         }));
 
-        const orderRequest = {
-            customerOrderNumber: orderId,
-            notes: "Orden automática desde Pandishu Web",
-            shipToInfo: {
-                contact: customer.name,
-                companyName: customer.name,
-                addressLine1: customer.address.street,
-                city: customer.address.city,
-                state: customer.address.state,
-                postalCode: customer.address.zip,
-                countryCode: IM_COUNTRY_CODE,
-                email: customer.email,
-                phoneNumber: customer.phone ? customer.phone.replace(/\D/g, '') : ""
-            },
-            lines: lines,
-            additionalAttributes: [
+        // Estructura del pedido según documentación de CT Connect
+        const pedidoRequest = {
+            idPedido: orderId, // Nuestro identificador único
+            almacen: "01A", // Por defecto Almacén Principal, CT lo ajusta según stock
+            tipoPago: "99", // Crédito CT (estándar para integraciones)
+            cfdi: "G01",    // G01 = Adquisición de mercancias (default según docs)
+            envio: [
                 {
-                    attributeName: "allowDuplicateCustomerOrderNumber",
-                    attributeValue: "true"
+                    nombre: customer.name,
+                    direccion: customer.address.street || "Dirección pendiente",
+                    entreCalles: "",
+                    noExterior: customer.address.ext_number || "S/N",
+                    noInterior: customer.address.int_number || "",
+                    colonia: customer.address.neighborhood || "Centro",
+                    estado: customer.address.state,
+                    ciudad: customer.address.city,
+                    codigoPostal: parseInt((customer.address.zip || '').replace(/\D/g, '')) || 0,
+                    telefono: parseInt((customer.phone || '').replace(/\D/g, '')) || 0
                 }
-            ]
+            ],
+            producto: productos
         };
 
-        const correlationId = `PO-${orderId}-${Date.now()}`;
-
-        return new Promise((resolve, reject) => {
-            api.postCreateorderV6(IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId, orderRequest, {}, (error, data) => {
-                if (error) {
-                    console.error('[Ingram] Error en postCreateorderV6:', error.message || error);
-                    return reject(error);
-                }
-                console.log('[Ingram] Orden creada exitosamente:', JSON.stringify(data));
-                resolve(data);
-            });
+        // ─── Paso 1: Crear pedido ───────────────────────────────────────────
+        const response = await fetch(`${CT_API_BASE}/pedido`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth': token },
+            body: JSON.stringify(pedidoRequest)
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`CT Order Failed (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        // Respuesta oficial: { idPedido, respuestaCT: { pedidoWeb, tipoDeCambio, estatus, errores } }
+        const ctFolio = data?.respuestaCT?.pedidoWeb;
+        const ctErrores = data?.respuestaCT?.errores || [];
+
+        if (!ctFolio) {
+            console.error('[CT Connect] No se recibió pedidoWeb:', JSON.stringify(data));
+            throw new Error('CT no devolvió un folio válido (pedidoWeb)');
+        }
+
+        if (ctErrores.length > 0) {
+            console.warn('[CT Connect] Pedido con errores:', JSON.stringify(ctErrores));
+        }
+
+        console.log(`[CT Connect] Pedido creado. Folio: ${ctFolio}. Confirmando...`);
+
+        // ─── Paso 2: Confirmar (OBLIGATORIO — 48h o CT cancela automáticamente) ─
+        const confirmResponse = await fetch(`${CT_API_BASE}/pedido/confirmar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth': token },
+            body: JSON.stringify({ folio: ctFolio })
+        });
+
+        if (!confirmResponse.ok) {
+            const confirmError = await confirmResponse.text();
+            console.error(`[CT Connect] Error al confirmar ${ctFolio}: ${confirmError}`);
+            // No lanzamos error — el folio existe y puede reintentarse confirmación
+        } else {
+            const confirmData = await confirmResponse.json();
+            console.log(`[CT Connect] Pedido ${ctFolio} confirmado: ${confirmData.okMessage}`);
+        }
+
+        return {
+            folio: ctFolio,
+            status: data?.respuestaCT?.estatus || 'Pendiente',
+            tipoDeCambio: data?.respuestaCT?.tipoDeCambio,
+            errores: ctErrores
+        };
+
     } catch (err) {
-        console.error('[Ingram] Fallo crítico en el flujo de creación de orden:', err.message);
+        console.error('[CT Connect] Fallo crítico en la creación de pedido:', err.message);
         throw err;
     }
 }
@@ -907,7 +1039,17 @@ async function placeIngramOrder(orderId, orderData) {
  * FUNCTION 5 — mpWebhook
  * Webhook de Mercado Pago para notificaciones IPN/Webhooks
  */
-exports.mpWebhook = functions.https.onRequest(async (req, res) => {
+exports.mpWebhook = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest(async (req, res) => {
     const client = getMercadoPagoClient();
     if (!client) return res.status(500).send('MP is not configured');
 
@@ -981,17 +1123,17 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
                                 data.amountTotal
                             );
 
-                            // 2) Colocar la orden en Ingram Micro
-                            const ingramResult = await placeIngramOrder(orderId, data);
+                            // 2) Colocar la orden en CT Internacional
+                            const ctResult = await placeCTOrder(orderId, data);
 
-                            // 3) Guardar el número de orden de Ingram en Firestore
-                            if (ingramResult && ingramResult.orders && ingramResult.orders.length > 0) {
-                                const imOrderNum = ingramResult.orders[0].ingramOrderNumber;
+                            // 3) Guardar el número de orden (folio) de CT en Firestore
+                            if (ctResult && ctResult.folio) {
                                 await admin.firestore().collection('orders').doc(orderId).update({
-                                    ingramOrderNumber: imOrderNum,
-                                    ingramStatus: 'placed'
+                                    ctFolio: ctResult.folio,
+                                    ctStatus: ctResult.status || 'placed',
+                                    vendor: 'CT'
                                 });
-                                console.log(`✅ Orden ${orderId} sincronizada con Ingram: ${imOrderNum}`);
+                                console.log(`✅ Orden ${orderId} sincronizada con CT: ${ctResult.folio}`);
                             }
                         }
                     } catch (err) {
@@ -1013,7 +1155,17 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
 // FUNCTION 7 — getInvoiceDetails
 // GET — Consulta el detalle de una factura de Ingram usando su número de factura
 // ─────────────────────────────────────────────────────────────────────────────
-exports.getInvoiceDetails = functions.https.onRequest((req, res) => {
+exports.getInvoiceDetails = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
@@ -1051,7 +1203,17 @@ exports.getInvoiceDetails = functions.https.onRequest((req, res) => {
 // FUNCTION 8 — searchInvoices
 // GET — Busca facturas por número de orden de cliente para asociarlas automáticamente
 // ─────────────────────────────────────────────────────────────────────────────
-exports.searchInvoices = functions.https.onRequest((req, res) => {
+exports.searchInvoices = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
@@ -1111,7 +1273,17 @@ exports.searchInvoices = functions.https.onRequest((req, res) => {
 // FUNCTION 9 — createOrderV7
 // POST — Crea una orden ASÍNCRONA en Ingram v7. La respuesta real llega via webhook.
 // ─────────────────────────────────────────────────────────────────────────────
-exports.createOrderV7 = functions.https.onRequest((req, res) => {
+exports.createOrderV7 = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
 
@@ -1175,7 +1347,17 @@ exports.createOrderV7 = functions.https.onRequest((req, res) => {
 // FUNCTION 10 — getOrderDetails
 // GET ?orderNumber=20-RD3QV — Detalles completos de una orden de Ingram
 // ─────────────────────────────────────────────────────────────────────────────
-exports.getOrderDetails = functions.https.onRequest((req, res) => {
+exports.getOrderDetails = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
@@ -1206,7 +1388,17 @@ exports.getOrderDetails = functions.https.onRequest((req, res) => {
 // FUNCTION 11 — searchOrders
 // GET ?customerOrderNumber=... — Busca órdenes de Ingram con múltiples filtros
 // ─────────────────────────────────────────────────────────────────────────────
-exports.searchOrders = functions.https.onRequest((req, res) => {
+exports.searchOrders = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
 
@@ -1239,7 +1431,17 @@ exports.searchOrders = functions.https.onRequest((req, res) => {
 // FUNCTION 12 — cancelOrder
 // DELETE ?orderNumber=20-RD128 — Cancela una orden que esté en customer hold
 // ─────────────────────────────────────────────────────────────────────────────
-exports.cancelOrder = functions.https.onRequest((req, res) => {
+exports.cancelOrder = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
 
@@ -1280,7 +1482,17 @@ exports.cancelOrder = functions.https.onRequest((req, res) => {
 // FUNCTION 13 — modifyOrder
 // PUT ?orderNumber=20-RC1RD — Modifica líneas de una orden en customer hold
 // ─────────────────────────────────────────────────────────────────────────────
-exports.modifyOrder = functions.https.onRequest((req, res) => {
+exports.modifyOrder = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'PUT') return res.status(405).json({ error: 'Method not allowed. Use PUT.' });
 
@@ -1315,7 +1527,17 @@ exports.modifyOrder = functions.https.onRequest((req, res) => {
 // FUNCTION 14 — getVendorRequiredInfo
 // POST — Obtiene los campos obligatorios del vendor (VMF) para una orden o cotización
 // ─────────────────────────────────────────────────────────────────────────────
-exports.getVendorRequiredInfo = functions.https.onRequest((req, res) => {
+exports.getVendorRequiredInfo = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
 
@@ -1360,114 +1582,50 @@ exports.getVendorRequiredInfo = functions.https.onRequest((req, res) => {
     });
 });
 
+// NOTA: La API de Ingram Micro para México (v6) no incluye endpoint de estimación de flete.
+// El costo de envío se maneja como tarifa fija de $149 MXN directamente en el checkout.
+
 // ─────────────────────────────────────────────────────────────────────────────
-// FUNCTION 15 — getFreightEstimate
-// POST — Calcula el costo de envío estimado para un grupo de productos
-// Respuesta convertida a MXN automáticamente
+// TEST FUNCTION — testIpPandishu
+// GET — Realiza una petición a ipify.org para confirmar que la IP de salida es la estática
 // ─────────────────────────────────────────────────────────────────────────────
-exports.getFreightEstimate = functions.https.onRequest((req, res) => {
+const axios = require('axios');
+
+exports.testIpPandishu = functions.runWith({
+    vpcConnector: 'pandishu-vpc-connector',
+    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    timeoutSeconds: 60,
+    labels: {
+        "environment": "production",
+        "project": "pandishu",
+        "owner": "oscar",
+        "cost_center": "sales"
+    }
+}).https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
-
-        const { lines, shipToAddress, shipToAddressId, billToAddressId } = req.body;
-        if (!lines || !Array.isArray(lines) || lines.length === 0) {
-            return res.status(400).json({ error: 'Se requiere el array lines con al menos un producto.' });
-        }
-        if (!shipToAddress && !shipToAddressId) {
-            return res.status(400).json({ error: 'Se requiere shipToAddress o shipToAddressId.' });
-        }
-
-        // Modo MOCK (sin credenciales reales de Ingram MX)
-        if (process.env.USE_MOCK_DATA === 'true') {
-            const mockFreightMXN = usdToMxn(19.70).price;
-            return res.status(200).json({
-                freightEstimateResponse: {
-                    currencyCode: 'MXN',
-                    totalFreightAmount: mockFreightMXN,
-                    totalTaxAmount: 0,
-                    distribution: [{
-                        shipFromBranchNumber: 'MX',
-                        carrierCode: 'FX',
-                        shipVia: 'FEDEX GROUND',
-                        freightRate: mockFreightMXN,
-                        totalWeight: 2,
-                        transitDays: 3,
-                        carrierList: [
-                            { carrierCode: 'FX', shipVia: 'FEDEX GROUND', estimatedFreightCharge: mockFreightMXN.toString(), daysInTransit: '3' },
-                            { carrierCode: 'EX', shipVia: 'ESTAFETA', estimatedFreightCharge: usdToMxn(15.00).price.toString(), daysInTransit: '4' }
-                        ]
-                    }],
-                    lines: lines.map((l, i) => ({
-                        ingramPartNumber: l.ingramPartNumber,
-                        quantity: parseInt(l.quantity) || 1,
-                        unitPrice: usdToMxn(150).price
-                    }))
-                }
-            });
-        }
-
         try {
-            await getApiClient();
-            const api = new XiSdk.FreightEstimateApi();
-            const correlationId = `pandishu-freight-${Date.now()}`;
-            const contactEmail = process.env.INGRAM_CONTACT_EMAIL || process.env.SMTP_EMAIL || 'contacto@pandishu.com';
+            // Hacemos la petición a ipify para ver con qué IP estamos saliendo a internet
+            const response = await axios.get('https://api.ipify.org?format=json');
 
-            const freightRequest = {
-                billToAddressId: billToAddressId || '000',
-                shipToAddressId: shipToAddressId || undefined,
-                shipToAddress: shipToAddress || undefined,
-                lines: lines.map((line, idx) => ({
-                    customerLineNumber: String(idx + 1).padStart(3, '0'),
-                    ingramPartNumber: line.ingramPartNumber,
-                    quantity: String(parseInt(line.quantity) || 1),
-                    warehouseId: line.warehouseId || '',
-                    carrierCode: line.carrierCode || ''
-                }))
-            };
+            const expectedIp = '34.136.167.161';
+            const detectedIp = response.data.ip;
 
-            const data = await new Promise((resolve, reject) => {
-                api.postFreightestimate(
-                    IM_CUSTOMER_NUM,
-                    IM_COUNTRY_CODE,
-                    correlationId,
-                    contactEmail,
-                    { iMSenderID: 'Pandishu', freightRequest },
-                    (err, result) => err ? reject(err) : resolve(result)
-                );
+            return res.status(200).json({
+                success: true,
+                message: detectedIp === expectedIp
+                    ? "¡ÉXITO! El tráfico está saliendo correctamente por la IP Estática del Cloud NAT."
+                    : "ADVERTENCIA: La IP detectada no coincide con la esperada.",
+                expectedStaticIp: expectedIp,
+                detectedEgressIp: detectedIp,
+                vpcConnectorUsed: 'pandishu-vpc-connector'
             });
-
-            // Convertir montos de USD a MXN en la respuesta
-            if (data && data.freightEstimateResponse) {
-                const fRes = data.freightEstimateResponse;
-
-                fRes.totalFreightAmountMXN = usdToMxn(fRes.totalFreightAmount).price;
-                fRes.grossAmountMXN = usdToMxn(fRes.grossAmount).price;
-                fRes.currencyCode = 'MXN';
-
-                if (fRes.distribution) {
-                    fRes.distribution.forEach(dist => {
-                        dist.freightRateMXN = usdToMxn(dist.freightRate).price;
-                        if (dist.carrierList) {
-                            dist.carrierList.forEach(c => {
-                                c.estimatedFreightChargeMXN = usdToMxn(parseFloat(c.estimatedFreightCharge)).price.toString();
-                            });
-                        }
-                    });
-                }
-
-                if (fRes.lines) {
-                    fRes.lines.forEach(l => {
-                        l.unitPriceMXN = usdToMxn(l.unitPrice).price;
-                        l.netAmountMXN = usdToMxn(l.netAmount).price;
-                    });
-                }
-            }
-
-            console.log(`✅ Freight estimate obtenido para ${lines.length} líneas.`);
-            return res.status(200).json(data);
-        } catch (err) {
-            console.error('[Freight] getFreightEstimate error:', err.message);
-            return res.status(500).json({ error: err.message || 'Error al calcular el costo de envío.' });
+        } catch (error) {
+            console.error('Error al probar IP de salida:', error.message);
+            return res.status(500).json({
+                success: false,
+                error: 'Error al contactar api.ipify.org',
+                details: error.message
+            });
         }
     });
 });
