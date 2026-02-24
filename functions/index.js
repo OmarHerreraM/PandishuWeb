@@ -759,6 +759,68 @@ exports.processCustomPayment = functions.https.onRequest((req, res) => {
 });
 
 /**
+ * FUNCTION — placeIngramOrder
+ * Crea la orden real en Ingram Micro usando su SDK v6.
+ */
+async function placeIngramOrder(orderId, orderData) {
+    console.log(`[Ingram] Iniciando colocación de orden para ID: ${orderId}`);
+    try {
+        await getApiClient(); // Configura el singleton de la SDK
+        const api = new XiSdk.OrdersApi();
+
+        const customer = orderData.customerInfo;
+        const items = orderData.items || [];
+
+        // Mapear items al formato de Ingram
+        const lines = items.map((item, index) => ({
+            customerLineNumber: (index + 1).toString(),
+            ingramPartNumber: item.sku || item.id,
+            quantity: parseInt(item.quantity) || 1
+        }));
+
+        const orderRequest = {
+            customerOrderNumber: orderId,
+            notes: "Orden automática desde Pandishu Web",
+            shipToInfo: {
+                contact: customer.name,
+                companyName: customer.name,
+                addressLine1: customer.address.street,
+                city: customer.address.city,
+                state: customer.address.state,
+                postalCode: customer.address.zip,
+                countryCode: IM_COUNTRY_CODE,
+                email: customer.email,
+                phoneNumber: customer.phone ? customer.phone.replace(/\D/g, '') : ""
+            },
+            lines: lines,
+            additionalAttributes: [
+                {
+                    attributeName: "allowDuplicateCustomerOrderNumber",
+                    attributeValue: "true"
+                }
+            ]
+        };
+
+        const correlationId = `PO-${orderId}-${Date.now()}`;
+
+        return new Promise((resolve, reject) => {
+            api.postCreateorderV6(IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId, orderRequest, {}, (error, data) => {
+                if (error) {
+                    console.error('[Ingram] Error en postCreateorderV6:', error.message || error);
+                    return reject(error);
+                }
+                console.log('[Ingram] Orden creada exitosamente:', JSON.stringify(data));
+                resolve(data);
+            });
+        });
+
+    } catch (err) {
+        console.error('[Ingram] Fallo crítico en el flujo de creación de orden:', err.message);
+        throw err;
+    }
+}
+
+/**
  * FUNCTION 5 — mpWebhook
  * Webhook de Mercado Pago para notificaciones IPN/Webhooks
  */
@@ -821,11 +883,13 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
 
                     console.log(`✅ Orden ${orderId} marcada como pagada en Firestore.`);
 
-                    // ─── Enviar Correo Electrónico al Cliente ───
+                    // ─── Integración Order Entry API de Ingram ───
                     try {
                         const orderDoc = await admin.firestore().collection('orders').doc(orderId).get();
                         if (orderDoc.exists) {
                             const data = orderDoc.data();
+
+                            // 1) Enviar Correo Electrónico al Cliente
                             await enviarCorreoConfirmacion(
                                 data.customerInfo.email,
                                 data.customerInfo.name,
@@ -833,13 +897,23 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
                                 data.items,
                                 data.amountTotal
                             );
-                        }
-                    } catch (mailErr) {
-                        console.error('⚠️ No se pudo enviar el correo transaccional:', mailErr.message);
-                    }
 
-                    // TODO: Integración Order Entry API de Ingram
-                    // Aquí llamaremos a la creación de orden real en Ingram Micro
+                            // 2) Colocar la orden en Ingram Micro
+                            const ingramResult = await placeIngramOrder(orderId, data);
+
+                            // 3) Guardar el número de orden de Ingram en Firestore
+                            if (ingramResult && ingramResult.orders && ingramResult.orders.length > 0) {
+                                const imOrderNum = ingramResult.orders[0].ingramOrderNumber;
+                                await admin.firestore().collection('orders').doc(orderId).update({
+                                    ingramOrderNumber: imOrderNum,
+                                    ingramStatus: 'placed'
+                                });
+                                console.log(`✅ Orden ${orderId} sincronizada con Ingram: ${imOrderNum}`);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('⚠️ Error en procesamiento post-pago (Email/Ingram):', err.message);
+                    }
                 }
             }
 
