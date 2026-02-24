@@ -14,7 +14,19 @@ const IM_CLIENT_ID = process.env.INGRAM_CLIENT_ID;
 const IM_CLIENT_SECRET = process.env.INGRAM_CLIENT_SECRET;
 const IM_SECRET_KEY = process.env.INGRAM_SECRET_KEY;
 const IM_CUSTOMER_NUM = process.env.INGRAM_CUSTOMER_NUMBER || 'SBX';
-const IM_COUNTRY_CODE = process.env.INGRAM_COUNTRY_CODE || 'US';
+const IM_COUNTRY_CODE = process.env.INGRAM_COUNTRY_CODE || 'MX';
+
+// ─── CONVERSIÓN DE MONEDA (USD → MXN) ───────────────────────────────────────────────────────────
+const MXN_RATE = parseFloat(process.env.MXN_EXCHANGE_RATE) || 17.50;
+/**
+ * Convierte un precio de USD a MXN usando el tipo de cambio en .env.
+ * @param {number} usdPrice
+ * @returns {{ price: number, currency: string }}
+ */
+function usdToMxn(usdPrice) {
+    if (!usdPrice || isNaN(usdPrice)) return { price: 0, currency: 'MXN' };
+    return { price: Math.round(usdPrice * MXN_RATE * 100) / 100, currency: 'MXN' };
+}
 
 // ─── TOKEN CACHE ─────────────────────────────────────────────────────────────
 let cachedToken = null;
@@ -315,13 +327,14 @@ function getMockPricingData(skus) {
     };
     return skus.map(sku => {
         const basePrice = mockPrices[sku] || 150.00;
+        const mxnPrice = usdToMxn(basePrice);
         const stock = sku.includes('MOCK') ? (sku.charCodeAt(sku.length - 2) * 2) : 5;
         return {
             ingramPartNumber: sku,
-            pricing: { customerPrice: basePrice, currencyCode: "USD" },
+            pricing: { customerPrice: mxnPrice.price, customerPriceUSD: basePrice, currencyCode: mxnPrice.currency },
             availability: {
                 availableQuantity: stock, totalAvailability: stock,
-                availabilityByWarehouse: [{ warehouseId: "CA", quantityAvailable: stock }]
+                availabilityByWarehouse: [{ warehouseId: 'MX', quantityAvailable: stock }]
             }
         };
     });
@@ -368,19 +381,24 @@ exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
                 );
             });
 
-            // Extraemos solo lo necesario y lo estructuramos igual que el mock para no romper el front
-            const safePricing = (data || []).map(p => ({
-                ingramPartNumber: p.ingramPartNumber || '',
-                pricing: {
-                    customerPrice: p.pricing ? p.pricing.customerPrice : 0,
-                    currencyCode: p.pricing ? p.pricing.currencyCode : 'USD'
-                },
-                availability: {
-                    availableQuantity: p.availability ? p.availability.availableQuantity : 0,
-                    totalAvailability: p.availability ? p.availability.totalAvailability : 0,
-                    availabilityByWarehouse: p.availability ? p.availability.availabilityByWarehouse : []
-                }
-            }));
+            // Extraemos solo lo necesario y convertimos a MXN
+            const safePricing = (data || []).map(p => {
+                const usdPrice = p.pricing ? p.pricing.customerPrice : 0;
+                const mxn = usdToMxn(usdPrice);
+                return {
+                    ingramPartNumber: p.ingramPartNumber || '',
+                    pricing: {
+                        customerPrice: mxn.price,
+                        customerPriceUSD: usdPrice,
+                        currencyCode: mxn.currency
+                    },
+                    availability: {
+                        availableQuantity: p.availability ? p.availability.availableQuantity : 0,
+                        totalAvailability: p.availability ? p.availability.totalAvailability : 0,
+                        availabilityByWarehouse: p.availability ? p.availability.availabilityByWarehouse : []
+                    }
+                };
+            });
 
             // Actualizar Cache local de inventario
             try {
@@ -1338,6 +1356,118 @@ exports.getVendorRequiredInfo = functions.https.onRequest((req, res) => {
         } catch (err) {
             console.error('[Orders] getVendorRequiredInfo error:', err.message);
             return res.status(500).json({ error: err.message || 'Error al obtener vendor required info.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 15 — getFreightEstimate
+// POST — Calcula el costo de envío estimado para un grupo de productos
+// Respuesta convertida a MXN automáticamente
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getFreightEstimate = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+
+        const { lines, shipToAddress, shipToAddressId, billToAddressId } = req.body;
+        if (!lines || !Array.isArray(lines) || lines.length === 0) {
+            return res.status(400).json({ error: 'Se requiere el array lines con al menos un producto.' });
+        }
+        if (!shipToAddress && !shipToAddressId) {
+            return res.status(400).json({ error: 'Se requiere shipToAddress o shipToAddressId.' });
+        }
+
+        // Modo MOCK (sin credenciales reales de Ingram MX)
+        if (process.env.USE_MOCK_DATA === 'true') {
+            const mockFreightMXN = usdToMxn(19.70).price;
+            return res.status(200).json({
+                freightEstimateResponse: {
+                    currencyCode: 'MXN',
+                    totalFreightAmount: mockFreightMXN,
+                    totalTaxAmount: 0,
+                    distribution: [{
+                        shipFromBranchNumber: 'MX',
+                        carrierCode: 'FX',
+                        shipVia: 'FEDEX GROUND',
+                        freightRate: mockFreightMXN,
+                        totalWeight: 2,
+                        transitDays: 3,
+                        carrierList: [
+                            { carrierCode: 'FX', shipVia: 'FEDEX GROUND', estimatedFreightCharge: mockFreightMXN.toString(), daysInTransit: '3' },
+                            { carrierCode: 'EX', shipVia: 'ESTAFETA', estimatedFreightCharge: usdToMxn(15.00).price.toString(), daysInTransit: '4' }
+                        ]
+                    }],
+                    lines: lines.map((l, i) => ({
+                        ingramPartNumber: l.ingramPartNumber,
+                        quantity: parseInt(l.quantity) || 1,
+                        unitPrice: usdToMxn(150).price
+                    }))
+                }
+            });
+        }
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.FreightEstimateApi();
+            const correlationId = `pandishu-freight-${Date.now()}`;
+            const contactEmail = process.env.INGRAM_CONTACT_EMAIL || process.env.SMTP_EMAIL || 'contacto@pandishu.com';
+
+            const freightRequest = {
+                billToAddressId: billToAddressId || '000',
+                shipToAddressId: shipToAddressId || undefined,
+                shipToAddress: shipToAddress || undefined,
+                lines: lines.map((line, idx) => ({
+                    customerLineNumber: String(idx + 1).padStart(3, '0'),
+                    ingramPartNumber: line.ingramPartNumber,
+                    quantity: String(parseInt(line.quantity) || 1),
+                    warehouseId: line.warehouseId || '',
+                    carrierCode: line.carrierCode || ''
+                }))
+            };
+
+            const data = await new Promise((resolve, reject) => {
+                api.postFreightestimate(
+                    IM_CUSTOMER_NUM,
+                    IM_COUNTRY_CODE,
+                    correlationId,
+                    contactEmail,
+                    { iMSenderID: 'Pandishu', freightRequest },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
+
+            // Convertir montos de USD a MXN en la respuesta
+            if (data && data.freightEstimateResponse) {
+                const fRes = data.freightEstimateResponse;
+
+                fRes.totalFreightAmountMXN = usdToMxn(fRes.totalFreightAmount).price;
+                fRes.grossAmountMXN = usdToMxn(fRes.grossAmount).price;
+                fRes.currencyCode = 'MXN';
+
+                if (fRes.distribution) {
+                    fRes.distribution.forEach(dist => {
+                        dist.freightRateMXN = usdToMxn(dist.freightRate).price;
+                        if (dist.carrierList) {
+                            dist.carrierList.forEach(c => {
+                                c.estimatedFreightChargeMXN = usdToMxn(parseFloat(c.estimatedFreightCharge)).price.toString();
+                            });
+                        }
+                    });
+                }
+
+                if (fRes.lines) {
+                    fRes.lines.forEach(l => {
+                        l.unitPriceMXN = usdToMxn(l.unitPrice).price;
+                        l.netAmountMXN = usdToMxn(l.netAmount).price;
+                    });
+                }
+            }
+
+            console.log(`✅ Freight estimate obtenido para ${lines.length} líneas.`);
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Freight] getFreightEstimate error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al calcular el costo de envío.' });
         }
     });
 });
