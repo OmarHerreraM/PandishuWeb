@@ -314,20 +314,46 @@
                             <!-- JS renders checkout items here -->
                         </div>
 
-                        <div class="border-t border-white/5 pt-4 space-y-3">
-                            <div class="flex justify-between text-sm text-slate-400">
-                                <span>Subtotal</span>
-                                <span id="checkout-subtotal">$0.00</span>
+                        <div class="flex justify-between text-sm text-slate-400">
+                            <span>Subtotal</span>
+                            <span id="checkout-subtotal">$0.00</span>
+                        </div>
+
+                        <!-- ENVÍO DINÁMICO -->
+                        <div id="freight-section">
+                            <!-- Estado inicial: esperando dirección -->
+                            <div id="freight-pending" class="flex items-center gap-2 text-sm text-slate-500">
+                                <span>Envío</span>
+                                <span class="ml-auto text-slate-600 text-xs italic">Ingresa C.P. para calcular</span>
                             </div>
-                            <div class="flex justify-between text-sm text-slate-400">
-                                <span>Envío Estándar</span>
-                                <span id="checkout-shipping" class="text-white font-bold">$149.00</span>
+
+                            <!-- Cargando -->
+                            <div id="freight-loading" class="hidden flex items-center gap-2 text-sm text-slate-400">
+                                <svg class="animate-spin w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4" />
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                </svg>
+                                <span>Calculando costo de envío...</span>
                             </div>
-                            <div
-                                class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
-                                <span>Total (MXN)</span>
-                                <span id="checkout-total" class="text-indigo-400">$0.00</span>
+
+                            <!-- Opciones de paquetería -->
+                            <div id="freight-options" class="hidden space-y-2 mt-1">
+                                <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Elige tu
+                                    paquetería</p>
+                                <div id="freight-carriers" class="space-y-2"></div>
                             </div>
+
+                            <!-- Error -->
+                            <div id="freight-error" class="hidden flex items-center gap-2 text-sm text-amber-400">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                                <span>Envío fijo: <strong id="freight-fallback-amount">$149.00 MXN</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
+                            <span>Total (MXN)</span>
+                            <span id="checkout-total" class="text-indigo-400">$0.00</span>
                         </div>
                     </div>
 
@@ -407,14 +433,126 @@
                 </div>`;
             }).join('');
 
-            const shippingCost = 149;
-            orderTotal = subtotal + shippingCost;
-            document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('checkout-shipping').textContent = `$${shippingCost.toFixed(2)}`;
-            document.getElementById('checkout-total').textContent = `$${orderTotal.toFixed(2)}`;
+            // Start with $149 fallback, real estimate updates via fetchFreightEstimate()
+            window._cartSubtotal = subtotal;
+            window._shippingCost = 149;
+            orderTotal = subtotal + 149;
+            document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)} MXN`;
+            document.getElementById('checkout-total').textContent = `$${orderTotal.toFixed(2)} MXN`;
+            document.getElementById('freight-fallback-amount').textContent = '$149.00 MXN';
             lucide.createIcons();
 
             initializeCardForm();
+            setupFreightTriggers();
+        }
+
+        // ─── FREIGHT ESTIMATE ────────────────────────────────────────────────────
+        const FREIGHT_FN_URL = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/getFreightEstimate';
+
+        function setupFreightTriggers() {
+            // Recalcular flete cuando el usuario termina de llenar CP, ciudad o estado
+            ['shipping_zip', 'shipping_city', 'shipping_state'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('blur', debounce(fetchFreightEstimate, 600));
+            });
+        }
+
+        function debounce(fn, delay) {
+            let t;
+            return function (...args) { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+        }
+
+        async function fetchFreightEstimate() {
+            const zip = document.getElementById('shipping_zip')?.value?.trim();
+            const city = document.getElementById('shipping_city')?.value?.trim();
+            const state = document.getElementById('shipping_state')?.value?.trim();
+            if (!zip || !city || !state || cart.length === 0) return;
+
+            // Show loader, hide others
+            document.getElementById('freight-pending').classList.add('hidden');
+            document.getElementById('freight-loading').classList.remove('hidden');
+            document.getElementById('freight-options').classList.add('hidden');
+            document.getElementById('freight-error').classList.add('hidden');
+
+            const lines = cart.map((item, i) => ({
+                customerLineNumber: String(i + 1).padStart(3, '0'),
+                ingramPartNumber: item.sku || item.id || 'MOCK-ITEM',
+                quantity: String(item.quantity || 1)
+            }));
+
+            try {
+                const resp = await fetch(FREIGHT_FN_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        shipToAddress: {
+                            companyName: document.getElementById('billing_name')?.value || 'Cliente',
+                            addressLine1: document.getElementById('shipping_street')?.value || '.',
+                            city, state, postalCode: zip, countryCode: 'MX'
+                        },
+                        lines
+                    })
+                });
+
+                if (!resp.ok) throw new Error('API error');
+                const data = await resp.json();
+
+                document.getElementById('freight-loading').classList.add('hidden');
+
+                const fRes = data?.freightEstimateResponse;
+                if (!fRes || !fRes.distribution || fRes.distribution.length === 0) throw new Error('No options');
+
+                // Render carrier options
+                const carriersEl = document.getElementById('freight-carriers');
+                let allCarriers = [];
+                fRes.distribution.forEach(dist => {
+                    (dist.carrierList || []).forEach(c => {
+                        if (!allCarriers.find(x => x.code === c.carrierCode)) {
+                            allCarriers.push({
+                                code: c.carrierCode,
+                                name: c.shipVia || c.carrierCode,
+                                price: parseFloat(c.estimatedFreightChargeMXN || c.estimatedFreightCharge || 0),
+                                days: c.daysInTransit || '?'
+                            });
+                        }
+                    });
+                });
+
+                allCarriers.sort((a, b) => a.price - b.price);
+
+                carriersEl.innerHTML = allCarriers.map((c, i) => `
+                    <label class="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer border transition-all ${i === 0 ? 'border-indigo-500/60 bg-indigo-600/10' : 'border-white/5 hover:border-indigo-500/30'
+                    }">
+                        <input type="radio" name="carrier" value="${c.price}" class="accent-indigo-500" ${i === 0 ? 'checked' : ''
+                    } onchange="selectCarrier(${c.price})">
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-white">${c.name}</p>
+                            <p class="text-[10px] text-slate-500">${c.days} día(s) de tránsito</p>
+                        </div>
+                        <span class="text-sm font-black text-indigo-300">$${c.price.toFixed(2)}</span>
+                    </label>
+                `).join('');
+
+                document.getElementById('freight-options').classList.remove('hidden');
+
+                // Select cheapest by default
+                if (allCarriers.length > 0) selectCarrier(allCarriers[0].price);
+
+            } catch (err) {
+                console.warn('Freight estimate failed, using fallback:', err);
+                document.getElementById('freight-loading').classList.add('hidden');
+                document.getElementById('freight-error').classList.remove('hidden');
+                selectCarrier(149);
+            }
+        }
+
+        function selectCarrier(shippingPrice) {
+            window._shippingCost = shippingPrice;
+            const subtotal = window._cartSubtotal || 0;
+            orderTotal = subtotal + shippingPrice;
+            document.getElementById('checkout-total').textContent = `$${orderTotal.toFixed(2)} MXN`;
+            // Update CardForm amount if already initialized
+            if (window._updateCardFormAmount) window._updateCardFormAmount(orderTotal);
         }
 
         let cardFormInstance = null;
