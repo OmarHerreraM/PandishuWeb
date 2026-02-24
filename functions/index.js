@@ -592,6 +592,127 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
 });
 
 /**
+ * FUNCTION 6 — processCustomPayment
+ * POST body: { token, payment_method_id, installments, issuer_id, customer, items }
+ * Crea un Customer en MP, asocia la tarjeta y procesa el pago de inmediato.
+ */
+exports.processCustomPayment = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+        const client = getMercadoPagoClient();
+        if (!client) return res.status(500).json({ error: 'Mercado Pago is not configured' });
+
+        try {
+            const { token, payment_method_id, installments, issuer_id, customer, items } = req.body;
+
+            if (!token || !items || !customer) {
+                return res.status(400).json({ error: 'Faltan datos requeridos (token, items o customer).' });
+            }
+
+            // 1) Calc amount
+            const shippingCost = 149.00;
+            const amountTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingCost;
+
+            // 2) Buscar o crear Customer en MP
+            const { Customer, CustomerCard, Payment } = require('mercadopago');
+            const customerClient = new Customer(client);
+            let mpCustomerId = null;
+
+            try {
+                const searchRes = await customerClient.search({ qs: { email: customer.email } });
+                if (searchRes.results && searchRes.results.length > 0) {
+                    mpCustomerId = searchRes.results[0].id;
+                } else {
+                    const newCustomer = await customerClient.create({ body: { email: customer.email } });
+                    mpCustomerId = newCustomer.id;
+                }
+            } catch (err) {
+                console.warn("⚠️ No se pudo buscar/crear cliente MP. Continuando sin vincular tarjeta.", err.message);
+            }
+
+            // 3) Guardar la tarjeta al Customer usando el token
+            // Nota: MP puede rechazar el token en CustomerCard.create si se usa directo en Payment después,
+            // pero el flujo de MP permite guardar e intentar. Si falla el save, no bloqueamos el pago.
+            if (mpCustomerId && token) {
+                try {
+                    const customerCardClient = new CustomerCard(client);
+                    await customerCardClient.create({ customerId: mpCustomerId, body: { token } });
+                } catch (cardErr) {
+                    console.warn("⚠️ No se pudo vincular tarjeta.", cardErr.message);
+                }
+            }
+
+            // 4) Crear orden inicial en Firestore
+            let orderRefId = `mock-order-${Date.now()}`;
+            try {
+                const orderRef = await admin.firestore().collection('orders').add({
+                    status: 'processing_payment',
+                    createdAt: FieldValue.serverTimestamp(),
+                    customerInfo: customer,
+                    items: items,
+                    shippingCost: shippingCost,
+                    amountTotal: amountTotal,
+                    ingramStatus: 'pending'
+                });
+                orderRefId = orderRef.id;
+            } catch (dbErr) {
+                console.warn('⚠️ Firestore save failed. Using mock ID.', dbErr.message);
+            }
+
+            // 5) Procesar el Pago
+            const paymentClient = new Payment(client);
+            const paymentData = {
+                transaction_amount: amountTotal,
+                token: token,
+                description: 'Compra en Pandishú',
+                installments: Number(installments) || 1,
+                payment_method_id: payment_method_id,
+                issuer_id: issuer_id,
+                payer: {
+                    email: customer.email
+                },
+                external_reference: orderRefId
+            };
+
+            if (mpCustomerId) {
+                paymentData.payer.id = mpCustomerId;
+            }
+
+            const paymentRes = await paymentClient.create({ body: paymentData });
+
+            // 6) Actualizar status en Firestore
+            let finalStatus = paymentRes.status; // approved, in_process, rejected
+
+            try {
+                await admin.firestore().collection('orders').doc(orderRefId).update({
+                    status: finalStatus === 'approved' ? 'paid' : finalStatus,
+                    mpPaymentId: paymentRes.id,
+                    paidAt: finalStatus === 'approved' ? FieldValue.serverTimestamp() : null
+                });
+
+                if (finalStatus === 'approved') {
+                    await enviarCorreoConfirmacion(customer.email, customer.name, orderRefId, items, amountTotal);
+                }
+            } catch (e) {
+                console.warn("Firestore status update failed:", e.message);
+            }
+
+            return res.status(200).json({
+                status: finalStatus,
+                status_detail: paymentRes.status_detail,
+                orderId: orderRefId,
+                paymentId: paymentRes.id
+            });
+
+        } catch (err) {
+            console.error('Error processCustomPayment MP:', err);
+            return res.status(500).json({ error: err.message, status: 'rejected' });
+        }
+    });
+});
+
+/**
  * FUNCTION 5 — mpWebhook
  * Webhook de Mercado Pago para notificaciones IPN/Webhooks
  */
