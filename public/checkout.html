@@ -67,6 +67,9 @@
             color: #f8fafc;
         }
     </style>
+    <!-- Mercado Pago SDK v2 -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
 </head>
 
 <body class="bg-slate-950 text-slate-300 leading-relaxed antialiased min-h-screen flex flex-col">
@@ -487,7 +490,10 @@
                         try {
                             const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/processCustomPayment', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Meli-Session-Id': typeof MP_DEVICE_SESSION_ID !== 'undefined' ? MP_DEVICE_SESSION_ID : ''
+                                },
                                 body: JSON.stringify({
                                     token,
                                     payment_method_id,
@@ -580,7 +586,10 @@
             try {
                 const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/createCheckoutSession', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Meli-Session-Id': typeof MP_DEVICE_SESSION_ID !== 'undefined' ? MP_DEVICE_SESSION_ID : ''
+                    },
                     body: JSON.stringify({ items: cart, customer: customerData })
                 });
 

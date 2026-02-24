@@ -576,9 +576,11 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
                     auto_return: 'approved',
                     external_reference: orderRefId, // Vínculo con nuestra BD
                     statement_descriptor: 'Pandishu Tech',
+                    purpose: 'wallet_purchase', // Obligatorio para Wallet Brick
                     // Redirigir notificaciones de pago aquí
                     notification_url: 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/mpWebhook'
-                }
+                },
+                requestOptions: { idempotencyKey: orderRefId }
             });
 
             // Retornamos el init_point (o sandbox_init_point si estamos en dev)
@@ -662,6 +664,21 @@ exports.processCustomPayment = functions.https.onRequest((req, res) => {
 
             // 5) Procesar el Pago
             const paymentClient = new Payment(client);
+
+            // Mapear items al formato de additional_info (Recomendado para Apparel/Retail)
+            const mpItems = items.map(item => ({
+                id: item.sku || item.id || 'sku-pandishu',
+                title: item.name || 'Producto Pandishú',
+                description: item.name || 'Sin descripción',
+                category_id: 'apparel', // Categoría recomendada para e-commerce de ropa/retail
+                quantity: parseInt(item.quantity) || 1,
+                unit_price: parseFloat(item.price)
+            }));
+
+            // Dividir nombre si es posible
+            const [firstName, ...lastNameParts] = (customer.name || 'Cliente').split(' ');
+            const lastName = lastNameParts.join(' ') || 'S/N';
+
             const paymentData = {
                 transaction_amount: amountTotal,
                 token: token,
@@ -672,14 +689,43 @@ exports.processCustomPayment = functions.https.onRequest((req, res) => {
                 payer: {
                     email: customer.email
                 },
-                external_reference: orderRefId
+                external_reference: orderRefId,
+                additional_info: {
+                    items: mpItems,
+                    payer: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone: {
+                            area_code: "52",
+                            number: customer.phone ? customer.phone.replace(/\D/g, '') : ""
+                        },
+                        address: {
+                            zip_code: customer.address.zip,
+                            street_name: customer.address.street + (customer.address.colonia ? `, ${customer.address.colonia}` : ''),
+                            street_number: 123 // Placeholder o extraer si existiera campo
+                        },
+                        registration_date: new Date().toISOString()
+                    },
+                    shipments: {
+                        receiver_address: {
+                            zip_code: customer.address.zip,
+                            street_name: customer.address.street,
+                            street_number: 123,
+                            state_name: customer.address.state,
+                            city_name: customer.address.city
+                        }
+                    }
+                }
             };
 
             if (mpCustomerId) {
                 paymentData.payer.id = mpCustomerId;
             }
 
-            const paymentRes = await paymentClient.create({ body: paymentData });
+            const paymentRes = await paymentClient.create({
+                body: paymentData,
+                requestOptions: { idempotencyKey: orderRefId }
+            });
 
             // 6) Actualizar status en Firestore
             let finalStatus = paymentRes.status; // approved, in_process, rejected
