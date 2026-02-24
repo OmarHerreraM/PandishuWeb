@@ -150,6 +150,55 @@ async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItem
     }
 }
 
+/**
+ * FUNCTION — enviarCorreoEnvio
+ * Notifica al cliente que su pedido ha sido enviado con detalles de rastreo.
+ */
+async function enviarCorreoEnvio(toEmail, customerName, orderId, trackingNumber) {
+    const transporter = getMailTransporter();
+    if (!transporter) {
+        console.warn('⚠️ No se envió correo de envío: SMTP_EMAIL o SMTP_PASSWORD no están configurados.');
+        return;
+    }
+
+    const emailHtml = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px 20px; line-height: 1.6;">
+        <div style="max-width: 600px; margin: 0 auto; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 32px;">PANDISHÚ</h1>
+                <p style="color: #94a3b8; font-size: 14px; letter-spacing: 2px;">TECHNOLOGY SOLUTIONS</p>
+            </div>
+            
+            <h2 style="color: #e2e8f0; border-bottom: 2px solid #334155; padding-bottom: 10px;">¡Buenas noticias, ${customerName}!</h2>
+            <p style="color: #cbd5e1;">Tu pedido <strong>#${orderId}</strong> ha sido enviado. Estamos muy emocionados de que pronto lo tengas en tus manos.</p>
+            
+            <div style="margin: 30px 0; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 20px; text-align: center; border: 1px dashed #6366f1;">
+                <h3 style="color: #a855f7; margin-top: 0;">Número de Guía / Rastreo</h3>
+                <p style="font-size: 24px; font-weight: bold; color: #fff; margin: 10px 0; letter-spacing: 1px;">${trackingNumber}</p>
+                <p style="color: #94a3b8; font-size: 14px;">Utiliza este número en el portal de la paquetería para seguir tu envío.</p>
+            </div>
+            
+            <p style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 40px; border-top: 1px solid #334155; padding-top: 20px;">
+                Cualquier duda, responde a este correo o contáctanos por WhatsApp.<br>
+                © ${new Date().getFullYear()} Pandishú. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+    `;
+
+    try {
+        await transporter.sendMail({
+            from: '"Pandishú Tech" <' + process.env.SMTP_EMAIL + '>',
+            to: toEmail,
+            subject: '¡Tu pedido #' + orderId + ' ha sido enviado! 🚚',
+            html: emailHtml
+        });
+        console.log(`🚚 Correo de envío enviado a ${toEmail} para la orden ${orderId}`);
+    } catch (error) {
+        console.error('Error enviando correo de envío:', error);
+    }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // FUNCTION 1 — searchProducts
 // GET /resellers/v6/catalog?keyword=...
@@ -923,8 +972,89 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
             console.error('Error fetching payment details from MP:', error);
             res.status(500).send('Error processing payment notification');
         }
+    }
+});
+
+/**
+ * FUNCTION 6 — ingramWebhook
+ * Webhook para recibir actualizaciones de estado de Ingram Micro
+ */
+exports.ingramWebhook = functions.https.onRequest(async (req, res) => {
+    const payload = req.body;
+    const signature = req.headers['x-hub-signature'];
+    const secret = process.env.INGRAM_SECRET_KEY;
+
+    console.log("Ingram Webhook received:", JSON.stringify(payload));
+
+    // 1) Validar firma (Ingram usa HMAC-SHA512 sobre el eventId)
+    if (signature && secret && payload.eventId) {
+        const crypto = require('crypto');
+        const hmac = crypto.createHmac('sha512', secret);
+        hmac.update(payload.eventId, 'utf-8');
+        const expectedSignature = hmac.digest('base64');
+
+        if (signature !== expectedSignature) {
+            console.warn('⚠️ Ingram Webhook Signature mismatch. Logged for debugging.');
+            // En producción podrías querer retornar 401, aquí logging preventivo
+        }
     } else {
-        // Obviar otros notificaciones (mercadoenvios, tests)
-        res.status(200).send('Not a payment event, ignored.');
+        console.warn('Missing signature or secret for Ingram webhook validation.');
+    }
+
+    // 2) Procesar el evento
+    try {
+        const topic = payload.topic;
+        const event = payload.event;
+
+        if (topic === 'resellers/orders' && event === 'im::updated') {
+            const resources = payload.resource || [];
+
+            for (const resItem of resources) {
+                if (resItem.eventType === 'im::order_shipped') {
+                    const orderId = resItem.customerOrderNumber; // Nuestro ID interno
+                    const ingramOrderNum = resItem.orderNumber;
+
+                    // Extraer tracking del primer paquete que encontremos
+                    let trackingNum = 'N/A';
+                    if (resItem.lines && resItem.lines.length > 0) {
+                        const line = resItem.lines[0];
+                        if (line.shipmentDetails && line.shipmentDetails.length > 0) {
+                            const shipDetail = line.shipmentDetails[0];
+                            if (shipDetail.packageDetails && shipDetail.packageDetails.length > 0) {
+                                trackingNum = shipDetail.packageDetails[0].trackingNumber || trackingNum;
+                            }
+                        }
+                    }
+
+                    if (orderId && trackingNum !== 'N/A') {
+                        console.log(`🚚 Procesando envío para Orden: ${orderId}, Tracking: ${trackingNum}`);
+
+                        // Actualizar Firestore
+                        await admin.firestore().collection('orders').doc(orderId).update({
+                            status: 'shipped',
+                            trackingNumber: trackingNum,
+                            shippedAt: FieldValue.serverTimestamp()
+                        });
+
+                        // Obtener datos del cliente para el correo
+                        const orderDoc = await admin.firestore().collection('orders').doc(orderId).get();
+                        if (orderDoc.exists) {
+                            const orderData = orderDoc.data();
+                            await enviarCorreoEnvio(
+                                orderData.customerInfo.email,
+                                orderData.customerInfo.name,
+                                orderId,
+                                trackingNum
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        return res.status(200).json({ status: 'success' });
+    } catch (err) {
+        console.error('Error processing Ingram webhook:', err.message);
+        return res.status(500).send('Internal Error');
     }
 });
