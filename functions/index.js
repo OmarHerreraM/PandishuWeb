@@ -1088,3 +1088,256 @@ exports.searchInvoices = functions.https.onRequest((req, res) => {
         }
     });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 9 — createOrderV7
+// POST — Crea una orden ASÍNCRONA en Ingram v7. La respuesta real llega via webhook.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.createOrderV7 = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+
+        const { orderId, items, customer } = req.body;
+        if (!orderId || !items || !customer) {
+            return res.status(400).json({ error: 'Se requieren orderId, items y customer.' });
+        }
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.OrdersApi();
+            const correlationId = `PO-V7-${orderId}-${Date.now()}`;
+
+            const orderRequest = {
+                customerOrderNumber: orderId,
+                notes: 'Orden automática Pandishú (v7 async)',
+                shipToInfo: {
+                    contact: customer.name,
+                    companyName: customer.name,
+                    addressLine1: customer.address.street,
+                    city: customer.address.city,
+                    state: customer.address.state,
+                    postalCode: customer.address.zip,
+                    countryCode: IM_COUNTRY_CODE,
+                    email: customer.email,
+                    phoneNumber: customer.phone ? customer.phone.replace(/\D/g, '') : ''
+                },
+                lines: items.map((item, idx) => ({
+                    customerLineNumber: (idx + 1).toString(),
+                    ingramPartNumber: item.sku || item.id,
+                    quantity: parseInt(item.quantity) || 1
+                })),
+                additionalAttributes: [
+                    { attributeName: 'allowDuplicateCustomerOrderNumber', attributeValue: 'true' }
+                ]
+            };
+
+            const data = await new Promise((resolve, reject) => {
+                api.postCreateorderV7(IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId, orderRequest,
+                    { iMSenderID: 'Pandishu' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
+
+            // Guardar confirmationNumber en Firestore para luego vincular con el webhook
+            await admin.firestore().collection('orders').doc(orderId).update({
+                ingramV7ConfirmationNumber: data.confirmationNumber,
+                ingramStatus: 'pending_v7'
+            });
+
+            console.log(`✅ Orden v7 enviada. Confirmación: ${data.confirmationNumber}`);
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[OrderV7] createOrderV7 error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al crear la orden v7.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 10 — getOrderDetails
+// GET ?orderNumber=20-RD3QV — Detalles completos de una orden de Ingram
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getOrderDetails = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
+
+        const { orderNumber } = req.query;
+        if (!orderNumber) return res.status(400).json({ error: 'Se requiere orderNumber.' });
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.OrdersApi();
+            const correlationId = `pandishu-od-${Date.now()}`;
+
+            const data = await new Promise((resolve, reject) => {
+                api.getOrderdetailsV61(orderNumber, IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId,
+                    { iMSenderID: 'Pandishu' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
+
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Orders] getOrderDetails error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al consultar la orden.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 11 — searchOrders
+// GET ?customerOrderNumber=... — Busca órdenes de Ingram con múltiples filtros
+// ─────────────────────────────────────────────────────────────────────────────
+exports.searchOrders = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed. Use GET.' });
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.OrdersApi();
+            const correlationId = `pandishu-osrch-${Date.now()}`;
+            const { customerOrderNumber, ingramOrderNumber, orderStatus, pageSize, pageNumber } = req.query;
+
+            const data = await new Promise((resolve, reject) => {
+                api.getResellersV6Ordersearch(IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId, {
+                    customerOrderNumber: customerOrderNumber || undefined,
+                    ingramOrderNumber: ingramOrderNumber || undefined,
+                    orderStatus: orderStatus || undefined,
+                    pageSize: parseInt(pageSize) || 25,
+                    pageNumber: parseInt(pageNumber) || 1,
+                    iMSenderID: 'Pandishu'
+                }, (err, result) => err ? reject(err) : resolve(result));
+            });
+
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Orders] searchOrders error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al buscar órdenes.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 12 — cancelOrder
+// DELETE ?orderNumber=20-RD128 — Cancela una orden que esté en customer hold
+// ─────────────────────────────────────────────────────────────────────────────
+exports.cancelOrder = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
+
+        const { orderNumber, customerOrderNumber } = req.query;
+        if (!orderNumber) return res.status(400).json({ error: 'Se requiere orderNumber (Ingram order number).' });
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.OrdersApi();
+            const correlationId = `pandishu-cancel-${Date.now()}`;
+
+            await new Promise((resolve, reject) => {
+                api.deleteOrdercancel(orderNumber, IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId,
+                    { iMSenderID: 'Pandishu' },
+                    (err) => err ? reject(err) : resolve()
+                );
+            });
+
+            // Actualizar estado en Firestore si se proporcionó el ID interno
+            if (customerOrderNumber) {
+                await admin.firestore().collection('orders').doc(customerOrderNumber).update({
+                    status: 'cancelled',
+                    ingramStatus: 'cancelled',
+                    cancelledAt: FieldValue.serverTimestamp()
+                });
+            }
+
+            console.log(`✅ Orden ${orderNumber} cancelada en Ingram.`);
+            return res.status(200).json({ status: 'cancelled', orderNumber });
+        } catch (err) {
+            console.error('[Orders] cancelOrder error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al cancelar la orden.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 13 — modifyOrder
+// PUT ?orderNumber=20-RC1RD — Modifica líneas de una orden en customer hold
+// ─────────────────────────────────────────────────────────────────────────────
+exports.modifyOrder = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'PUT') return res.status(405).json({ error: 'Method not allowed. Use PUT.' });
+
+        const { orderNumber } = req.query;
+        const { lines, notes, actionCode } = req.body;
+        if (!orderNumber) return res.status(400).json({ error: 'Se requiere orderNumber en query.' });
+        if (!lines || !Array.isArray(lines)) return res.status(400).json({ error: 'Se requiere el array lines en el body.' });
+
+        try {
+            await getApiClient();
+            const api = new XiSdk.OrdersApi();
+            const correlationId = `pandishu-mod-${Date.now()}`;
+
+            const modifyRequest = { lines, notes: notes || '' };
+
+            const data = await new Promise((resolve, reject) => {
+                api.putOrdermodify(orderNumber, IM_CUSTOMER_NUM, IM_COUNTRY_CODE, correlationId, modifyRequest,
+                    { actionCode: actionCode || undefined, iMSenderID: 'Pandishu' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                );
+            });
+
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Orders] modifyOrder error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al modificar la orden.' });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION 14 — getVendorRequiredInfo
+// POST — Obtiene los campos obligatorios del vendor (VMF) para una orden o cotización
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getVendorRequiredInfo = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+
+        const { products, quoteNumber } = req.body;
+        if (!products && !quoteNumber) {
+            return res.status(400).json({ error: 'Se requiere products (array de SKUs) o quoteNumber.' });
+        }
+
+        try {
+            const token = await getAccessToken();
+            const correlationId = `pandishu-vri-${Date.now()}`;
+
+            // El SDK no tiene wrapper explícito para esta llamada, usamos fetch directo
+            const fetch = require('node-fetch');
+            const response = await fetch('https://api.ingrammicro.com:443/resellers/v6/orders/vendorrequiredinfo', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'IM-CustomerNumber': IM_CUSTOMER_NUM,
+                    'IM-CountryCode': IM_COUNTRY_CODE,
+                    'IM-CorrelationID': correlationId,
+                    'IM-SenderID': 'Pandishu',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    quoteNumber: quoteNumber || undefined,
+                    products: products || []
+                })
+            });
+
+            if (!response.ok) {
+                const errBody = await response.text();
+                throw new Error(`Ingram API ${response.status}: ${errBody}`);
+            }
+
+            const data = await response.json();
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error('[Orders] getVendorRequiredInfo error:', err.message);
+            return res.status(500).json({ error: err.message || 'Error al obtener vendor required info.' });
+        }
+    });
+});
