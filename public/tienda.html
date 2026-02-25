@@ -893,8 +893,8 @@
                 return;
             }
 
-            // Tolerante: usar qualquier precio disponible y asumir stock si no hay datos
-            const price = parseFloat(product.price) || 1;
+            // Usar el precio de venta (PVP)
+            const price = parseFloat(product.retailPrice) || (parseFloat(product.price) * 1.35) || 1;
             const stock = parseInt(product.availability?.availableQuantity) || 99;
 
             if (price <= 0 || stock <= 0) {
