@@ -71,7 +71,7 @@
             border-radius: 20px;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            /* overflow visible so cart buttons are always clickable */
         }
 
         .product-card::before {
@@ -243,7 +243,6 @@
             </a>
             <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
                 <a href="index" class="hover:text-white transition-colors">Inicio</a>
-                <a href="catalogo" class="hover:text-white transition-colors">Catálogo</a>
                 <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
                 <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
 
@@ -484,7 +483,7 @@
         <div
             class="flex flex-wrap justify-center gap-6 text-[11px] text-slate-600 font-medium uppercase tracking-widest">
             <a href="index" class="hover:text-indigo-400 transition">Inicio</a>
-            <a href="catalogo" class="hover:text-indigo-400 transition">Catálogo</a>
+            <a href="tienda" class="hover:text-indigo-400 transition">Tienda</a>
             <a href="proyectos" class="hover:text-indigo-400 transition">Proyectos</a>
             <a href="privacidad" class="hover:text-indigo-400 transition">Privacidad</a>
             <a href="devoluciones" class="hover:text-indigo-400 transition">Devoluciones y Garantía</a>
@@ -673,64 +672,81 @@
             lucide.createIcons();
         }
 
-        /* ─── API CALLS ─── */
-        async function fetchProducts(query = '', category = '') {
+        // ─── All products loaded once ───────────────────────────────────────
+        let allProducts = [];
+
+        /* ─── API CALL — single load, then in-memory filter ─── */
+        async function fetchProducts() {
             if (isLoading) return;
             isLoading = true;
             renderSkeletons();
 
             try {
-                // 1. Search Catalog
-                // POST body para coincicdir con la firma del Cloud Function
-                const searchBody = {};
-                if (query) searchBody.keyword = query;
-                if (category && category !== 'all') searchBody.keyword = category;
-
                 const response = await fetch(`${API_BASE}/searchProducts`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(searchBody)
+                    body: JSON.stringify({}) // load all
                 });
                 const data = await response.json();
 
                 if (!data.catalog || data.catalog.length === 0) {
+                    allProducts = [];
                     filteredProducts = [];
                     renderProducts([]);
                     return;
                 }
 
-                let products = data.catalog;
-
-                // 2. Get Price & Availability for these SKUs
-                const skus = products.map(p => p.ingramPartNumber);
-                const paResponse = await fetch(`${API_BASE}/getPriceAndAvailability`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ skus })
-                });
-
-                if (paResponse.ok) {
-                    const paData = await paResponse.json();
-                    // Merge PA data — siempre llevar el precio aunque no haya stock suficiente
-                    products = products.map(p => {
-                        const paInfo = paData.find(pa => pa.ingramPartNumber === p.ingramPartNumber);
-                        return {
-                            ...p,
-                            price: paInfo?.pricing?.customerPrice || p.price || 0,
-                            availability: paInfo?.availability || { availableQuantity: p.availability?.availableQuantity || 99 }
-                        };
-                    });
-                }
-
-                filteredProducts = products;
-                renderProducts(filteredProducts);
+                allProducts = data.catalog;
+                filteredProducts = allProducts;
+                applyFilters();
             } catch (error) {
                 console.error('Fetch error:', error);
-                // Fallback a vacio o mensaje error
                 renderProducts([]);
             } finally {
                 isLoading = false;
             }
+        }
+
+        /* ─── IN-MEMORY FILTER (instant, no API call) ─── */
+        function applyFilters() {
+            const q = currentSearch.toLowerCase().trim();
+            const cat = currentFilter;
+
+            filteredProducts = allProducts.filter(p => {
+                // Category filter
+                if (cat !== 'all') {
+                    const category = (p.productCategory || '').toLowerCase();
+                    const name = (p.description || '').toLowerCase();
+                    const vendor = (p.vendorName || '').toLowerCase();
+                    const catMap = {
+                        networking: ['red', 'network', 'router', 'switch', 'wifi', 'access point', 'ap', 'ubiquiti', 'unifi', 'cisco', 'modem', 'wireless'],
+                        security: ['camara', 'cámara', 'security', 'nvr', 'dvr', 'hikvision', 'dahua', 'vigilancia', 'cctv'],
+                        laptop: ['laptop', 'notebook', 'portatil', 'portátil', 'lenovo', 'dell', 'hp', 'asus', 'macbook'],
+                        server: ['servidor', 'server', 'rack', 'blade', 'poweredge', 'proliant'],
+                        storage: ['disco', 'storage', 'nas', 'ssd', 'hdd', 'sata', 'nvme', 'almacenamiento'],
+                        printing: ['impresora', 'printer', 'toner', 'cartucho', 'plotter', 'epson', 'canon', 'brother'],
+                    };
+                    const keywords = catMap[cat] || [cat];
+                    const matches = keywords.some(k => category.includes(k) || name.includes(k) || vendor.includes(k));
+                    if (!matches) return false;
+                }
+
+                // Text search
+                if (q) {
+                    const searchable = [
+                        p.description || '',
+                        p.vendorName || '',
+                        p.ingramPartNumber || '',
+                        p.vendorPartNumber || '',
+                        p.productCategory || ''
+                    ].join(' ').toLowerCase();
+                    if (!searchable.includes(q)) return false;
+                }
+
+                return true;
+            });
+
+            renderProducts(filteredProducts);
         }
 
         /* ─── FILTER ─── */
@@ -738,13 +754,13 @@
             currentFilter = cat;
             document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
-            fetchProducts(currentSearch, currentFilter);
+            applyFilters();
         }
 
         /* ─── SEARCH ─── */
         function doSearch() {
             currentSearch = document.getElementById('search-input').value.trim();
-            fetchProducts(currentSearch, currentFilter);
+            applyFilters();
         }
 
         function resetSearch() {
@@ -755,7 +771,7 @@
                 c.classList.remove('active');
                 if (i === 0) c.classList.add('active');
             });
-            fetchProducts();
+            applyFilters();
         }
 
         /* ─── SORT ─── */
@@ -1001,8 +1017,16 @@
             console.error('Error loading cart', e);
         }
 
+        /* ─── REAL-TIME SEARCH ─── */
+        document.getElementById('search-input').addEventListener('input', function () {
+            currentSearch = this.value.trim();
+            // Debounce: wait 200ms after typing stops
+            clearTimeout(this._searchTimer);
+            this._searchTimer = setTimeout(applyFilters, 200);
+        });
+
         /* ─── INIT ─── */
-        // Carga inicial (mostrar todos los productos por defecto)
+        // Carga inicial (un solo fetch, filtros en memoria después)
         fetchProducts();
 
     </script>

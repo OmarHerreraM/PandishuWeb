@@ -28,8 +28,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Mercado Pago SDK -->
+    <!-- Mercado Pago SDK v2 (single include) -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
 
     <style>
         body {
@@ -63,14 +64,11 @@
         /* Fix blank text on browser-default dropdowns */
         select option {
             background-color: #0f172a;
-            /* matches bg-slate-950/900 */
             color: #f8fafc;
         }
     </style>
-    <!-- Mercado Pago SDK v2 -->
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-    <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
 </head>
+
 
 <body class="bg-slate-950 text-slate-300 leading-relaxed antialiased min-h-screen flex flex-col">
 
@@ -367,17 +365,24 @@
         let orderTotal = 0;
 
         // Initialize Checkout
-        window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Fetch Config (Public Key)
+            try {
+                const configRes = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getConfig');
+                const configData = await configRes.json();
+                window.MP_PUBLIC_KEY = configData.MP_PUBLIC_KEY;
+                console.log('✅ Configuración de Mercado Pago cargada');
+            } catch (e) {
+                console.warn('⚠️ No se pudo cargar la configuración de MP, usando TEST key por defecto');
+            }
+
+            // 2. Load Cart
             try {
                 const savedCart = localStorage.getItem('pandishu_cart');
                 if (savedCart) {
                     cart = JSON.parse(savedCart);
-                    if (cart.length === 0) {
-                        // Redirect if empty
-                        window.location.href = 'tienda.html';
-                    } else {
-                        renderCheckoutCart();
-                    }
+                    if (cart.length > 0) renderCheckoutCart();
+                    else window.location.href = 'tienda.html';
                 } else {
                     window.location.href = 'tienda.html';
                 }
@@ -427,8 +432,8 @@
         function initializeCardForm() {
             if (cardFormInstance) return; // Prevent double init
 
-            // REMPLAZA <PUBLIC_KEY_AQUI> CON TU PUBLIC KEY DE MERCADO PAGO, EJEMPLO: TEST-...
-            const mp = new MercadoPago('TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
+            // Usa la llave de producción cargada desde el servidor si existe
+            const mp = new MercadoPago(window.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
 
             cardFormInstance = mp.cardForm({
                 amount: orderTotal.toString(),
@@ -493,7 +498,7 @@
                         };
 
                         try {
-                            const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/processCustomPayment', {
+                            const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/processPayment', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -511,10 +516,13 @@
 
                             const data = await response.json();
 
-                            if (data.status === 'approved' || data.status === 'in_process') {
-                                // Limpiar carrito y redirigir
+                            if (data.status === 'approved') {
+                                // Limpiar carrito y redirigir a página de éxito
                                 localStorage.removeItem('pandishu_cart');
-                                window.location.href = 'order-confirmation.html?order=' + data.orderId;
+                                window.location.href = 'success.html?payment_id=' + data.id + '&status=approved';
+                            } else if (data.status === 'in_process') {
+                                localStorage.removeItem('pandishu_cart');
+                                window.location.href = 'pending.html?payment_id=' + data.id;
                             } else {
                                 console.warn('Payment failed', data);
 
@@ -605,7 +613,8 @@
                     const walletContainer = document.getElementById('wallet_container');
                     walletContainer.innerHTML = '';
 
-                    const mpInstance = new MercadoPago('TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
+                    // MP_PUBLIC_KEY set at page load from Cloud Function config
+                    const mpInstance = new MercadoPago(window.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
                     mpInstance.bricks().create("wallet", "wallet_container", {
                         initialization: {
                             preferenceId: data.id,

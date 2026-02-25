@@ -1724,3 +1724,116 @@ exports.syncCTCatalog = functions.runWith({
         }
     });
 });
+
+// =============================================================================
+// MERCADO PAGO — Production Integration
+// =============================================================================
+const { MercadoPagoConfig, Preference: MPPreference, Payment: MPPayment } = require('mercadopago');
+const crypto = require('crypto');
+
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
+const MP_WEBHOOK_SECRET_KEY = process.env.MP_WEBHOOK_SECRET;
+const BASE_URL = 'https://www.pandishu.com';
+const CF_BASE = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net';
+
+function getMPClient() {
+    if (!MP_ACCESS_TOKEN) throw new Error('MP_ACCESS_TOKEN no configurado en .env');
+    return new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
+}
+
+const mpMailTransporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD },
+});
+
+async function sendOrderEmail(customer, items, paymentId, total) {
+    const itemsHtml = items.map(i => `<tr><td style="padding:8px 12px;border-bottom:1px solid #1e293b;">${(i.description || i.title || 'Producto')}</td><td style="padding:8px 12px;border-bottom:1px solid #1e293b;text-align:center;">${i.quantity}</td><td style="padding:8px 12px;border-bottom:1px solid #1e293b;text-align:right;">$${Number(i.unit_price || i.price || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</td></tr>`).join('');
+    const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc}.wrap{max-width:600px;margin:40px auto;background:#1e293b;border-radius:16px;overflow:hidden}.header{background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:40px 32px;text-align:center}.header h1{margin:0;font-size:26px;font-weight:900;color:#fff}.body{padding:32px}table{width:100%;border-collapse:collapse}th{background:#0f172a;color:#64748b;font-size:11px;text-transform:uppercase;padding:10px 12px;text-align:left}td{color:#e2e8f0;font-size:14px}.footer{background:#0f172a;padding:24px;text-align:center;color:#475569;font-size:12px}.wa{display:inline-block;margin-top:16px;background:#25D366;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700}</style></head><body><div class="wrap"><div class="header"><h1>¡Gracias por tu compra!</h1><p style="color:rgba(255,255,255,0.8);font-size:14px;">Pedido #${paymentId} confirmado</p></div><div class="body"><p style="color:#94a3b8;">Hola <strong style="color:#f8fafc;">${customer.name || 'Cliente'}</strong>, tu pago fue aprobado.</p><table><thead><tr><th>Producto</th><th style="text-align:center">Cant.</th><th style="text-align:right">Precio</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="background:#0f172a;border-radius:12px;padding:16px;display:flex;justify-content:space-between;font-weight:700;font-size:18px;margin-bottom:16px"><span>Total</span><span style="color:#4ade80;">$${Number(total).toLocaleString('es-MX',{minimumFractionDigits:2})} MXN</span></div><p style="color:#94a3b8;font-size:13px;">Envío a: ${customer.address?.street || ''}, ${customer.address?.city || ''} CP ${customer.address?.zip || ''}</p><a href="https://wa.me/5216442041543?text=Pedido+%23${paymentId}" class="wa">?? WhatsApp Soporte</a></div><div class="footer">Pandishú © ${new Date().getFullYear()} · pandishu.com</div></div></body></html>`;
+    await mpMailTransporter.sendMail({ from: `"Pandishú ??" <${process.env.SMTP_EMAIL}>`, to: customer.email, bcc: process.env.SMTP_EMAIL, subject: `? Pedido Confirmado #${paymentId} — Pandishú`, html });
+    console.log(`?? Correo enviado a ${customer.email}`);
+}
+
+exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: '256MB', labels: { environment: 'production', project: 'pandishu', owner: 'oscar', cost_center: 'sales' } }).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+        try {
+            const { items, customer } = req.body;
+            if (!items || !items.length) return res.status(400).json({ error: 'items requeridos' });
+            const mpClient = getMPClient();
+            const preference = new MPPreference(mpClient);
+            const mpItems = items.map(item => ({ id: item.ingramPartNumber || item.id || 'PROD', title: (item.description || item.title || 'Producto Pandishu').substring(0, 256), quantity: parseInt(item.quantity) || 1, unit_price: parseFloat(item.price || item.unit_price), currency_id: 'MXN', picture_url: item.image || undefined }));
+            const total = mpItems.reduce((s, i) => s + i.unit_price * i.quantity, 0);
+            const prefBody = { items: mpItems, payer: { name: customer?.name || '', email: customer?.email || '' }, back_urls: { success: `${BASE_URL}/success.html`, pending: `${BASE_URL}/pending.html`, failure: `${BASE_URL}/failure.html` }, auto_return: 'approved', notification_url: `${CF_BASE}/mpWebhook`, statement_descriptor: 'PANDISHU', external_reference: `pandishu-${Date.now()}`, metadata: { customer_data: JSON.stringify(customer) } };
+            const result = await preference.create({ body: prefBody });
+            const db = admin.firestore();
+            await db.collection('orders').doc(result.id).set({ preferenceId: result.id, items: mpItems, customer, total, status: 'pending', createdAt: FieldValue.serverTimestamp() });
+            console.log(`? Preferencia MP creada: ${result.id}`);
+            return res.status(200).json({ id: result.id, init_point: result.init_point, sandbox_init_point: result.sandbox_init_point });
+        } catch (err) {
+            console.error('? createCheckoutSession:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+    });
+});
+
+exports.processPayment = functions.runWith({ timeoutSeconds: 60, memory: '256MB', labels: { environment: 'production', project: 'pandishu', owner: 'oscar', cost_center: 'sales' } }).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+        try {
+            const { token, payment_method_id, installments, issuer_id, customer, items } = req.body;
+            if (!token || !items?.length) return res.status(400).json({ error: 'token e items requeridos' });
+            const mpClient = getMPClient();
+            const payment = new MPPayment(mpClient);
+            const total = items.reduce((s, i) => s + parseFloat(i.price || i.unit_price || 0) * (parseInt(i.quantity) || 1), 0);
+            const result = await payment.create({ body: { transaction_amount: Math.round(total * 100) / 100, token, description: `Pedido Pandishu (${items.length} items)`, installments: parseInt(installments) || 1, payment_method_id, issuer_id: issuer_id || undefined, payer: { email: customer.email }, statement_descriptor: 'PANDISHU', external_reference: `pandishu-direct-${Date.now()}`, metadata: { customer_data: JSON.stringify(customer) } }, requestOptions: { idempotencyKey: `pay-${Date.now()}` } });
+            const db = admin.firestore();
+            await db.collection('orders').doc(String(result.id)).set({ paymentId: result.id, status: result.status, statusDetail: result.status_detail, items, customer, total, createdAt: FieldValue.serverTimestamp() });
+            if (result.status === 'approved') { await sendOrderEmail(customer, items, result.id, total).catch(e => console.error('Email error:', e.message)); }
+            return res.status(200).json({ status: result.status, status_detail: result.status_detail, id: result.id, orderId: String(result.id) });
+        } catch (err) {
+            console.error('? processPayment:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+    });
+});
+
+exports.mpWebhook = functions.runWith({ timeoutSeconds: 30, memory: '128MB', labels: { environment: 'production', project: 'pandishu', owner: 'oscar', cost_center: 'sales' } }).https.onRequest(async (req, res) => {
+    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+    try {
+        const xSignature = req.headers['x-signature'];
+        const xRequestId = req.headers['x-request-id'];
+        const dataId = req.query['data.id'] || req.body?.data?.id;
+        if (MP_WEBHOOK_SECRET_KEY && xSignature) {
+            const parts = xSignature.split(',');
+            const ts = parts.find(p => p.startsWith('ts='))?.split('=')[1];
+            const v1 = parts.find(p => p.startsWith('v1='))?.split('=')[1];
+            if (ts && v1) { const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`; const expected = crypto.createHmac('sha256', MP_WEBHOOK_SECRET_KEY).update(manifest).digest('hex'); if (expected !== v1) { console.warn('?? MP Webhook: firma inválida'); return res.status(401).send('Unauthorized'); } }
+        }
+        const { type, data } = req.body;
+        console.log(`?? MP Webhook: type=${type}, id=${data?.id}`);
+        if (type === 'payment' && data?.id) {
+            const mpClient = getMPClient();
+            const paymentAPI = new MPPayment(mpClient);
+            const payInfo = await paymentAPI.get({ id: data.id });
+            const db = admin.firestore();
+            const orderRef = db.collection('orders').doc(String(data.id));
+            const orderDoc = await orderRef.get();
+            await orderRef.set({ paymentId: data.id, status: payInfo.status, statusDetail: payInfo.status_detail, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+            if (payInfo.status === 'approved' && !(orderDoc.exists && orderDoc.data()?.emailSent)) {
+                const customer = JSON.parse(payInfo.metadata?.customer_data || '{}');
+                const items = orderDoc.exists ? (orderDoc.data()?.items || []) : [];
+                await sendOrderEmail(customer, items, data.id, payInfo.transaction_amount).catch(e => console.error('Email err:', e.message));
+                await orderRef.update({ emailSent: true });
+            }
+        }
+        return res.status(200).send('OK');
+    } catch (err) { console.error('? mpWebhook:', err.message); return res.status(500).send('Internal Error'); }
+});
+
+exports.getConfig = functions.runWith({ timeoutSeconds: 10, memory: '128MB' }).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        return res.status(200).json({
+            MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84'
+        });
+    });
+});
