@@ -379,3 +379,21 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
     });
 });
 
+// ─── ORDER DASHBOARD (GET PEDIDOS) ────────────────────────────────────────────
+exports.getPedidos = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        try {
+            const { year, month } = req.body;
+            if (!year || !month) return res.status(400).json({ error: 'Falta year y month en body' });
+
+            const monthStr = month.toString().padStart(2, '0');
+            const ordersRef = admin.firestore().collection('orders').doc(year.toString()).collection(monthStr);
+            const snap = await ordersRef.orderBy('createdAt', 'desc').get();
+
+            const pedidos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            return res.status(200).json({ recordsFound: pedidos.length, pedidos });
+        } catch (e) {
+            return res.status(500).json({ error: e.message });
+        }
+    });
+});
