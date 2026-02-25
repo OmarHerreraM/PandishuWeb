@@ -4,6 +4,13 @@
     "public": "public",
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/catalogo",
+        "destination": "/tienda",
+        "type": 301
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

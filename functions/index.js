@@ -326,7 +326,11 @@ exports.searchProducts = functions.runWith({
 
         } catch (err) {
             console.error('searchProducts (CT) error:', err.message);
-            return res.status(200).json(getMockSearchData(req.body.keyword));
+            // Solo devolver mock si el flag de mock está explícitamente en 'true', de lo contrario error real
+            if (process.env.USE_MOCK_DATA === 'true') {
+                return res.status(200).json(getMockSearchData(req.body?.keyword));
+            }
+            return res.status(500).json({ error: 'Error al conectar con CT Internacional: ' + err.message });
         }
     });
 });
