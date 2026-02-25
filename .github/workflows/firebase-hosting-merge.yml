@@ -14,3 +14,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PANDISHU_WEB }}'
           projectId: pandishu-web-1d860
           channelId: live
+          firebaseToolsVersion: 13.10.0
