@@ -431,7 +431,6 @@
             <!-- Products rendered by JS -->
         </div>
 
-        <!-- Empty state -->
         <div id="empty-state" class="hidden py-32 text-center">
             <div class="text-6xl mb-6">🔍</div>
             <h3 class="text-2xl font-black text-white uppercase italic mb-3">Sin resultados</h3>
@@ -442,27 +441,12 @@
             </button>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination (Hidden for now as all products are loaded) -->
+        <!--
         <div class="flex justify-center gap-3 mt-14">
-            <button
-                class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
-                <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
-            </button>
-            <div class="flex items-center gap-2">
-                <button class="bg-indigo-600 text-white w-10 h-10 rounded-xl text-sm font-bold">1</button>
-                <button
-                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">2</button>
-                <button
-                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">3</button>
-                <span class="text-slate-600 px-2">...</span>
-                <button
-                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 w-10 h-10 rounded-xl text-sm font-bold transition">12</button>
-            </div>
-            <button
-                class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
-                Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
+            ...
         </div>
+        -->
     </main>
 
     <!-- ═══════════════════════════════════════
@@ -524,7 +508,7 @@
             <p id="modal-vendor-part" class="text-xs text-slate-500 font-mono mb-6">Vendor PN: —</p>
             <div class="bg-slate-800/60 rounded-2xl p-4 mb-6">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-slate-400 text-sm">Precio (PVP)</span>
+                    <span class="text-slate-400 text-sm">Precio</span>
                     <span id="modal-price" class="text-2xl font-black text-indigo-300">$—</span>
                 </div>
                 <div class="flex justify-between items-center mt-3">
@@ -637,7 +621,10 @@
                     <!-- Header -->
                     <div class="flex items-start justify-between gap-2">
                         <div>
-                            <span class="vendor-badge">${p.vendorName || 'General'}</span>
+                            ${p.source === 'CT'
+                        ? `<span class="bg-orange-500/20 border border-orange-500/50 text-orange-400 px-2 py-1 rounded text-[10px] font-black tracking-wider uppercase">Bodega: CT</span>`
+                        : `<span class="bg-blue-500/20 border border-blue-500/50 text-blue-400 px-2 py-1 rounded text-[10px] font-black tracking-wider uppercase">Bodega: Ingram</span>`
+                    }
                         </div>
                         <div class="flex items-center gap-1.5 flex-shrink-0">
                             <span class="w-1.5 h-1.5 rounded-full ${hasStock ? 'dot-green' : 'dot-yellow'}"></span>
@@ -663,7 +650,7 @@
                     <div class="price-tag">
                         <div class="flex items-baseline justify-between">
                             <div>
-                                <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Precio (PVP)</p>
+                                <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Precio</p>
                                 <p class="text-xl font-black text-indigo-300">
                                     $${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     <span class="text-xs text-slate-500 font-normal">MXN</span>

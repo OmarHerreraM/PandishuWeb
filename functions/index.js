@@ -58,6 +58,9 @@ const getMailTransporter = () => {
     return mailTransporter;
 };
 
+// ─── SERVICIOS DE ENVÍO ────────────────────────────────────────────────────────
+const { getSkydropxQuoteForCart } = require('./services/shipping');
+
 async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItems, totalAmount) {
     const transporter = getMailTransporter();
     if (!transporter) return;
@@ -119,19 +122,34 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
         const client = getMercadoPagoClient();
         if (!client) return res.status(500).json({ error: 'MP not configured' });
         try {
-            const { items, customer } = req.body;
+            const { items, customer, zipCode } = req.body;
+
+            // 1. Array de items base para Mercado Pago
             const preferenceItems = items.map(p => ({
                 id: p.sku || 'SKU', title: p.name, quantity: p.quantity, unit_price: Number(p.price), currency_id: 'MXN'
             }));
-            // TODO: Integrar API de envíos mañana
-            // preferenceItems.push({ id: 'ENVIO', title: 'Envío', quantity: 1, unit_price: cost, currency_id: 'MXN' });
+
+            // 2. Calcular tarifa dinámica de envío (Fallback a zip default general '64000' Monterrey si no lo envían)
+            const destinoCp = zipCode || '64000';
+            console.log(`Calculando envío para CP: ${destinoCp} con Skydropx...`);
+            const shippingCost = await getSkydropxQuoteForCart(destinoCp, items);
+
+            // 3. Añadir el costo de envío a los items que el cliente pagará
+            preferenceItems.push({ id: 'ENVIO', title: 'Costo de Envío (SkydropX)', quantity: 1, unit_price: shippingCost, currency_id: 'MXN' });
+
+            const amountTotal = items.reduce((s, i) => s + (i.price * i.quantity), 0) + shippingCost;
 
             const orderRef = await admin.firestore().collection('orders').add({
                 status: 'pending_payment',
                 createdAt: FieldValue.serverTimestamp(),
                 customerInfo: customer,
+                shippingInfo: {
+                    zipCode: destinoCp,
+                    cost: shippingCost,
+                    provider: 'SkydropX'
+                },
                 items,
-                amountTotal: items.reduce((s, i) => s + (i.price * i.quantity), 0)
+                amountTotal: amountTotal
             });
 
             const preference = new MPPreference(client);
@@ -157,13 +175,28 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
 exports.processPayment = functions.runWith({ timeoutSeconds: 60 }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
-        const { token, payment_method_id, installments, issuer_id, customer, items } = req.body;
-        const amount = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+        const { token, payment_method_id, installments, issuer_id, customer, items, zipCode } = req.body;
 
         try {
+            // 1. Costo base de los items
+            let amount = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+            // 2. Calcular envío de la misma manera que en la preferencia
+            const destinoCp = zipCode || '64000';
+            console.log(`Calculando envío directo para pago (CP: ${destinoCp}) con SkydropX...`);
+            const shippingCost = await getSkydropxQuoteForCart(destinoCp, items);
+
+            // 3. Sumar el costo al monto a cobrar en la tarjeta
+            amount += shippingCost;
+
             const orderRef = await admin.firestore().collection('orders').add({
                 status: 'processing',
                 customerInfo: customer,
+                shippingInfo: {
+                    zipCode: destinoCp,
+                    cost: shippingCost,
+                    provider: 'SkydropX'
+                },
                 items,
                 amountTotal: amount,
                 createdAt: FieldValue.serverTimestamp()
