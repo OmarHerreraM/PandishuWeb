@@ -642,10 +642,10 @@
             empty.classList.add('hidden');
 
             const html = products.map(p => {
-                const price = p.price || 0;
-                const retailPrice = p.retailPrice || price * 1.35;
-                const hasStock = p.availability?.availableQuantity > 0;
-                const stockText = hasStock ? `En Stock (${p.availability.availableQuantity})` : 'Consultar disponibilidad';
+                const retailPrice = parseFloat(p.retailPrice || p.precio || p.price || 0);
+                const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
+                const hasStock = stockCount > 0;
+                const stockText = hasStock ? `En Stock (${stockCount})` : 'Consultar disponibilidad';
 
                 return `
                 <div class="product-card p-5 flex flex-col gap-4">
@@ -814,10 +814,10 @@
 
             // Push out-of-stock items to the bottom
             filteredProducts.sort((a, b) => {
-                const stockA = a.availability?.availableQuantity || a.stock || 0;
-                const stockB = b.availability?.availableQuantity || b.stock || 0;
-                if (stockA > 0 && stockB === 0) return -1;
-                if (stockA === 0 && stockB > 0) return 1;
+                const stockA = parseInt(a.availability?.availableQuantity || a.stock || a.existencia || 0, 10);
+                const stockB = parseInt(b.availability?.availableQuantity || b.stock || b.existencia || 0, 10);
+                if (stockA > 0 && stockB <= 0) return -1;
+                if (stockA <= 0 && stockB > 0) return 1;
                 return 0; // maintain relative randomized order
             });
 
@@ -861,10 +861,10 @@
 
             // Re-apply stock sorting to make sure out-of-stock stays at the bottom even after sorting
             sorted.sort((a, b) => {
-                const stockA = a.availability?.availableQuantity || a.stock || 0;
-                const stockB = b.availability?.availableQuantity || b.stock || 0;
-                if (stockA > 0 && stockB === 0) return -1;
-                if (stockA === 0 && stockB > 0) return 1;
+                const stockA = parseInt(a.availability?.availableQuantity || a.stock || a.existencia || 0, 10);
+                const stockB = parseInt(b.availability?.availableQuantity || b.stock || b.existencia || 0, 10);
+                if (stockA > 0 && stockB <= 0) return -1;
+                if (stockA <= 0 && stockB > 0) return 1;
                 return 0;
             });
 
