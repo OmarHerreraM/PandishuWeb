@@ -251,8 +251,17 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
 exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '256MB' }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
-            const snap = await admin.firestore().collection('ct_catalog').limit(2500).get();
-            const products = snap.docs.map(d => d.data());
+            const db = admin.firestore();
+            const [ctSnap, ingramSnap] = await Promise.all([
+                db.collection('ct_catalog').limit(4000).get(),
+                db.collection('ingram_catalog').limit(4000).get().catch(() => ({ docs: [] })) // Fallback si no existe la colección aún
+            ]);
+
+            const ctProducts = ctSnap.docs.map(d => ({ ...d.data(), source: 'CT', vendorName: d.data().vendorName || 'CT' }));
+            const ingramProducts = ingramSnap.docs.map(d => ({ ...d.data(), source: 'Ingram', vendorName: d.data().vendorName || 'Ingram' }));
+
+            const products = [...ctProducts, ...ingramProducts];
+
             const keyword = (req.body.keyword || '').toLowerCase();
             const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.ingramPartNumber || '').toLowerCase().includes(keyword)) : products;
             return res.status(200).json({ recordsFound: filtered.length, catalog: filtered });

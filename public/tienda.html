@@ -453,12 +453,13 @@
             </button>
         </div>
 
-        <!-- Pagination (Hidden for now as all products are loaded) -->
-        <!--
-        <div class="flex justify-center gap-3 mt-14">
-            ...
+        <!-- Pagination -->
+        <div id="load-more-container" class="hidden flex justify-center mt-10">
+            <button onclick="loadMoreProducts()"
+                class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3 rounded-xl transition border border-white/10 shadow-lg flex items-center gap-2 text-xs uppercase tracking-widest">
+                <i data-lucide="plus" class="w-4 h-4"></i> Cargar Más Productos
+            </button>
         </div>
-        -->
     </main>
 
     <!-- ═══════════════════════════════════════
@@ -590,6 +591,8 @@
         let currentFilter = 'all';
         let currentSearch = '';
         let isLoading = false;
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 48;
 
         /* ─── RENDER ─── */
         function normalizeText(text) {
@@ -612,21 +615,23 @@
             `).join('');
         }
 
-        function renderProducts(products) {
+        function renderProducts(products, append = false) {
             const grid = document.getElementById('product-grid');
             const empty = document.getElementById('empty-state');
             const count = document.getElementById('result-count');
+            const loadMoreBtn = document.getElementById('load-more-container');
 
-            count.textContent = products.length;
+            count.textContent = filteredProducts.length;
 
-            if (products.length === 0 && !isLoading) {
+            if (filteredProducts.length === 0 && !isLoading) {
                 grid.innerHTML = '';
                 empty.classList.remove('hidden');
+                loadMoreBtn.classList.add('hidden');
                 return;
             }
             empty.classList.add('hidden');
 
-            grid.innerHTML = products.map(p => {
+            const html = products.map(p => {
                 const price = p.price || 0;
                 const retailPrice = p.retailPrice || price * 1.35;
                 const hasStock = p.availability?.availableQuantity > 0;
@@ -686,11 +691,32 @@
                 </div>
             `}).join('');
 
+            if (append) {
+                grid.insertAdjacentHTML('beforeend', html);
+            } else {
+                grid.innerHTML = html;
+            }
+
+            if (filteredProducts.length > currentPage * ITEMS_PER_PAGE) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+
             lucide.createIcons();
         }
 
         // ─── All products loaded once ───────────────────────────────────────
         let allProducts = [];
+
+        function loadMoreProducts() {
+            const startIndex = currentPage * ITEMS_PER_PAGE;
+            const nextItems = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            if (nextItems.length > 0) {
+                renderProducts(nextItems, true);
+                currentPage++;
+            }
+        }
 
         /* ─── API CALL — single load, then in-memory filter ─── */
         async function fetchProducts() {
@@ -772,7 +798,8 @@
                 return true;
             });
 
-            renderProducts(filteredProducts);
+            currentPage = 1;
+            renderProducts(filteredProducts.slice(0, ITEMS_PER_PAGE));
         }
 
         /* ─── FILTER ─── */
@@ -807,7 +834,9 @@
             if (sort === 'price-asc') sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
             else if (sort === 'price-desc') sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
             else if (sort === 'vendor') sorted.sort((a, b) => a.vendorName.localeCompare(b.vendorName));
-            renderProducts(sorted);
+            filteredProducts = sorted;
+            currentPage = 1;
+            renderProducts(filteredProducts.slice(0, ITEMS_PER_PAGE));
         }
 
         /* ─── MODAL ─── */
