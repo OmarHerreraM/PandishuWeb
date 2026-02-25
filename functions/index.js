@@ -248,10 +248,10 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     } catch (e) { return res.status(200).send('OK'); }
 });
 
-exports.searchProducts = functions.https.onRequest((req, res) => {
+exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '256MB' }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
-            const snap = await admin.firestore().collection('ct_catalog').limit(500).get();
+            const snap = await admin.firestore().collection('ct_catalog').limit(2500).get();
             const products = snap.docs.map(d => d.data());
             const keyword = (req.body.keyword || '').toLowerCase();
             const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.ingramPartNumber || '').toLowerCase().includes(keyword)) : products;

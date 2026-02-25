@@ -580,6 +580,10 @@
         let isLoading = false;
 
         /* ─── RENDER ─── */
+        function normalizeText(text) {
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
         function renderSkeletons() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = Array(8).fill(0).map(() => `
@@ -734,14 +738,16 @@
 
                 // Text search
                 if (q) {
-                    const terms = q.split(/\s+/).filter(t => t.length > 0);
-                    const searchable = [
+                    const normalizedQ = normalizeText(q);
+                    const terms = normalizedQ.split(/\s+/).filter(t => t.length > 0);
+
+                    const searchable = normalizeText([
                         p.description || '',
                         p.vendorName || '',
                         p.ingramPartNumber || '',
                         p.vendorPartNumber || '',
                         p.productCategory || ''
-                    ].join(' ').toLowerCase();
+                    ].join(' '));
 
                     const allTermsMatch = terms.every(term => searchable.includes(term));
                     if (!allTermsMatch) return false;
