@@ -261,24 +261,22 @@ exports.searchProducts = functions.runWith({
             const body = req.body || {};
 
             if (process.env.USE_MOCK_DATA === 'true') {
-                console.log('🔹 Sirviendo catálogo MOCK por configuración USE_MOCK_DATA=true');
+                console.log('\uD83D\uDD39 Sirviendo cat\u00e1logo MOCK');
                 return res.status(200).json(getMockSearchData(body.keyword));
             }
 
-            const token = await getCTToken();
+            // ── LEER DESDE FIRESTORE (ct_catalog) ──────────────────────────
+            // La colecci\u00f3n se llena por syncCTCatalog (FTP) cada 15 minutos
+            const catalogSnap = await admin.firestore().collection('ct_catalog').limit(500).get();
 
-            console.log('Fetching CT promotions/catalog...');
-            const response = await fetch(`${CT_API_BASE}/existencia/promociones`, {
-                headers: { 'x-auth': token }
-            });
-
-            if (!response.ok) {
-                throw new Error(`CT Catalog Fetch Failed: ${response.status}`);
+            if (catalogSnap.empty) {
+                console.warn('ct_catalog est\u00e1 vac\u00edo. Ejecuta syncCTCatalog primero.');
+                return res.status(200).json({ recordsFound: 0, catalog: [], message: 'Sync pendiente. Intenta en unos minutos.' });
             }
 
-            const fullCatalog = await response.json();
+            let fullCatalog = catalogSnap.docs.map(d => d.data());
 
-            // Filtrado por keyword (CT no tiene buscador en API, filtramos en memoria)
+            // Filtrado por keyword
             let keyword = '';
             if (body.keyword) {
                 keyword = Array.isArray(body.keyword) ? body.keyword[0].toString().toLowerCase() : body.keyword.toString().toLowerCase();
@@ -287,50 +285,23 @@ exports.searchProducts = functions.runWith({
             let filteredResults = fullCatalog;
             if (keyword && keyword !== 'all') {
                 filteredResults = fullCatalog.filter(p =>
-                    (p.nombre && p.nombre.toLowerCase().includes(keyword)) ||
-                    (p.descripcion && p.descripcion.toLowerCase().includes(keyword)) ||
-                    (p.marca && p.marca.toLowerCase().includes(keyword)) ||
-                    (p.codigo && p.codigo.toLowerCase().includes(keyword))
+                    (p.description && p.description.toLowerCase().includes(keyword)) ||
+                    (p.vendorName && p.vendorName.toLowerCase().includes(keyword)) ||
+                    (p.ingramPartNumber && p.ingramPartNumber.toLowerCase().includes(keyword))
                 );
             }
 
-            // Mapeo al formato esperado por el Frontend (Pandishú)
-            const safeCatalog = filteredResults.map(p => ({
-                ingramPartNumber: p.codigo || '', // Mantenemos el nombre de la key por compatibilidad
-                vendorName: p.marca || 'Desconocido',
-                vendorPartNumber: p.numParte || '',
-                description: p.nombre || p.descripcion || 'Producto sin descripción',
-                upc: p.upc || '',
-                productCategory: p.subcategoria || '',
-                image: p.imagen || '', // CT sí entrega imagen
-                price: p.precio, // Precio directo de CT
-                currency: p.moneda || 'MXN'
-            }));
-
-            // Cache opcional en Firestore
-            if (keyword && keyword !== 'all') {
-                try {
-                    await admin.firestore().collection('products_cache').doc(`search_${keyword}`).set({
-                        catalog: safeCatalog.slice(0, 50), // Guardamos top 50
-                        timestamp: FieldValue.serverTimestamp()
-                    });
-                } catch (e) {
-                    console.warn("Cache warning:", e.message);
-                }
-            }
-
             return res.status(200).json({
-                recordsFound: safeCatalog.length,
-                catalog: safeCatalog.slice(0, 100) // Limitamos a 100 para no saturar el front
+                recordsFound: filteredResults.length,
+                catalog: filteredResults.slice(0, 100)
             });
 
         } catch (err) {
-            console.error('searchProducts (CT) error:', err.message);
-            // Solo devolver mock si el flag de mock está explícitamente en 'true', de lo contrario error real
+            console.error('searchProducts error:', err.message);
             if (process.env.USE_MOCK_DATA === 'true') {
                 return res.status(200).json(getMockSearchData(req.body?.keyword));
             }
-            return res.status(500).json({ error: 'Error al conectar con CT Internacional: ' + err.message });
+            return res.status(500).json({ error: 'Error al obtener cat\u00e1logo: ' + err.message });
         }
     });
 });
@@ -1630,6 +1601,122 @@ exports.testIpPandishu = functions.runWith({
                 error: 'Error al contactar api.ipify.org',
                 details: error.message
             });
+        }
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION — syncCTCatalog
+// Descarga el JSON de CT vía FTP y lo guarda en Firestore (colección ct_catalog)
+// Invocar manualmente: GET /syncCTCatalog
+// Programar: Cloud Scheduler cada 15 minutos apuntando a esta URL
+// ─────────────────────────────────────────────────────────────────────────────
+const Client = require('ssh2-sftp-client'); // Reutilizamos para SFTP de ingram; CT usa FTP básico
+const ftp = require('basic-ftp');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
+const MXN_RATE_SYNC = parseFloat(process.env.MXN_EXCHANGE_RATE) || 17.50;
+
+exports.syncCTCatalog = functions.runWith({
+    timeoutSeconds: 540,
+    memory: '512MB',
+    labels: { environment: 'production', project: 'pandishu', owner: 'oscar', cost_center: 'sales' }
+}).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        console.log('🔄 [syncCTCatalog] Iniciando sincronización del catálogo CT via FTP...');
+
+        const ftpConfig = {
+            host: '216.70.82.104',
+            user: process.env.CT_FTP_USER || 'DFP2631',
+            password: process.env.CT_FTP_PASSWORD || 'hMlrhbEAvy0ungi3UxsvFkQtHmHtYyy5'
+        };
+
+        const client = new ftp.Client();
+        const localPath = path.join(os.tmpdir(), `ct_stock_${Date.now()}.json`);
+
+        try {
+            await client.access(ftpConfig);
+            console.log('✅ FTP conectado.');
+
+            // Listar directorio para encontrar el archivo JSON correcto
+            const list = await client.list();
+            console.log('📂 Archivos en FTP:', list.map(f => `${f.name} (${f.size}b)`).join(', '));
+
+            // Priorizar: archivo .json con existencia (tamaño más grande)
+            const jsonFile = list.find(f => f.name.toLowerCase().endsWith('.json')) ||
+                list.find(f => f.name.toLowerCase().includes('json'));
+
+            if (!jsonFile) {
+                await client.close();
+                return res.status(404).json({ error: 'No se encontró archivo JSON en el FTP de CT.', files: list.map(f => f.name) });
+            }
+
+            console.log(`📥 Descargando: ${jsonFile.name} (${(jsonFile.size / 1024).toFixed(1)} KB)`);
+            await client.downloadTo(localPath, jsonFile.name);
+            client.close();
+
+            // Leer y parsear el JSON
+            const raw = fs.readFileSync(localPath, 'utf-8');
+            const products = JSON.parse(raw);
+            const productArray = Array.isArray(products) ? products : (products.productos || products.data || []);
+
+            console.log(`📦 Productos en JSON: ${productArray.length}`);
+
+            // Mapear al formato unificado de Pandishú
+            const mapped = productArray.map(p => {
+                let price = parseFloat(p.precio || p.price || 0);
+                const currency = (p.moneda || p.currency || 'USD').toUpperCase();
+                if (currency === 'USD') price = Math.round(price * MXN_RATE_SYNC * 100) / 100;
+                return {
+                    ingramPartNumber: String(p.codigo || p.clave || p.sku || ''),
+                    vendorName: p.marca || p.brand || 'CT Internacional',
+                    vendorPartNumber: p.numParte || p.numParte || '',
+                    description: p.nombre || p.descripcion || p.description || 'Sin descripción',
+                    productCategory: p.subcategoria || p.categoria || '',
+                    image: p.imagen || p.image || '',
+                    price: price,
+                    currency: 'MXN',
+                    availability: { availableQuantity: parseInt(p.existencia || p.stock || 0) },
+                    source: 'CT'
+                };
+            }).filter(p => p.ingramPartNumber); // Solo con código válido
+
+            // Escribir a Firestore en batches de 500
+            const db = admin.firestore();
+            const BATCH_SIZE = 400;
+            let written = 0;
+
+            // Limpiar colección anterior primero
+            const existingDocs = await db.collection('ct_catalog').limit(1000).get();
+            const deleteBatch = db.batch();
+            existingDocs.docs.forEach(d => deleteBatch.delete(d.ref));
+            if (!existingDocs.empty) await deleteBatch.commit();
+
+            for (let i = 0; i < mapped.length; i += BATCH_SIZE) {
+                const batch = db.batch();
+                const chunk = mapped.slice(i, i + BATCH_SIZE);
+                chunk.forEach(product => {
+                    const ref = db.collection('ct_catalog').doc(product.ingramPartNumber);
+                    batch.set(ref, { ...product, syncedAt: FieldValue.serverTimestamp() });
+                });
+                await batch.commit();
+                written += chunk.length;
+                console.log(`  💾 Escritos ${written}/${mapped.length} productos...`);
+            }
+
+            // Limpiar temp file
+            try { fs.unlinkSync(localPath); } catch (e) { }
+
+            const summary = { success: true, total: mapped.length, written, syncedAt: new Date().toISOString() };
+            console.log('✅ Sincronización CT completada:', summary);
+            return res.status(200).json(summary);
+
+        } catch (err) {
+            client.close();
+            try { if (fs.existsSync(localPath)) fs.unlinkSync(localPath); } catch (e) { }
+            console.error('❌ syncCTCatalog error:', err.message);
+            return res.status(500).json({ error: err.message });
         }
     });
 });
