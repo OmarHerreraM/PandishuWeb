@@ -750,6 +750,7 @@
 
                 // Text search
                 if (q) {
+                    const terms = q.split(/\s+/).filter(t => t.length > 0);
                     const searchable = [
                         p.description || '',
                         p.vendorName || '',
@@ -757,7 +758,9 @@
                         p.vendorPartNumber || '',
                         p.productCategory || ''
                     ].join(' ').toLowerCase();
-                    if (!searchable.includes(q)) return false;
+
+                    const allTermsMatch = terms.every(term => searchable.includes(term));
+                    if (!allTermsMatch) return false;
                 }
 
                 return true;
