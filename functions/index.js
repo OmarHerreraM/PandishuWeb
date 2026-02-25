@@ -139,7 +139,12 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
 
             const amountTotal = items.reduce((s, i) => s + (i.price * i.quantity), 0) + shippingCost;
 
-            const orderRef = await admin.firestore().collection('orders').add({
+            const now = new Date();
+            const yearStr = now.getFullYear().toString();
+            const monthStr = (now.getMonth() + 1).toString().padStart(2, '0');
+            const orderRef = admin.firestore().collection('orders').doc(yearStr).collection(monthStr).doc();
+
+            await orderRef.set({
                 status: 'pending_payment',
                 createdAt: FieldValue.serverTimestamp(),
                 customerInfo: customer,
@@ -163,7 +168,7 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
                         pending: `${YOUR_DOMAIN}/pending.html`
                     },
                     auto_return: 'approved',
-                    external_reference: orderRef.id,
+                    external_reference: `${yearStr}/${monthStr}/${orderRef.id}`,
                     notification_url: 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/mpWebhook'
                 }
             });
@@ -189,7 +194,12 @@ exports.processPayment = functions.runWith({ timeoutSeconds: 60 }).https.onReque
             // 3. Sumar el costo al monto a cobrar en la tarjeta
             amount += shippingCost;
 
-            const orderRef = await admin.firestore().collection('orders').add({
+            const now = new Date();
+            const yearStr = now.getFullYear().toString();
+            const monthStr = (now.getMonth() + 1).toString().padStart(2, '0');
+            const orderRef = admin.firestore().collection('orders').doc(yearStr).collection(monthStr).doc();
+
+            await orderRef.set({
                 status: 'processing',
                 customerInfo: customer,
                 shippingInfo: {
@@ -212,7 +222,7 @@ exports.processPayment = functions.runWith({ timeoutSeconds: 60 }).https.onReque
                     payment_method_id,
                     issuer_id,
                     payer: { email: customer.email },
-                    external_reference: orderRef.id
+                    external_reference: `${yearStr}/${monthStr}/${orderRef.id}`
                 }
             });
 

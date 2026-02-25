@@ -292,7 +292,7 @@
         <div id="mobile-menu"
             class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
             <a href="index" class="hover:text-white transition-colors">Inicio</a>
-            <a href="catalogo" class="hover:text-white transition-colors">Catálogo</a>
+            <a href="tienda" class="hover:text-white transition-colors">Tienda</a>
             <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
             <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
             <a href="tienda" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
@@ -387,12 +387,22 @@
                     class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mr-1 flex-shrink-0">Explorar:</span>
                 <button class="filter-chip active flex-shrink-0" onclick="filterBy('all', this)"
                     id="chip-all">Todos</button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('networking', this)">
-                    <span class="mr-1">🌐</span> Networking
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('apple', this)">
+                    <span class="mr-1">🍎</span> Apple
                 </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('security', this)">
-                    <span class="mr-1">📷</span> Seguridad
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('dell', this)">
+                    <span class="mr-1">🔵</span> Dell
                 </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('ubiquiti', this)">
+                    <span class="mr-1">🛸</span> Ubiquiti
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('dahua', this)">
+                    <span class="mr-1">🛡️</span> Dahua
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('tplink', this)">
+                    <span class="mr-1">📡</span> TP-Link
+                </button>
+                <!-- Departments -->
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('laptop', this)">
                     <span class="mr-1">💻</span> Laptops
                 </button>
@@ -402,6 +412,12 @@
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('server', this)">
                     <span class="mr-1">🗄️</span> Servidores
                 </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('networking', this)">
+                    <span class="mr-1">🌐</span> Networking
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('security', this)">
+                    <span class="mr-1">📷</span> Seguridad
+                </button>
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('storage', this)">
                     <span class="mr-1">💾</span> Almacenamiento
                 </button>
@@ -410,12 +426,6 @@
                 </button>
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('cargadores', this)">
                     <span class="mr-1">⚡</span> Cargadores
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('dahua', this)">
-                    <span class="mr-1">🛡️</span> Dahua
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('tplink', this)">
-                    <span class="mr-1">📡</span> TP-Link
                 </button>
             </div>
         </div>
@@ -762,16 +772,19 @@
                     const name = (p.description || '').toLowerCase();
                     const vendor = (p.vendorName || '').toLowerCase();
                     const catMap = {
-                        networking: ['red', 'network', 'router', 'switch', 'wifi', 'access point', 'ap', 'ubiquiti', 'unifi', 'cisco', 'modem', 'wireless'],
-                        security: ['camara', 'cámara', 'security', 'nvr', 'dvr', 'hikvision', 'dahua', 'vigilancia', 'cctv'],
-                        laptop: ['laptop', 'notebook', 'portatil', 'portátil', 'lenovo', 'dell', 'hp', 'asus', 'macbook'],
-                        desktop: ['desktop', 'escritorio', 'pc', 'computadora', 'optiplex', 'thinkcentre', 'all in one', 'aio'],
-                        server: ['servidor', 'server', 'rack', 'blade', 'poweredge', 'proliant'],
+                        apple: ['apple', 'macbook', 'ipad', 'iphone', 'mac'],
+                        dell: ['dell', 'alienware', 'optiplex', 'latitude', 'xps', 'poweredge'],
+                        ubiquiti: ['ubiquiti', 'unifi', 'airmax'],
+                        dahua: ['dahua'],
+                        tplink: ['tp-link', 'tplink'],
+                        networking: ['red', 'network', 'router', 'switch', 'wifi', 'access point', 'ap', 'cisco', 'modem', 'wireless'],
+                        security: ['camara', 'cámara', 'security', 'nvr', 'dvr', 'hikvision', 'vigilancia', 'cctv'],
+                        laptop: ['laptop', 'notebook', 'portatil', 'portátil', 'lenovo', 'hp', 'asus'],
+                        desktop: ['desktop', 'escritorio', 'pc', 'computadora', 'thinkcentre', 'all in one', 'aio'],
+                        server: ['servidor', 'server', 'rack', 'blade', 'proliant'],
                         storage: ['disco', 'storage', 'nas', 'ssd', 'hdd', 'sata', 'nvme', 'almacenamiento'],
                         printing: ['impresora', 'printer', 'toner', 'cartucho', 'plotter', 'epson', 'canon', 'brother'],
-                        cargadores: ['cargador', 'adaptador de corriente', 'power adapter', 'fuente de poder', 'eliminador', 'bateria', 'batería'],
-                        dahua: ['dahua'],
-                        tplink: ['tp-link', 'tplink']
+                        cargadores: ['cargador', 'adaptador de corriente', 'power adapter', 'fuente de poder', 'eliminador', 'bateria', 'batería']
                     };
                     const keywords = catMap[cat] || [cat];
                     const matches = keywords.some(k => category.includes(k) || name.includes(k) || vendor.includes(k));
