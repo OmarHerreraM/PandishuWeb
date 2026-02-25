@@ -266,13 +266,13 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     } catch (e) { return res.status(200).send('OK'); }
 });
 
-exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '512MB' }).https.onRequest((req, res) => {
+exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
             const db = admin.firestore();
             const [ctSnap, ingramSnap] = await Promise.all([
-                db.collection('ct_catalog').limit(4000).get(),
-                db.collection('ingram_catalog').limit(4000).get().catch(() => ({ docs: [] }))
+                db.collection('ct_catalog').get(),
+                db.collection('ingram_catalog').get().catch(() => ({ docs: [] }))
             ]);
 
             const ctProducts = ctSnap.docs.map(d => ({ ...d.data(), source: 'CT', vendorName: d.data().vendorName || 'CT' }));
@@ -349,4 +349,80 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
             return res.status(200).json({ success: true, count: mapped.length });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     });
+});
+
+// ─── TEMP: INGRAM IMPORT SCRIPT ───────────────────────────────────────────────
+exports.importIngramData = functions.runWith({ timeoutSeconds: 540, memory: '1GB' }).https.onRequest(async (req, res) => {
+    try {
+        const fs = require('fs');
+        const readline = require('readline');
+        const path = require('path');
+        console.log('Starting import of Ingram Catalog from Cloud Function...');
+
+        const filePath = path.join(__dirname, 'PRICE.TXT');
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'PRICE.TXT not found in functions directory.' });
+        }
+
+        const fileStream = fs.createReadStream(filePath);
+        const rl = readline.createInterface({
+            input: fileStream,
+            crlfDelay: Infinity
+        });
+
+        let batch = admin.firestore().batch();
+        let batchCount = 0;
+        let totalCount = 0;
+
+        for await (const line of rl) {
+            if (!line.trim()) continue;
+            const row = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+            if (row.length < 25) continue;
+            if (row[0] !== 'A') continue;
+
+            const ingramPartNumber = row[1];
+            const vendorName = row[3];
+            const description1 = row[4] || '';
+            const description2 = row[5] || '';
+            const description = (description1 + ' ' + description2).trim();
+            const vendorPartNumber = row[7];
+            const price = parseFloat(row[6]) || 0;
+            const upc = row[9];
+            const stock = parseInt(row[25], 10) || 0;
+
+            const docRef = admin.firestore().collection('ingram_catalog').doc(ingramPartNumber);
+
+            batch.set(docRef, {
+                ingramPartNumber,
+                vendorPartNumber,
+                vendorName,
+                description,
+                precio: price,
+                moneda: 'MXN',
+                upc,
+                stock,
+                source: 'Ingram',
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            batchCount++;
+            totalCount++;
+
+            if (batchCount === 450) {
+                await batch.commit();
+                console.log(`Committed ${totalCount} records...`);
+                batch = admin.firestore().batch();
+                batchCount = 0;
+            }
+        }
+
+        if (batchCount > 0) {
+            await batch.commit();
+        }
+
+        return res.status(200).json({ success: true, message: `Import completed! Total records processed: ${totalCount}` });
+    } catch (error) {
+        console.error('Import error:', error);
+        return res.status(500).json({ error: error.message });
+    }
 });
