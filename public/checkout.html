@@ -317,13 +317,13 @@
                             <span id="checkout-subtotal">$0.00</span>
                         </div>
 
-                        <!-- ENVÍO FIJO -->
+                        <!-- ENVÍO FIJO (POR AHORA) -->
                         <div class="flex items-center justify-between text-sm mt-1">
                             <span class="flex items-center gap-2 text-slate-400">
                                 <i data-lucide="truck" class="w-4 h-4 text-indigo-400"></i>
-                                Envío Estándar
+                                Envío
                             </span>
-                            <span class="font-bold text-white">$149.00 MXN</span>
+                            <span id="checkout-shipping" class="font-bold text-white text-xs italic">Por calcular</span>
                         </div>
 
                         <div class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
@@ -415,7 +415,7 @@
                 </div>`;
             }).join('');
 
-            const SHIPPING_COST = 149;
+            const SHIPPING_COST = 0; // Se calculará con app de envíos mañana
             window._cartSubtotal = subtotal;
             window._shippingCost = SHIPPING_COST;
             orderTotal = subtotal + SHIPPING_COST;

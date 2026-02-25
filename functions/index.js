@@ -123,14 +123,15 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
             const preferenceItems = items.map(p => ({
                 id: p.sku || 'SKU', title: p.name, quantity: p.quantity, unit_price: Number(p.price), currency_id: 'MXN'
             }));
-            preferenceItems.push({ id: 'ENVIO', title: 'Envío', quantity: 1, unit_price: 149, currency_id: 'MXN' });
+            // TODO: Integrar API de envíos mañana
+            // preferenceItems.push({ id: 'ENVIO', title: 'Envío', quantity: 1, unit_price: cost, currency_id: 'MXN' });
 
             const orderRef = await admin.firestore().collection('orders').add({
                 status: 'pending_payment',
                 createdAt: FieldValue.serverTimestamp(),
                 customerInfo: customer,
                 items,
-                amountTotal: items.reduce((s, i) => s + (i.price * i.quantity), 149)
+                amountTotal: items.reduce((s, i) => s + (i.price * i.quantity), 0)
             });
 
             const preference = new MPPreference(client);
@@ -157,7 +158,7 @@ exports.processPayment = functions.runWith({ timeoutSeconds: 60 }).https.onReque
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
         const { token, payment_method_id, installments, issuer_id, customer, items } = req.body;
-        const amount = items.reduce((s, i) => s + (i.price * i.quantity), 149);
+        const amount = items.reduce((s, i) => s + (i.price * i.quantity), 0);
 
         try {
             const orderRef = await admin.firestore().collection('orders').add({
