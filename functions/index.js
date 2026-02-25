@@ -275,9 +275,22 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
                 db.collection('ingram_catalog').get().catch(() => ({ docs: [] }))
             ]);
 
-            const ctProducts = ctSnap.docs.map(d => ({ ...d.data(), source: 'CT', vendorName: d.data().vendorName || 'CT' }));
-            const ingramProducts = ingramSnap.docs.map(d => ({ ...d.data(), source: 'Ingram', vendorName: d.data().vendorName || 'Ingram' }));
-
+            const ctProducts = ctSnap.docs.map(d => {
+                const data = { ...d.data() };
+                delete data.costoInterno;
+                delete data.gananciaBruta;
+                delete data.margenUtilidad;
+                delete data.costo;
+                return { ...data, source: 'CT', vendorName: data.vendorName || 'CT' };
+            });
+            const ingramProducts = ingramSnap.docs.map(d => {
+                const data = { ...d.data() };
+                delete data.costoInterno;
+                delete data.gananciaBruta;
+                delete data.margenUtilidad;
+                delete data.costo;
+                return { ...data, source: 'Ingram', vendorName: data.vendorName || 'Ingram' };
+            });
             let products = [...ctProducts, ...ingramProducts];
 
             // Shuffle products to mix CT and Ingram for the first page
