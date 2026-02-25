@@ -1639,17 +1639,21 @@ exports.syncCTCatalog = functions.runWith({
             await client.access(ftpConfig);
             console.log('✅ FTP conectado.');
 
+            // CT deposita los archivos dentro del subdirectorio catalogo_xml
+            await client.cd('catalogo_xml');
+            console.log('📂 Navegando a /catalogo_xml ...');
+
             // Listar directorio para encontrar el archivo JSON correcto
             const list = await client.list();
-            console.log('📂 Archivos en FTP:', list.map(f => `${f.name} (${f.size}b)`).join(', '));
+            console.log('📂 Archivos en /catalogo_xml:', list.map(f => `${f.name} (${(f.size / 1024).toFixed(1)}KB)`).join(', '));
 
-            // Priorizar: archivo .json con existencia (tamaño más grande)
+            // Priorizar: archivo .json (stock en tiempo real, generado cada 15 min)
             const jsonFile = list.find(f => f.name.toLowerCase().endsWith('.json')) ||
                 list.find(f => f.name.toLowerCase().includes('json'));
 
             if (!jsonFile) {
-                await client.close();
-                return res.status(404).json({ error: 'No se encontró archivo JSON en el FTP de CT.', files: list.map(f => f.name) });
+                client.close();
+                return res.status(404).json({ error: 'No se encontró archivo JSON en /catalogo_xml', files: list.map(f => f.name) });
             }
 
             console.log(`📥 Descargando: ${jsonFile.name} (${(jsonFile.size / 1024).toFixed(1)} KB)`);
