@@ -117,7 +117,11 @@ exports.getConfig = functions.https.onRequest(async (req, res) => {
     });
 });
 
-exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: '256MB' }).https.onRequest((req, res) => {
+exports.createCheckoutSession = functions.runWith({
+    timeoutSeconds: 60,
+    memory: '256MB',
+    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
         if (!client) return res.status(500).json({ error: 'MP not configured' });
@@ -177,7 +181,11 @@ exports.createCheckoutSession = functions.runWith({ timeoutSeconds: 60, memory: 
     });
 });
 
-exports.processPayment = functions.runWith({ timeoutSeconds: 60 }).https.onRequest((req, res) => {
+exports.processPayment = functions.runWith({
+    timeoutSeconds: 60,
+    memory: '256MB',
+    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
         const { token, payment_method_id, installments, issuer_id, customer, items, zipCode } = req.body;
