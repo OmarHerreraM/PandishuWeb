@@ -266,22 +266,29 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     } catch (e) { return res.status(200).send('OK'); }
 });
 
-exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '256MB' }).https.onRequest((req, res) => {
+exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '512MB' }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
             const db = admin.firestore();
             const [ctSnap, ingramSnap] = await Promise.all([
                 db.collection('ct_catalog').limit(4000).get(),
-                db.collection('ingram_catalog').limit(4000).get().catch(() => ({ docs: [] })) // Fallback si no existe la colección aún
+                db.collection('ingram_catalog').limit(4000).get().catch(() => ({ docs: [] }))
             ]);
 
             const ctProducts = ctSnap.docs.map(d => ({ ...d.data(), source: 'CT', vendorName: d.data().vendorName || 'CT' }));
             const ingramProducts = ingramSnap.docs.map(d => ({ ...d.data(), source: 'Ingram', vendorName: d.data().vendorName || 'Ingram' }));
 
-            const products = [...ctProducts, ...ingramProducts];
+            let products = [...ctProducts, ...ingramProducts];
+
+            // Shuffle products to mix CT and Ingram for the first page
+            for (let i = products.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [products[i], products[j]] = [products[j], products[i]];
+            }
 
             const keyword = (req.body.keyword || '').toLowerCase();
             const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.ingramPartNumber || '').toLowerCase().includes(keyword)) : products;
+
             return res.status(200).json({ recordsFound: filtered.length, catalog: filtered });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     });
