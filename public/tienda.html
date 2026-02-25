@@ -396,14 +396,26 @@
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('laptop', this)">
                     <span class="mr-1">💻</span> Laptops
                 </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('desktop', this)">
+                    <span class="mr-1">🖥️</span> Computadoras
+                </button>
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('server', this)">
-                    <span class="mr-1">🖥️</span> Servidores
+                    <span class="mr-1">🗄️</span> Servidores
                 </button>
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('storage', this)">
                     <span class="mr-1">💾</span> Almacenamiento
                 </button>
                 <button class="filter-chip flex-shrink-0" onclick="filterBy('printing', this)">
                     <span class="mr-1">🖨️</span> Impresión
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('cargadores', this)">
+                    <span class="mr-1">⚡</span> Cargadores
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('dahua', this)">
+                    <span class="mr-1">🛡️</span> Dahua
+                </button>
+                <button class="filter-chip flex-shrink-0" onclick="filterBy('tplink', this)">
+                    <span class="mr-1">📡</span> TP-Link
                 </button>
             </div>
         </div>
@@ -727,9 +739,13 @@
                         networking: ['red', 'network', 'router', 'switch', 'wifi', 'access point', 'ap', 'ubiquiti', 'unifi', 'cisco', 'modem', 'wireless'],
                         security: ['camara', 'cámara', 'security', 'nvr', 'dvr', 'hikvision', 'dahua', 'vigilancia', 'cctv'],
                         laptop: ['laptop', 'notebook', 'portatil', 'portátil', 'lenovo', 'dell', 'hp', 'asus', 'macbook'],
+                        desktop: ['desktop', 'escritorio', 'pc', 'computadora', 'optiplex', 'thinkcentre', 'all in one', 'aio'],
                         server: ['servidor', 'server', 'rack', 'blade', 'poweredge', 'proliant'],
                         storage: ['disco', 'storage', 'nas', 'ssd', 'hdd', 'sata', 'nvme', 'almacenamiento'],
                         printing: ['impresora', 'printer', 'toner', 'cartucho', 'plotter', 'epson', 'canon', 'brother'],
+                        cargadores: ['cargador', 'adaptador de corriente', 'power adapter', 'fuente de poder', 'eliminador', 'bateria', 'batería'],
+                        dahua: ['dahua'],
+                        tplink: ['tp-link', 'tplink']
                     };
                     const keywords = catMap[cat] || [cat];
                     const matches = keywords.some(k => category.includes(k) || name.includes(k) || vendor.includes(k));
