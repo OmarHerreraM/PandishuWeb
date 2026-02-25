@@ -22,27 +22,42 @@ function usdToMxn(usdPrice) {
     return { price: Math.round(usdPrice * MXN_RATE * 100) / 100, currency: 'MXN' };
 }
 
-// ─── TOKEN CACHE (CT CONNECT) ─────────────────────────────────────────────────
-let cachedCTToken = null;
-let ctTokenExpiry = 0;
+// ─── TOKEN CT CONNECT AUTOMATIZATION ──────────────────────────────────────────
+const { generateCTToken } = require('./services/ctConnect');
 
-async function getCTToken() {
-    if (cachedCTToken && Date.now() < ctTokenExpiry) return cachedCTToken;
-    try {
-        const response = await fetch(`${CT_API_BASE}/cliente/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: CT_EMAIL, cliente: CT_CLIENT_NUM, rfc: CT_RFC })
+// Scheduled function to run every day to keep the CT Token fresh for dropshipping
+exports.scheduledCTTokenRefresh = functions.pubsub.schedule('every 23 hours').onRun(async (context) => {
+    console.log('Running scheduled CT Token refresh...');
+    const newToken = await generateCTToken();
+    if (newToken) {
+        // Save the token to Firestore so all instances can use it
+        await admin.firestore().collection('system_config').doc('ct_auth').set({
+            token: newToken,
+            updatedAt: FieldValue.serverTimestamp()
         });
-        if (!response.ok) throw new Error(`CT Auth Failed (${response.status})`);
-        const data = await response.json();
-        cachedCTToken = data.token;
-        ctTokenExpiry = Date.now() + 2 * 60 * 60 * 1000;
-        return cachedCTToken;
-    } catch (error) {
-        console.error('getCTToken error:', error);
-        throw error;
+        console.log('CT Token successfully refreshed and stored in Firestore.');
+    } else {
+        console.error('Failed to generate new CT Token during scheduled refresh.');
     }
+    return null;
+});
+
+// Helper function to dynamically retrieve the fresh CT token inside APIs
+async function getCTToken() {
+    const doc = await admin.firestore().collection('system_config').doc('ct_auth').get();
+    if (doc.exists && doc.data().token) {
+        return doc.data().token;
+    }
+    // Fallback: Generate it right now if it doesn't exist
+    const newToken = await generateCTToken();
+    if (newToken) {
+        await admin.firestore().collection('system_config').doc('ct_auth').set({
+            token: newToken,
+            updatedAt: FieldValue.serverTimestamp()
+        });
+        return newToken;
+    }
+    throw new Error('No se pudo generar un token de CT.');
 }
 
 // ─── CONFIGURACIÓN DE CORREO ──────────────────────────────────────────────────
