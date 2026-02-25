@@ -2,8 +2,11 @@
  * Pandishú — Multi-Warehouse Shipping Service (Updated with CT API)
  * 
  * Calcula el costo de envío total para carritos mixtos.
- * Incorpora la API de paquetería en tiempo real de CT Internacional.
+ * Incorpora la API de paquetería en tiempo real de CT Internacional y SkydropX.
  */
+
+const { quoteSkydropxShipment } = require('./skydropx');
+
 
 const INGRAM_FLAT_RATE = 149.00; // Tarifa fija Ingram México
 
@@ -100,6 +103,35 @@ async function calculateMultiVendorShipping(cartItems, destinationZip, ctToken) 
     };
 }
 
+/**
+ * Fallback o integración paralela usando Skydropx
+ * @param {string} destinationZip 
+ * @param {Array} items 
+ */
+async function getSkydropxQuoteForCart(destinationZip, items) {
+    // Estimación básica: 1 bulto por el total de items
+    // En un caso real se calcularía volumétrico por item
+    const parcels = items.map(() => ({
+        length: 20, width: 20, height: 20, weight: 1.5
+    }));
+
+    if (parcels.length === 0) return 150.00; // default
+
+    console.log(`🚀 [Skydropx API] Solicitando cotización para CP: ${destinationZip}`);
+    const rates = await quoteSkydropxShipment(destinationZip, parcels);
+
+    if (rates && rates.length > 0) {
+        // Tomar la opción más económica
+        const bestRate = parseFloat(rates[0].total);
+        console.log(`✅ [Skydropx API] Mejor tarifa encontrada: $${bestRate} MXN`);
+        return bestRate;
+    }
+
+    // Si falla, retornamos tarifa default sugerida
+    return 150.00;
+}
+
 module.exports = {
-    calculateMultiVendorShipping
+    calculateMultiVendorShipping,
+    getSkydropxQuoteForCart
 };

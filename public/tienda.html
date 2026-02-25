@@ -371,7 +371,7 @@
                     <input id="search-input" type="text"
                         placeholder='Busca por nombre, SKU o marca... ej: "Ubiquiti", "Dell Laptop"'
                         class="w-full bg-transparent text-white placeholder-slate-500 text-base font-medium outline-none"
-                        onkeydown="if(event.key==='Enter') doSearch()">
+                        onkeyup="doSearch()" onkeydown="if(event.key==='Enter') doSearch()">
                 </div>
                 <!-- Search Button -->
                 <button onclick="doSearch()" id="search-btn"
@@ -524,7 +524,7 @@
             <p id="modal-vendor-part" class="text-xs text-slate-500 font-mono mb-6">Vendor PN: —</p>
             <div class="bg-slate-800/60 rounded-2xl p-4 mb-6">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-slate-400 text-sm">Tu precio de reventa</span>
+                    <span class="text-slate-400 text-sm">Precio (PVP)</span>
                     <span id="modal-price" class="text-2xl font-black text-indigo-300">$—</span>
                 </div>
                 <div class="flex justify-between items-center mt-3">
@@ -663,14 +663,11 @@
                     <div class="price-tag">
                         <div class="flex items-baseline justify-between">
                             <div>
-                                <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Precio estimado</p>
-                                <p class="text-xl font-black ${price > 0 ? 'text-indigo-300' : 'text-slate-500'}">
-                                    ${price > 0 ? `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Sujeto a cotización'} 
+                                <p class="text-slate-500 text-[10px] uppercase tracking-wider font-bold mb-0.5">Precio (PVP)</p>
+                                <p class="text-xl font-black text-indigo-300">
+                                    $${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     <span class="text-xs text-slate-500 font-normal">MXN</span>
                                 </p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-slate-600 text-[10px]">PVP Ref: $${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</p>
                             </div>
                         </div>
                     </div>
@@ -816,7 +813,9 @@
             document.getElementById('modal-title').textContent = p.description;
             document.getElementById('modal-sku').textContent = `SKU: ${p.ingramPartNumber}`;
             document.getElementById('modal-vendor-part').textContent = `Vendor PN: ${p.vendorPartNumber}`;
-            document.getElementById('modal-price').textContent = price > 0 ? `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : 'Cotización requerida';
+
+            const retailPrice = p.retailPrice || price * 1.35;
+            document.getElementById('modal-price').textContent = retailPrice > 0 ? `$${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : 'Cotización requerida';
             document.getElementById('modal-availability').textContent = hasStock ? `✅ ${p.availability.availableQuantity} unidades en stock` : '⏳ Consultar disponibilidad / Backorder';
 
             const cartBtn = document.getElementById('modal-cart-btn');
