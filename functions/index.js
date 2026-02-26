@@ -258,6 +258,8 @@ exports.processPayment = functions.runWith({
     });
 });
 
+
+
 exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     const client = getMercadoPagoClient();
     const paymentId = req.query.id || (req.body.data && req.body.data.id);
@@ -379,6 +381,26 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
 
             const pedidos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             return res.status(200).json({ recordsFound: pedidos.length, pedidos });
+        } catch (e) {
+            return res.status(500).json({ error: e.message });
+        }
+    });
+});
+
+exports.getShippingQuote = functions.runWith({
+    timeoutSeconds: 30,
+    memory: '256MB',
+    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
+}).https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        try {
+            const { zipCode, items } = req.body;
+            if (!zipCode || !items) return res.status(400).json({ error: 'Falta zipCode o items' });
+
+            console.log(`Cotizando envío para CP: ${zipCode}`);
+            const shippingCost = await getSkydropxQuoteForCart(zipCode, items);
+
+            return res.status(200).json({ shippingCost });
         } catch (e) {
             return res.status(500).json({ error: e.message });
         }

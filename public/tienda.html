@@ -879,7 +879,8 @@
             if (!p) return;
 
             const price = p.price || 0;
-            const hasStock = p.availability?.availableQuantity > 0;
+            const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
+            const hasStock = stockCount > 0;
 
             document.getElementById('modal-product-badge').textContent = p.vendorName || 'Fabricante';
             document.getElementById('modal-title').textContent = p.description;
@@ -888,7 +889,7 @@
 
             const retailPrice = p.retailPrice || price * 1.35;
             document.getElementById('modal-price').textContent = retailPrice > 0 ? `$${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : 'Cotización requerida';
-            document.getElementById('modal-availability').textContent = hasStock ? `✅ ${p.availability.availableQuantity} unidades en stock` : '⏳ Consultar disponibilidad / Backorder';
+            document.getElementById('modal-availability').textContent = hasStock ? `✅ ${stockCount} unidades en stock` : '⏳ Consultar disponibilidad / Backorder';
 
             const cartBtn = document.getElementById('modal-cart-btn');
             if (price > 0 && hasStock) {
