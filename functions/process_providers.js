@@ -46,6 +46,7 @@ async function processProviderFile(filePath, vendor) {
         const sku = row[1]; // Segundo campo
         const pvpValue = parseFloat(row[6]) || 0; // Séptimo campo
         const ean = row[9]; // Décimo campo
+        const existencia = parseInt(row[13]) || 0; // Décimo cuarto campo (Existencia)
         const costoValue = parseFloat(row[14]) || 0; // Décimo quinto campo
 
         let ganancia = 0;
@@ -74,6 +75,7 @@ async function processProviderFile(filePath, vendor) {
         batch.set(docRef, {
             sku: sku,
             ean: ean,
+            existencia: existencia, // Stock number for frontend
             retailPrice: pvpValue, // Solo visible para el Front
 
             // ==========================================

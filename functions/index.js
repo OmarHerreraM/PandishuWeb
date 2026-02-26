@@ -291,11 +291,12 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
 
             const ctProducts = ctSnap.docs.map(d => {
                 const data = { ...d.data() };
+                const stock = data.availability?.availableQuantity || data.existencia || 0;
                 delete data.costoInterno;
                 delete data.gananciaBruta;
                 delete data.margenUtilidad;
                 delete data.costo;
-                return { ...data, source: 'CT', vendorName: data.vendorName || 'CT' };
+                return { ...data, source: 'CT', vendorName: data.vendorName || 'CT', stock };
             });
 
             const products = [...ctProducts];
