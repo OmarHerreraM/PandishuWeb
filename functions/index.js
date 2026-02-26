@@ -148,13 +148,12 @@ exports.createCheckoutSession = functions.runWith({
                 id: p.sku || 'SKU', title: p.name, quantity: p.quantity, unit_price: Number(p.price), currency_id: 'MXN'
             }));
 
-            // 2. Calcular tarifa dinámica de envío (Fallback a zip default general '64000' Monterrey si no lo envían)
+            // 2. Envío gestionado por CT
             const destinoCp = zipCode || '64000';
-            console.log(`Calculando envío para CP: ${destinoCp} con Skydropx...`);
-            const shippingCost = await getSkydropxQuoteForCart(destinoCp, items);
+            const shippingCost = 0; // Se delega a la gestión de Dropshipping de CT
 
-            // 3. Añadir el costo de envío a los items que el cliente pagará
-            preferenceItems.push({ id: 'ENVIO', title: 'Costo de Envío (SkydropX)', quantity: 1, unit_price: shippingCost, currency_id: 'MXN' });
+            // 3. Añadir el costo de envío a los items que el cliente pagará (si fuera necesario)
+            preferenceItems.push({ id: 'ENVIO', title: 'Costo de Envío', quantity: 1, unit_price: shippingCost, currency_id: 'MXN' });
 
             const amountTotal = items.reduce((s, i) => s + (i.price * i.quantity), 0) + shippingCost;
 
@@ -170,7 +169,7 @@ exports.createCheckoutSession = functions.runWith({
                 shippingInfo: {
                     zipCode: destinoCp,
                     cost: shippingCost,
-                    provider: 'SkydropX'
+                    provider: 'CT'
                 },
                 items,
                 amountTotal: amountTotal
@@ -209,10 +208,9 @@ exports.processPayment = functions.runWith({
             // 1. Costo base de los items
             let amount = items.reduce((s, i) => s + (i.price * i.quantity), 0);
 
-            // 2. Calcular envío de la misma manera que en la preferencia
+            // 2. Envío gestionado por CT
             const destinoCp = zipCode || '64000';
-            console.log(`Calculando envío directo para pago (CP: ${destinoCp}) con SkydropX...`);
-            const shippingCost = await getSkydropxQuoteForCart(destinoCp, items);
+            const shippingCost = 0;
 
             // 3. Sumar el costo al monto a cobrar en la tarjeta
             amount += shippingCost;
@@ -228,7 +226,7 @@ exports.processPayment = functions.runWith({
                 shippingInfo: {
                     zipCode: destinoCp,
                     cost: shippingCost,
-                    provider: 'SkydropX'
+                    provider: 'CT'
                 },
                 items,
                 amountTotal: amount,
@@ -274,9 +272,37 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
             const orderRef = admin.firestore().collection('orders').doc(orderId);
             const orderDoc = await orderRef.get();
             if (orderDoc.exists && orderDoc.data().status !== 'paid') {
-                await orderRef.update({ status: 'paid', mpPaymentId: paymentId, paidAt: FieldValue.serverTimestamp() });
                 const data = orderDoc.data();
-                await enviarCorreoConfirmacion(data.customerInfo.email, data.customerInfo.name, orderId, data.items, data.amountTotal);
+
+                // Asignar almacén CT óptimo
+                const { getCTItemStock } = require('./services/ctConnect');
+                const { getOptimalWarehouse } = require('./services/warehouseManager');
+                let resolvedItems = data.items;
+
+                try {
+                    const token = await getCTToken();
+                    resolvedItems = [];
+                    for (let item of data.items) {
+                        if (item.source === 'CT' || !item.vendorName || item.vendorName === 'CT') {
+                            const ctStock = await getCTItemStock(item.sku, token);
+                            const bestAlmacen = getOptimalWarehouse(data.shippingInfo.zipCode, ctStock);
+                            resolvedItems.push({ ...item, assignedWarehouse: bestAlmacen || 'PENDING' });
+                        } else {
+                            resolvedItems.push(item);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error asignando almacén:", err);
+                }
+
+                await orderRef.update({
+                    status: 'paid',
+                    mpPaymentId: paymentId,
+                    paidAt: FieldValue.serverTimestamp(),
+                    items: resolvedItems
+                });
+
+                await enviarCorreoConfirmacion(data.customerInfo.email, data.customerInfo.name, orderId, resolvedItems, data.amountTotal);
             }
         }
         return res.status(200).send('OK');
@@ -387,22 +413,3 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
     });
 });
 
-exports.getShippingQuote = functions.runWith({
-    timeoutSeconds: 30,
-    memory: '256MB',
-    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
-}).https.onRequest((req, res) => {
-    cors(req, res, async () => {
-        try {
-            const { zipCode, items } = req.body;
-            if (!zipCode || !items) return res.status(400).json({ error: 'Falta zipCode o items' });
-
-            console.log(`Cotizando envío para CP: ${zipCode}`);
-            const shippingCost = await getSkydropxQuoteForCart(zipCode, items);
-
-            return res.status(200).json({ shippingCost });
-        } catch (e) {
-            return res.status(500).json({ error: e.message });
-        }
-    });
-});

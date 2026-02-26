@@ -236,65 +236,18 @@
                             <i data-lucide="credit-card" class="w-4 h-4 text-indigo-400"></i> Método de Pago
                         </h3>
 
-                        <!-- Opción A: CardForm -->
-                        <div class="p-5 border border-white/10 rounded-2xl bg-slate-900/40 space-y-4">
-                            <h4 class="text-white font-bold text-sm flex items-center gap-2">Pago Seguro con Tarjeta
+
+                        <!-- Opción Única: Checkout Pro (Wallet Brick) -->
+                        <div class="p-6 border border-[#009EE3]/30 rounded-3xl bg-[#009EE3]/5 space-y-4 text-center">
+                            <h4 class="text-white font-black text-lg mb-1 flex items-center justify-center gap-2">
+                                <i data-lucide="shield-check" class="text-emerald-400 w-5 h-5"></i>
+                                Pago Seguro 100% Encriptado
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="md:col-span-2">
-                                    <label
-                                        class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Número
-                                        de Tarjeta</label>
-                                    <div id="cardNumber" class="w-full input-glass rounded-xl px-4 py-3 h-11"></div>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Vencimiento</label>
-                                    <div id="expirationDate" class="w-full input-glass rounded-xl px-4 py-3 h-11"></div>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">CVC</label>
-                                    <div id="securityCode" class="w-full input-glass rounded-xl px-4 py-3 h-11"></div>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label
-                                        class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Titular</label>
-                                    <input type="text" id="cardholderName"
-                                        class="w-full input-glass rounded-xl px-4 py-2 text-sm"
-                                        placeholder="Como aparece en la tarjeta" required>
-                                </div>
-                                <!-- Ocultos, requeridos por MP para funcionar -->
-                                <div class="hidden">
-                                    <select id="issuer"></select>
-                                    <select id="installments"></select>
-                                    <select id="identificationType"></select>
-                                    <input type="text" id="identificationNumber" value="12345678" />
-                                </div>
-                            </div>
-                            <div class="pt-2">
-                                <button type="submit" id="submit-btn"
-                                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold uppercase tracking-widest text-xs py-4 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex justify-center items-center gap-2">
-                                    Pagar con Tarjeta <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 py-1">
-                            <div class="flex-1 h-px bg-white/5"></div>
-                            <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">O
-                                también</span>
-                            <div class="flex-1 h-px bg-white/5"></div>
-                        </div>
-
-                        <!-- Opción B: Wallet Brick -->
-                        <div class="p-5 border border-blue-500/20 rounded-2xl bg-[#009EE3]/5 space-y-3 text-center">
-                            <h4 class="text-white font-bold text-sm mb-1">Cuenta Mercado Pago</h4>
-                            <p class="text-xs text-slate-400 mb-3">Usa tu saldo, crédito o tarjetas guardadas. 100%
-                                seguro.</p>
+                            <p class="text-sm text-slate-400 mb-4 px-4">Paga con total seguridad usando tarjetas de
+                                crédito/débito, efectivo en OXXO, transferencias o saldo en cuenta.</p>
                             <button type="button" id="btn-wallet-init" onclick="injectWalletBrick()"
-                                class="w-full bg-[#009EE3] hover:bg-[#008ACB] text-white font-bold text-sm py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
-                                <i data-lucide="wallet" class="w-4 h-4"></i> Iniciar sesión y pagar
+                                class="w-full bg-[#009EE3] hover:bg-[#008ACB] text-white font-black uppercase tracking-widest text-sm py-4 rounded-2xl shadow-[0_8px_30px_rgba(0,158,227,0.3)] transition-all hover:scale-[1.02] flex justify-center items-center gap-3">
+                                <i data-lucide="lock" class="w-5 h-5"></i> Pagar con Mercado Pago
                             </button>
                             <div id="wallet_container" class="mt-2 w-full"></div>
                         </div>
@@ -318,13 +271,15 @@
                             <span id="checkout-subtotal" class="font-bold text-white">$0.00</span>
                         </div>
 
-                        <!-- ENVÍO FIJO (POR AHORA) -->
+                        <!-- ENVÍO -->
                         <div class="flex items-center justify-between text-sm mt-3">
                             <span class="flex items-center gap-2 text-white">
                                 <i data-lucide="truck" class="w-4 h-4 text-indigo-400"></i>
                                 Envío
                             </span>
-                            <span id="checkout-shipping" class="font-bold text-white text-xs italic">Por calcular</span>
+                            <span id="checkout-shipping"
+                                class="font-bold text-emerald-400 text-xs uppercase tracking-widest">Gestionado por
+                                CT</span>
                         </div>
 
                         <div class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
@@ -441,32 +396,10 @@
         }
 
         async function calculateShippingCost() {
-            const zip = document.getElementById('shipping_zip').value.trim();
-            if (!zip || zip.length < 5) return;
-
-            const shippingLabel = document.getElementById('checkout-shipping');
-            shippingLabel.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Cotizando...';
-            lucide.createIcons();
-
-            try {
-                const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getShippingQuote', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ zipCode: zip, items: cart })
-                });
-
-                const data = await response.json();
-                if (data.shippingCost !== undefined) {
-                    window._shippingCost = data.shippingCost;
-                    shippingLabel.textContent = `$${data.shippingCost.toFixed(2)} MXN`;
-                    refreshTotal();
-                } else {
-                    shippingLabel.textContent = 'Error al cotizar';
-                }
-            } catch (e) {
-                console.error(e);
-                shippingLabel.textContent = 'Error de conexión';
-            }
+            // Ya no calculamos con SkydropX,CT gestionará el envío interno
+            // Mantenemos la función para no romper referencias de "onblur" si las hubiera, 
+            // pero sólo recargamos el total standard.
+            refreshTotal();
         }
 
         function initializeCardForm() {

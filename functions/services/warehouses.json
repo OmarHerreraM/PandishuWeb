@@ -1,0 +1,324 @@
+[
+  {
+    "id": "01A",
+    "name": "HERMOSILLO",
+    "zipCode": "83000",
+    "city": "Hermosillo",
+    "state": "Sonora"
+  },
+  {
+    "id": "02A",
+    "name": "CIUDAD OBREGON",
+    "zipCode": "85000",
+    "city": "Cd. Obregón",
+    "state": "Sonora"
+  },
+  {
+    "id": "03A",
+    "name": "LOS MOCHIS",
+    "zipCode": "81223",
+    "city": "Los Mochis",
+    "state": "Sinaloa"
+  },
+  {
+    "id": "04A",
+    "name": "CULIACAN",
+    "zipCode": "80120",
+    "city": "Culiacán",
+    "state": "Sinaloa"
+  },
+  {
+    "id": "05A",
+    "name": "DURANGO",
+    "zipCode": "34166",
+    "city": "Durango",
+    "state": "Durango"
+  },
+  {
+    "id": "06A",
+    "name": "TORREON",
+    "zipCode": "27000",
+    "city": "Torreon",
+    "state": "Coahuila"
+  },
+  {
+    "id": "07A",
+    "name": "CHIHUAHUA",
+    "zipCode": "31100",
+    "city": "Chihuahua",
+    "state": "Chihuahua"
+  },
+  {
+    "id": "08A",
+    "name": "AGUASCALIENTES",
+    "zipCode": "20270",
+    "city": "Aguascalientes",
+    "state": "Aguascalientes"
+  },
+  {
+    "id": "09A",
+    "name": "QUERETARO",
+    "zipCode": "76040",
+    "city": "Queretaro",
+    "state": "Queretaro"
+  },
+  {
+    "id": "10A",
+    "name": "SAN LUIS POTOSI",
+    "zipCode": "78174",
+    "city": "San Luis Potosi",
+    "state": "San Luis Potosi"
+  },
+  {
+    "id": "11A",
+    "name": "LEON",
+    "zipCode": "37250",
+    "city": "León",
+    "state": "Guanajuato"
+  },
+  {
+    "id": "13A",
+    "name": "GUADALAJARA",
+    "zipCode": "44940",
+    "city": "Guadalajara",
+    "state": "Jalisco"
+  },
+  {
+    "id": "14A",
+    "name": "MORELIA",
+    "zipCode": "58057",
+    "city": "Morelia",
+    "state": "Michoacan"
+  },
+  {
+    "id": "15A",
+    "name": "SALTILLO",
+    "zipCode": "25260",
+    "city": "Saltillo",
+    "state": "Coahuila"
+  },
+  {
+    "id": "16A",
+    "name": "XALAPA",
+    "zipCode": "91110",
+    "city": "Xalapa",
+    "state": "Veracruz"
+  },
+  {
+    "id": "17A",
+    "name": "VERACRUZ",
+    "zipCode": "91700",
+    "city": "Veracruz",
+    "state": "Veracruz"
+  },
+  {
+    "id": "18A",
+    "name": "COLIMA",
+    "zipCode": "28020",
+    "city": "Colima",
+    "state": "Colima"
+  },
+  {
+    "id": "19A",
+    "name": "COATZACOALCOS",
+    "zipCode": "96400",
+    "city": "Coatzacoalcos",
+    "state": "Veracruz"
+  },
+  {
+    "id": "20A",
+    "name": "TAMPICO",
+    "zipCode": "89410",
+    "city": "Tampico",
+    "state": "Tamaulipas"
+  },
+  {
+    "id": "21A",
+    "name": "PUEBLA",
+    "zipCode": "72090",
+    "city": "Puebla",
+    "state": "Puebla"
+  },
+  {
+    "id": "22A",
+    "name": "VILLAHERMOSA",
+    "zipCode": "86090",
+    "city": "Villahermosa",
+    "state": "Tabasco"
+  },
+  {
+    "id": "23A",
+    "name": "TUXTLA GUTIERREZ",
+    "zipCode": "29066",
+    "city": "Tuxtla Gutierrez",
+    "state": "Chiapas"
+  },
+  {
+    "id": "24A",
+    "name": "MONTERREY",
+    "zipCode": "64000",
+    "city": "Monterrey",
+    "state": "Nuevo León"
+  },
+  {
+    "id": "25A",
+    "name": "TEPIC",
+    "zipCode": "63000",
+    "city": "Tepic",
+    "state": "Nayarit"
+  },
+  {
+    "id": "26A",
+    "name": "MERIDA",
+    "zipCode": "97125",
+    "city": "Mérida",
+    "state": "Yucatán"
+  },
+  {
+    "id": "27A",
+    "name": "OAXACA",
+    "zipCode": "68050",
+    "city": "Oaxaca",
+    "state": "Oaxaca"
+  },
+  {
+    "id": "28A",
+    "name": "MAZATLAN",
+    "zipCode": "82010",
+    "city": "Mazatlán",
+    "state": "Sinaloa"
+  },
+  {
+    "id": "29A",
+    "name": "CUERNAVACA",
+    "zipCode": "62270",
+    "city": "Cuernavaca",
+    "state": "Morelos"
+  },
+  {
+    "id": "30A",
+    "name": "TOLUCA",
+    "zipCode": "50090",
+    "city": "Toluca",
+    "state": "Estado de México"
+  },
+  {
+    "id": "31A",
+    "name": "PACHUCA",
+    "zipCode": "42080",
+    "city": "Pachuca",
+    "state": "Hidalgo"
+  },
+  {
+    "id": "33A",
+    "name": "CANCUN",
+    "zipCode": "77517",
+    "city": "Cancun",
+    "state": "Quintana Roo"
+  },
+  {
+    "id": "34A",
+    "name": "PALACIO DE LOS DEPORTES",
+    "zipCode": "08400",
+    "city": "Delegacion Iztacalco",
+    "state": "Ciudad de México"
+  },
+  {
+    "id": "35A",
+    "name": "AZCAPOTZALCO",
+    "zipCode": "02700",
+    "city": "Delegación Azcapotzalco",
+    "state": "Ciudad de México"
+  },
+  {
+    "id": "38A",
+    "name": "ZACATECAS",
+    "zipCode": "98609",
+    "city": "Zacatecas",
+    "state": "Zacatecas"
+  },
+  {
+    "id": "40A",
+    "name": "TLALNEPANTLA",
+    "zipCode": "54030",
+    "city": "Tlalnepantla",
+    "state": "Estado de México"
+  },
+  {
+    "id": "41A",
+    "name": "ACAPULCO",
+    "zipCode": "39670",
+    "city": "Acapulco",
+    "state": "Guerrero"
+  },
+  {
+    "id": "42A",
+    "name": "IRAPUATO",
+    "zipCode": "36690",
+    "city": "Irapuato",
+    "state": "Guanajuato"
+  },
+  {
+    "id": "43A",
+    "name": "COACALCO",
+    "zipCode": "55710",
+    "city": "Coacalco",
+    "state": "Estado de México"
+  },
+  {
+    "id": "45A",
+    "name": "TLAXCALA",
+    "zipCode": "90100",
+    "city": "Tlaxcala",
+    "state": "Tlaxcala"
+  },
+  {
+    "id": "46A",
+    "name": "CAMPECHE",
+    "zipCode": "24010",
+    "city": "Campeche",
+    "state": "Campeche"
+  },
+  {
+    "id": "47A",
+    "name": "ACOXPA",
+    "zipCode": "14390",
+    "city": "Delegación Tlalpan",
+    "state": "Ciudad de México"
+  },
+  {
+    "id": "48A",
+    "name": "URUAPAN",
+    "zipCode": "60160",
+    "city": "Uruapan",
+    "state": "Michoacan"
+  },
+  {
+    "id": "49A",
+    "name": "CD. VICTORIA",
+    "zipCode": "87048",
+    "city": "Ciudad Victoria",
+    "state": "Tamaulipas"
+  },
+  {
+    "id": "51A",
+    "name": "CELAYA",
+    "zipCode": "38078",
+    "city": "Celaya",
+    "state": "Guanajuato"
+  },
+  {
+    "id": "D2A",
+    "name": "CEDIS HERMOSILLO",
+    "zipCode": "83210",
+    "city": "Hermosillo",
+    "state": "Sonora"
+  },
+  {
+    "id": "53A",
+    "name": "CEDIS MONTERREY",
+    "zipCode": "66376",
+    "city": "Santa Catarina",
+    "state": "Nuevo León"
+  }
+]

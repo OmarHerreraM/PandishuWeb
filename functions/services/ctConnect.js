@@ -52,4 +52,18 @@ async function generateCTToken() {
     }
 }
 
-module.exports = { generateCTToken };
+async function getCTItemStock(codigo, token) {
+    try {
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+        const response = await axios.get(`${baseUrl}/existencia/${codigo}`, {
+            headers: { 'x-auth': token },
+            timeout: 15000
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`[CT Connect] Error fetching stock for ${codigo}:`, error.message);
+        return null;
+    }
+}
+
+module.exports = { generateCTToken, getCTItemStock };

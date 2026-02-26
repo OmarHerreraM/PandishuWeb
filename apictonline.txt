@@ -1,0 +1,984 @@
+
+Search...
+Autenticación
+Artículos
+Orden de Compra
+post
+Solicitar Pedido
+post
+Confirmar pedido
+post
+Enviar guías
+get
+Listar Pedidos
+get
+Consultar Estatus
+get
+Consultar Detalle
+Utilidades
+redocly logoAPI docs by Redocly
+Documentación Oficial de API-CONNECT (1.0.11)
+Documentación oficial para realizar las implementaciones de los servicios API de CT-CONNECT donde se hara la integracion de nuestro catalogo a su tienda online.
+
+Regresar a CT-Connect
+Autenticación
+Las credenciales de autenticación son utilizadas para acreditación de todas las llamadas al servidor de CT-CONNECT por medio de la autenticación basada en Tokens.
+
+Generación de token
+Se requiere solicitar integración a un representante CT para poder generar un token valido y vigente.
+
+Request Body schema: application/json
+required
+Para genrar un token son necesarios 3 atributos proporcionados por un representante de CT
+
+email
+required
+string
+Correo con el cual se registro como cliente CT
+
+cliente
+required
+string
+Número de cliente CT
+
+rfc
+required
+string
+RFC proporcionado en el registro como cliente CT
+
+Responses
+200
+El Token ha sido generado satisfactoriamente
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+post
+/cliente/token
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"email": "nuevo.usuario@dominio.com",
+"cliente": "HMO0000",
+"rfc": "XX10XX100X1XX01"
+}
+Response samples
+200401503
+Content type
+application/json
+
+Copy
+{
+"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ODZkNTM5MmY1ZmYwZjQ5NTcwOTk5ZjYiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNDgzNTU5OTM0fQ.lHoLBCLDYiM6jmgnxTdj0v5GGB8jkpiJtZF2Obyh9X4",
+"time": "2023-11-23T18:30:02.046Z"
+}
+Artículos
+Servicios de consulta de información de artículos.
+
+Listado de productos
+Listado completo de articulos para la verificacion de existencia, promociones y precio. Solo puede ser utilizado con token valido y vigente.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Listado de articulos generado correctamente.
+
+401
+Usuario no autorizado.
+
+429
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/promociones
+
+Response samples
+200401429503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"codigo": "ACCBLC010",
+"precio": 6.14,
+"moneda": "USD",
+"almacenes": []
+}
+]
+Existencia por codigo
+Verificar la existencia por artículo en almacenes solo puede ser realizado con el código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del articulo a consultar
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Listado de Existencias por Articulos
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/:codigo
+
+Response samples
+200401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"01A": {
+"existencia": 2774
+},
+"02A": {
+"existencia": 0
+},
+"03A": {
+"existencia": 801
+},
+"04A": {
+"existencia": 7
+},
+"05A": {
+"existencia": 13
+},
+"06A": {
+"existencia": 14
+},
+"07A": {
+"existencia": 47
+},
+"08A": {
+"existencia": 6
+},
+"09A": {
+"existencia": 7
+},
+"10A": {
+"existencia": 0
+},
+"11A": {
+"existencia": 10
+},
+"12A": {
+"existencia": 5
+},
+"13A": {
+"existencia": 183
+},
+"14A": {
+"existencia": 32
+},
+"15A": {
+"existencia": 0
+},
+"16A": {
+"existencia": 143
+},
+"17A": {
+"existencia": 13
+},
+"18A": {
+"existencia": 0
+},
+"19A": {
+"existencia": 8
+},
+"20A": {
+"existencia": 14
+},
+"21A": {
+"existencia": 39
+},
+"22A": {
+"existencia": 4
+},
+"23A": {
+"existencia": 2
+},
+"24A": {
+"existencia": 6
+},
+"25A": {
+"existencia": 7
+},
+"26A": {
+"existencia": 5
+},
+"27A": {
+"existencia": 28
+},
+"28A": {
+"existencia": 12
+},
+"29A": {
+"existencia": 0
+},
+"30A": {
+"existencia": 7
+},
+"31A": {
+"existencia": 47
+},
+"32A": {
+"existencia": 8
+},
+"33A": {
+"existencia": 21
+},
+"34A": {
+"existencia": 11
+},
+"35A": {
+"existencia": 378
+},
+"36A": {
+"existencia": 3
+},
+"37A": {
+"existencia": 30
+},
+"38A": {
+"existencia": 8
+},
+"39A": {
+"existencia": 3
+},
+"40A": {
+"existencia": 20
+},
+"41A": {
+"existencia": 12
+},
+"42A": {
+"existencia": 22
+},
+"43A": {
+"existencia": 71
+},
+"44A": {
+"existencia": 20
+},
+"45A": {
+"existencia": 6
+},
+"46A": {
+"existencia": 3
+},
+"47A": {
+"existencia": 0
+},
+"48A": {
+"existencia": 35
+},
+"49A": {
+"existencia": 0
+}
+}
+Artículo por almacén
+Verificar la existencia por artículo en un almacén solo puede ser realizado con el código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del articulo a consultar
+
+almacen	
+string
+Codigo de almacén a consultar
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Listado de Existencias de Articulo por Almacén
+
+400
+Fallo en la busqueda.
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/:codigo/:almacen
+
+Response samples
+200400401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"almacen": "01A",
+"existencia": 2774
+}
+]
+Detalle por almacén
+Verificar la existencia detallada por artículo en un almacén solo puede ser realizado con el código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del articulo a consultar
+
+almacen
+required
+string
+Codigo de almacén a consultar
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Detallado de Existencias de Articulo por Almacén
+
+400
+Fallo en la busqueda.
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/detalle/:codigo/:almacen
+
+Response samples
+200400401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"precio": 6.14,
+"moneda": "USD",
+"tipoCambio": 20.5,
+"existencia": 8,
+"codigoSAT": 43202005,
+"promocion": []
+}
+]
+Total de artículo
+Verificar la existencia Total de un artículo en todos los almacenes solo puede ser realizado con el código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del articulo a consultar
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Detallado de Existencias de Articulo por Almacén
+
+400
+Fallo en la busqueda.
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/:codigo/TOTAL
+
+Response samples
+200400401503
+Content type
+application/json
+
+Copy
+{
+"existencia_total": 5696
+}
+Promoción y precio por artículo
+Verificar el artículo que tengan existencia, promoción y precio solo puede ser realizado con un código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del articulo a consultar
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Listado de Existencias por Articulos junto con promociones
+
+400
+Fallo en la busqueda.
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/existencia/promociones/:codigo
+
+Response samples
+200400401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"codigo": "ACCBLC010",
+"precio": 6.14,
+"moneda": "USD",
+"almacenes": [
+{},
+{}
+]
+}
+Orden de Compra
+Servicios esenciales para la generación y seguimiento de una orden de compra, para el uso de los servicios es necesario contar un el token de autorización y que se encuentre vigente.
+
+Solicitar Pedido
+Servicio para la petición de solicitud de un pedido, para la solicitud de pedido es necesario consultar previamente la existencia y precios de los productos con el apoyo de los servicios de artículos. Para el uso del servicio se requiere un token valido y vigente.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Request Body schema: application/json
+required
+idPedido	
+integer
+Número de referencia por parte del cliente.
+
+almacen	
+string
+Código del almácen donde se va a tomar la existencia.
+
+tipoPago	
+string
+Número que identifica el tipo de pago (99-Crédito CT).
+
+cfdi	
+string
+Clave fiscal con la que se hara la facturacion (G01 por defecto).
+
+envio	
+Array of objects (Envio)
+Arreglo de objetos con los datos para realizar el envió.
+
+producto	
+Array of objects (Producto)
+Arreglo de objetos con el detalle de cada producto del pedido.
+
+Responses
+200
+Orden de compra realizada correctamente
+
+401
+Usuario no autorizado.
+
+408
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+post
+/pedido
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"idPedido": 1,
+"almacen": "01A",
+"tipoPago": "99",
+"cfdi": "G01",
+"envio": [
+{}
+],
+"producto": [
+{}
+]
+}
+Response samples
+200401408503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"idPedido": 1,
+"almacen": "01A",
+"tipoPago": "99",
+"envio": [
+{}
+],
+"producto": [
+{}
+],
+"respuestaCT": {
+"pedidoWeb": "W01-000001",
+"tipoDeCambio": 20.5,
+"estatus": "Pendiente",
+"errores": [ ]
+}
+}
+Confirmar pedido
+Confirmar pedido solo puede ser realizado con el folio, un token valido y vigente. !Nota! Si el pedido no es confirmado en un lapso de 48 horas, será cancelado automáticamente por el sistema.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Request Body schema: application/json
+required
+folio	
+string
+Folio de identificacion de pedido.
+
+Responses
+200
+Orden de compra confirmada correctamente
+
+401
+Usuario no autorizado.
+
+410
+Error en la solicitud de Orden de Compra.
+
+503
+Mantenimiento de los servicios
+
+
+post
+/pedido/confirmar
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"folio": "W01-000001"
+}
+Response samples
+200401410503
+Content type
+application/json
+
+Copy
+{
+"okCode": "2000",
+"okMessage": "¡Ok, se procesó satisfactoriamente!",
+"okReference": "Se ha confirmado el pedido"
+}
+Enviar guías
+Enviar guias solo puede ser realizado con un token valido y vigente. !Nota! El envio de guias es necesario si el cliente requiere se agreguen a los pedidos solicitados.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Request Body schema: application/json
+required
+folio	
+string
+Folio de identificacion de pedido.
+
+guias	
+Array of objects (Guia)
+Array de objecto con las guías que se van asociar al pedido.
+
+Responses
+200
+Guías procesadas correctamente.
+
+401
+Usuario no autorizado.
+
+410
+Error en la solicitud de Orden de Compra.
+
+503
+Mantenimiento de los servicios
+
+
+post
+/pedido/guias
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"folio": "W01-000001",
+"guias": [
+{}
+]
+}
+Response samples
+200401410503
+Content type
+application/json
+
+Copy
+{
+"okCode": "2000",
+"okMessage": "¡Ok, se procesó satisfactoriamente!",
+"okReference": "Guías recibidas, el pedido se encuentra en proceso de envió"
+}
+Listar Pedidos
+Listar pedidos solo puede ser realizado con un token valido y vigente. !Nota! El cliente puede generar una lista de los pedidos realizados a CT.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Listado de ordenes de compras
+
+400
+Error en la solicitud de Orden de Compra.
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/pedido/listar
+
+Response samples
+200400401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"idPedido": 1,
+"almacen": "01A",
+"tipoPago": "99",
+"envio": [],
+"producto": [],
+"respuestaCT": {}
+}
+]
+Consultar Estatus
+Consultar el estatus de un pedido solo puede ser realizado con el folio, un token valido y vigente. !Nota! El cliente puede consultar el estatus de un pedido realizados a CT.
+
+query Parameters
+folio
+required
+string
+folio de pedido CT
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Estatus obtenido satisfactoriamente
+
+401
+Usuario no autorizado.
+
+404
+Error en la solicitud de Orden de Compra.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/pedido/estatus/:folio
+
+Response samples
+200401404503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"status": "Confirmado",
+"folio": "W01-000001"
+}
+]
+Consultar Detalle
+Consultar el detalle de un pedido solo puede ser realizado con el folio, un token valido y vigente. !Nota! El cliente puede consultar el detalle de un pedido realizados a CT.
+
+query Parameters
+folio
+required
+string
+folio de pedido CT
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Detalle de pedido obtenido correctamente
+
+401
+Usuario no autorizado.
+
+404
+Error en la solicitud de Orden de Compra.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/pedido/detalle/:folio
+
+Response samples
+200401404503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"idPedido": 1,
+"almacen": "01A",
+"tipoPago": "99",
+"envio": [
+{}
+],
+"producto": [
+{}
+],
+"respuestaCT": {
+"pedidoWeb": "W01-000001",
+"tipoDeCambio": 20.5,
+"estatus": "Pendiente",
+"errores": [ ]
+}
+}
+Utilidades
+Servicios adicionales para la verificacion de elementos para la elaboracion de una orden de compra y para el conocimiento de los productos.
+
+Tipo de cambio
+Obtener el tipo de cambio solo puede ser realizado con un token valido y vigente.
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Tipo de cambio obtenido satisfactoriamente
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/pedido/tipoCambio
+
+Response samples
+200401503
+Content type
+application/json
+
+Copy
+{
+"tipoCambio": 21.1
+}
+Volumetría
+Consultar las dimensión de un producto solo puede ser realizado con el código, un token valido y vigente.
+
+query Parameters
+codigo
+required
+string
+Clave CT del artículo
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Información volumétrica obtenida satisfactoriamente
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/paqueteria/volumetria/:codigo
+
+Response samples
+200401503
+Content type
+application/json
+
+Copy
+{
+"peso": 5.5,
+"largo": 40,
+"alto": 28.9,
+"ancho": 18,
+"UPC": 97855070081,
+"EAN": 17825670088
+}
+Consultar Series
+Consultar las series asociadas a una factura, se requiere token valido y vigente.
+
+query Parameters
+factura
+required
+string
+Folio de la factura
+
+header Parameters
+x-auth
+required
+string
+Token de autorización
+
+Responses
+200
+Información de las series obtenida satisfactoriamente
+
+401
+Usuario no autorizado.
+
+503
+Mantenimiento de los servicios
+
+
+get
+/series/factura/:factura
+
+Response samples
+200401503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"articulo": "MONSMG1140",
+"cantidad": 1,
+"series": []
+},
+{
+"articulo": "MONNCB060",
+"cantidad": 2,
+"series": []
+}
+]
