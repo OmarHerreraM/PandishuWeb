@@ -25,11 +25,18 @@ async function generateCTToken() {
             rfc: ctRfc
         };
 
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        // Usa la variable de entorno PROXY_URL (ej. http://user:pass@ip:port) para evitar exponer credenciales
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+
         const response = await axios.post(`${baseUrl}/cliente/token`, payload, {
             headers: {
                 'Content-Type': 'application/json'
             },
-            timeout: 10000 // 10 segundos timeout
+            timeout: 10000, // 10 segundos timeout
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
         });
 
         if (response.data && response.data.token) {
@@ -54,10 +61,17 @@ async function generateCTToken() {
 
 async function getCTItemStock(codigo, token) {
     try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        // Usa la variable de entorno PROXY_URL (ej. http://user:pass@ip:port) para evitar exponer credenciales
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+
         const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
         const response = await axios.get(`${baseUrl}/existencia/${codigo}`, {
             headers: { 'x-auth': token },
-            timeout: 15000
+            timeout: 15000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
         });
         return response.data;
     } catch (error) {

@@ -364,7 +364,9 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
         const localPath = path.join(os.tmpdir(), 'ct_stock.json');
 
         try {
-            const proxyCmd = '-x http://pandishu:proxy123secure@34.71.176.131:3128';
+            // Usar PROXY_URL de env vars, fallback a string vacía si no existe para no fallar el comando cat/curl sin auth
+            const proxyUrl = process.env.PROXY_URL || '';
+            const proxyCmd = proxyUrl ? `-x ${proxyUrl}` : '';
             const authStr = `${process.env.CT_FTP_USER}:${process.env.CT_FTP_PASSWORD}`;
             const ftpBase = `ftp://${authStr}@216.70.82.104/catalogo_xml/`;
 
@@ -422,7 +424,8 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
                 const axios = require('axios');
                 const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
 
-                const proxyAgent = new HttpsProxyAgent('http://pandishu:proxy123secure@34.71.176.131:3128');
+                const proxyUrl = process.env.PROXY_URL;
+                const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
 
                 const noProxyRes = await axios.get('https://api.ipify.org?format=json');
 
