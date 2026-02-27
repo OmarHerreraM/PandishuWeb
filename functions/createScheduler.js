@@ -1,5 +1,5 @@
 /**
- * createScheduler.js — Crea el job de Cloud Scheduler para sync de CT cada 4 horas
+ * createScheduler.js v2.4 — Crea el job de Cloud Scheduler para sync de CT diario
  */
 const { GoogleAuth } = require('google-auth-library');
 
@@ -20,8 +20,8 @@ async function createSchedulerJob() {
 
     const jobBody = {
         name: `projects/${PROJECT_ID}/locations/${LOCATION}/jobs/${JOB_NAME}`,
-        description: 'Sincroniza el catálogo de CT Internacional desde FTP a Firestore cada 4 horas',
-        schedule: '0 */4 * * *',
+        description: 'Sincroniza el catálogo de CT Internacional desde FTP a Firestore todos los días a las 2 AM',
+        schedule: '0 2 * * *',
         timeZone: 'America/Mexico_City',
         httpTarget: {
             uri: `https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/syncCTCatalog`,
@@ -35,7 +35,7 @@ async function createSchedulerJob() {
 
     console.log('🔄 Creando Cloud Scheduler job...');
     console.log('   URL del job:', jobBody.httpTarget.uri);
-    console.log('   Cron:', jobBody.schedule, '(cada 4 horas)');
+    console.log('   Cron:', jobBody.schedule, '(diario a las 2 AM)');
 
     const response = await fetch(parentUrl, {
         method: 'POST',

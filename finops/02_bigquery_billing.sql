@@ -17,7 +17,7 @@ SELECT
   SUM(cost)                                    AS costo_usd,
   SUM(cost) * 17.5                             AS costo_mxn_estimado -- Ajusta el tipo de cambio
 FROM
-  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_XXXXXX`
+  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_01625A_E0BE04_A99D58`
 WHERE
   project.id = 'pandishu-web-1d860'
   AND DATE(usage_start_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
@@ -38,7 +38,7 @@ SELECT
   SUM(cost)                                    AS costo_usd,
   SUM(cost) * 17.5                             AS costo_mxn_estimado
 FROM
-  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_XXXXXX`
+  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_01625A_E0BE04_A99D58`
 WHERE
   project.id = 'pandishu-web-1d860'
   AND (
@@ -68,7 +68,7 @@ SELECT
   SUM(usage.amount)                            AS invocaciones_aprox,
   usage.unit                                   AS unidad
 FROM
-  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_XXXXXX`
+  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_01625A_E0BE04_A99D58`
 WHERE
   project.id = 'pandishu-web-1d860'
   AND service.description LIKE '%Cloud Functions%'
@@ -91,7 +91,7 @@ SELECT
     ELSE '✅ Normal'
   END                        AS estado
 FROM
-  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_XXXXXX`
+  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_01625A_E0BE04_A99D58`
 WHERE
   project.id = 'pandishu-web-1d860'
   AND (
@@ -115,7 +115,7 @@ SELECT
   service.description                                                        AS servicio,
   SUM(cost)                                                                  AS costo_usd
 FROM
-  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_XXXXXX`,
+  `pandishu-web-1d860.billing_export.gcp_billing_export_v1_01625A_E0BE04_A99D58`,
   UNNEST(labels) AS label
 WHERE
   label.key = 'cost_center'

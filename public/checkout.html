@@ -14,7 +14,7 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout Seguro | Pandishú</title>
+    <title>Checkout Seguro v2.4 | Pandishú</title>
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Tailwind CSS -->
@@ -581,25 +581,10 @@
 
                 const data = await response.json();
 
-                if (data.id) {
-                    btn.style.display = 'none';
-                    const walletContainer = document.getElementById('wallet_container');
-                    walletContainer.innerHTML = '';
-
-                    // MP_PUBLIC_KEY set at page load from Cloud Function config
-                    const mpInstance = new MercadoPago(window.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
-                    mpInstance.bricks().create("wallet", "wallet_container", {
-                        initialization: {
-                            preferenceId: data.id,
-                        },
-                        customization: {
-                            texts: {
-                                valueProp: 'smart_option',
-                            },
-                        },
-                    });
+                if (data.url) {
+                    window.location.href = data.url;
                 } else {
-                    throw new Error("No Preference ID returned");
+                    throw new Error("No URL returned from server");
                 }
             } catch (e) {
                 console.error(e);
