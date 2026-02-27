@@ -431,6 +431,11 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
 exports.syncIngramCatalog = functions.runWith({ timeoutSeconds: 540, memory: '1GB' }).https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         try {
+            const apiKey = req.query.apiKey || req.headers['authorization'];
+            if (apiKey !== process.env.INGRAM_SECRET_KEY) {
+                return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
+            }
+
             const path = require('path');
             const os = require('os');
             const { syncIngramCatalog } = require('./services/ingramSftp');
@@ -519,6 +524,10 @@ exports.onLeadCreated = functions.firestore
                     <h2 style="text-align: center;">¡Hola ${lead.nombre}! Bienvenido a la Elite Tech</h2>
                     
                     <p style="color: #cbd5e1; line-height: 1.6; text-align: center;">Gracias por suscribirte. Estás oficialmente en la lista VIP para recibir las mejores tendencias en Redes Enterprise, descubrimientos en Ciberseguridad IA y lanzamientos de Hardware High-End.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://pandishu.com/documentos/Checklist_2026_PC_Gamer.pdf" style="background-color: #d946ef; color: white; padding: 15px 25px; text-decoration: none; font-weight: bold; border-radius: 8px; display: inline-block;">📥 Descargar Checklist 2026</a>
+                    </div>
                     
                     <hr style="border: 0; height: 1px; background: linear-gradient(90deg, transparent, #d946ef, transparent); margin: 30px 0;">
                     
