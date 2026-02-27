@@ -864,10 +864,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // Utilizando el mismo proyecto de Pandishu (Solo Frontend)
-        const firebaseConfig = {
-            projectId: "pandishu-web-1d860"
-        };
+        // Auto-hidratación de configuración desde Firebase Hosting (Seguro y Cero-Mantenimiento)
+        const response = await fetch('/__/firebase/init.json');
+        const firebaseConfig = await response.json();
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
