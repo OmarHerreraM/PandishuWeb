@@ -357,20 +357,30 @@ exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
 
 exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB' }).https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const ftp = require('basic-ftp');
+        const { execSync } = require('child_process');
         const fs = require('fs');
         const path = require('path');
         const os = require('os');
-        const client = new ftp.Client();
         const localPath = path.join(os.tmpdir(), 'ct_stock.json');
 
         try {
-            await client.access({ host: '216.70.82.104', user: process.env.CT_FTP_USER, password: process.env.CT_FTP_PASSWORD });
-            await client.cd('catalogo_xml');
-            const list = await client.list();
-            const jsonFile = list.find(f => f.name.toLowerCase().endsWith('.json'));
-            await client.downloadTo(localPath, jsonFile.name);
-            client.close();
+            const proxyCmd = '-x http://pandishu:proxy123secure@34.71.176.131:3128';
+            const authStr = `${process.env.CT_FTP_USER}:${process.env.CT_FTP_PASSWORD}`;
+            const ftpBase = `ftp://${authStr}@216.70.82.104/catalogo_xml/`;
+
+            // 1. Obtener listado de archivos (Squid retorna HTML)
+            console.log('Listando directorio FTP via Proxy Squid...');
+            const listHtml = execSync(`curl -s ${proxyCmd} "${ftpBase}"`).toString();
+
+            // 2. Extraer nomrbes de archivo JSON .json y tomar el ultimo
+            const matches = [...listHtml.matchAll(/href="([^"]+\.json)"/g)].map(m => m[1]);
+            const targetFile = matches.sort().pop();
+
+            if (!targetFile) throw new Error("No se encontraron archivos .json en el catalogo_xml");
+
+            // 3. Descargar el archivo
+            console.log(`Descargando ${targetFile} via Proxy...`);
+            execSync(`curl -s ${proxyCmd} "${ftpBase}${targetFile}" -o ${localPath}`, { stdio: 'ignore' });
 
             const products = JSON.parse(fs.readFileSync(localPath, 'utf8'));
             const productArray = Array.isArray(products) ? products : (products.productos || []);
@@ -407,6 +417,27 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
 exports.getPedidos = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
+            // -- TEMP PROXY TEST
+            if (req.body && req.body.testProxy) {
+                const axios = require('axios');
+                const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+
+                const proxyAgent = new HttpsProxyAgent('http://pandishu:proxy123secure@34.71.176.131:3128');
+
+                const noProxyRes = await axios.get('https://api.ipify.org?format=json');
+
+                const proxyRes = await axios.get('https://api.ipify.org?format=json', {
+                    httpAgent: proxyAgent,
+                    httpsAgent: proxyAgent
+                });
+
+                return res.status(200).json({
+                    success: true,
+                    ip_normal_cloud_nat: noProxyRes.data.ip,
+                    ip_tunnel_squid_vm: proxyRes.data.ip
+                });
+            }
+
             const { year, month } = req.body;
             if (!year || !month) return res.status(400).json({ error: 'Falta year y month en body' });
 
@@ -422,3 +453,56 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
     });
 });
 
+// ─── GROWTH MARKETING: LEAD MAGNET WELCOME EMAIL ─────────────────────────────
+exports.onLeadCreated = functions.firestore
+    .document('newsletter_leads/{docId}')
+    .onCreate(async (snap, context) => {
+        const lead = snap.data();
+        const transporter = getMailTransporter();
+        if (!transporter) {
+            console.error("Transporter SMTP no configurado.");
+            return;
+        }
+
+        const mailOptions = {
+            from: '"Pandishú Premium Hardware" <pandipandishu@gmail.com>', // Coincide con SMTP_EMAIL por defecto o process.env
+            to: lead.correo,
+            subject: '🚀 Tu Checklist PC Gamer 2026 está lista',
+            html: `
+            <div style="font-family: sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; padding: 30px;">
+                    <h1 style="color: #a855f7; text-align: center; font-style: italic;">PANDISHÚ</h1>
+                    <h2>¡Hola ${lead.nombre}! Bienvenido al Club</h2>
+                    
+                    <p style="color: #cbd5e1; line-height: 1.6;">Como lo prometimos, aquí tienes el acceso exclusivo a nuestro material privado para evitar cuellos de botella en tu próximo ensamble:</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://pandishu.com/docs/Pandishu_Checklist_PC_2026.pdf" 
+                           style="background-color: #6366f1; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase;">
+                            📥 Descargar Checklist (PDF)
+                        </a>
+                    </div>
+                    
+                    <hr style="border: 0; height: 1px; background: #334155; margin: 30px 0;">
+                    
+                    <h3 style="color: #38bdf8;">¿Sabías qué? ⚡ Entrega Inmediata en CDMX</h3>
+                    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                        No esperes semanas por tu hardware. En Pandishú operamos los almacenes corporativos más robustos del país. 
+                        <strong>Si compras antes de las 12 PM, recibe tus componentes el MISMO DÍA, o te ensamblamos la PC a domicilio en toda la CDMX.</strong>
+                    </p>
+                    <p style="text-align: center; font-size: 12px; color: #475569; margin-top: 40px;">
+                        Has recibido esto porque te suscribiste a nuestro boletín.<br> 
+                        Pandishú Tech Solutions | CDMX
+                    </p>
+                </div>
+            </div>
+            `
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log(`Email de Lead Magnet enviado exitosamente a ${lead.correo}`);
+        } catch (error) {
+            console.error(`Fallo al enviar el correo a ${lead.correo}:`, error);
+        }
+    });
