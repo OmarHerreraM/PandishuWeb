@@ -30,14 +30,37 @@ async function syncIngramCatalog(remotePath, localPath) {
         console.log('📂 Listando archivos remotos...');
         const list = await sftp.list('.');
 
-        // Buscamos archivos CSV o TXT que contengan 'catalog' o tengan tamaño considerable
-        const targetFile = list.find(f => f.name.toLowerCase().includes('catalog') || f.size > 1000000);
+        // Buscamos archivos CSV o TXT o ZIP
+        const targetFile = list.find(f => f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('catalog') || f.name.toLowerCase().endsWith('.zip') || f.size > 100000);
 
         if (targetFile) {
             console.log(`📥 Descargando archivo: ${targetFile.name} (${(targetFile.size / 1024 / 1024).toFixed(2)} MB)`);
-            await sftp.get(targetFile.name, localPath);
-            console.log('✅ Descarga completada.');
-            return localPath;
+            const ext = path.extname(targetFile.name).toLowerCase();
+            let dlPath = localPath;
+            if (ext === '.zip' && !localPath.endsWith('.zip')) {
+                dlPath = localPath + '.zip';
+            }
+            await sftp.get(targetFile.name, dlPath);
+            console.log('✅ Descarga SFTP completada.');
+
+            if (dlPath.endsWith('.zip')) {
+                console.log('📦 Descomprimiendo archivo ZIP...');
+                const AdmZip = require('adm-zip');
+                const zip = new AdmZip(dlPath);
+                zip.extractAllTo(path.dirname(localPath), true);
+                const entries = zip.getEntries();
+                if (entries.length > 0) {
+                    const csvFile = entries.find(e => e.entryName.toLowerCase().endsWith('.csv') || e.entryName.toLowerCase().endsWith('.txt'));
+                    if (csvFile) {
+                        const extractedPath = path.join(path.dirname(localPath), csvFile.entryName);
+                        // Rename standard csv name to target localPath
+                        fs.renameSync(extractedPath, localPath);
+                        console.log('✅ Extracción completada:', localPath);
+                        return localPath;
+                    }
+                }
+            }
+            return dlPath;
         } else {
             console.warn('⚠️ No se encontró un archivo de catálogo claro. Revisa la lista:', list.map(l => l.name));
             return null;

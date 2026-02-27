@@ -46,7 +46,11 @@ async function processProviderFile(filePath, vendor) {
         const sku = row[1]; // Segundo campo
         const pvpValue = parseFloat(row[6]) || 0; // Séptimo campo
         const ean = row[9]; // Décimo campo
-        const existencia = parseInt(row[13]) || 0; // Décimo cuarto campo (Existencia)
+
+        // Ingram stock tends to be at the third-to-last field (00000002 etc)
+        const existenciaIndex = vendor === 'CT' ? 13 : (row.length - 3);
+        const existencia = parseInt(row[existenciaIndex]) || 0;
+
         const costoValue = parseFloat(row[14]) || 0; // Décimo quinto campo
 
         let ganancia = 0;
@@ -65,7 +69,8 @@ async function processProviderFile(filePath, vendor) {
         if (vendor === 'CT') {
             imageUrl = `https://imagenes.ctonline.mx/promociones/${sku}.jpg`;
         } else {
-            imageUrl = `https://product-images.ingrammicro.com/${ean}.jpg`; // Hotlink dinamico EAN
+            // Let the frontend compose the inquirecontent2 dynamic URL
+            imageUrl = '';
         }
 
         const collectionName = vendor === 'CT' ? 'ct_catalog' : 'ingram_catalog';

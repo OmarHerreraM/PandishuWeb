@@ -428,6 +428,34 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
     });
 });
 
+exports.syncIngramCatalog = functions.runWith({ timeoutSeconds: 540, memory: '1GB' }).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const path = require('path');
+            const os = require('os');
+            const { syncIngramCatalog } = require('./services/ingramSftp');
+            const { processProviderFile } = require('./process_providers');
+
+            const tempZipUrl = path.join(os.tmpdir(), 'PRICE.ZIP');
+
+            console.log('Descargando PRICE.ZIP via SFTP...');
+            const downloadedFile = await syncIngramCatalog('.', tempZipUrl);
+
+            if (!downloadedFile) {
+                return res.status(404).json({ error: "No se encontro archivo PRICE.ZIP en SFTP" });
+            }
+
+            console.log('Procesando CSV en Firestore...');
+            await processProviderFile(downloadedFile, 'Ingram');
+
+            return res.status(200).json({ success: true, message: 'Ingram catalog synced successfully.' });
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ error: e.message });
+        }
+    });
+});
+
 // ─── ORDER DASHBOARD (GET PEDIDOS) ────────────────────────────────────────────
 exports.getPedidos = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
