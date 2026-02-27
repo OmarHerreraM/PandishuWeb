@@ -470,23 +470,16 @@ exports.onLeadCreated = functions.firestore
         const mailOptions = {
             from: '"Pandishú Premium Hardware" <pandipandishu@gmail.com>', // Coincide con SMTP_EMAIL por defecto o process.env
             to: lead.correo,
-            subject: '🚀 Tu Checklist PC Gamer 2026 está lista',
+            subject: '🚀 Bienvenido a Pandishú Tech Updates',
             html: `
-            <div style="font-family: sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px 20px;">
-                <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; padding: 30px;">
-                    <h1 style="color: #a855f7; text-align: center; font-style: italic;">PANDISHÚ</h1>
-                    <h2>¡Hola ${lead.nombre}! Bienvenido al Club</h2>
+            <div style="font-family: sans-serif; background-color: #020617; color: #f8fafc; padding: 40px 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background: #0f172a; border: 1px solid #d946ef; border-radius: 16px; padding: 30px; box-shadow: 0 0 20px rgba(217, 70, 239, 0.2);">
+                    <h1 style="color: #d946ef; text-align: center; font-style: italic; letter-spacing: 2px;">PANDISHÚ</h1>
+                    <h2 style="text-align: center;">¡Hola ${lead.nombre}! Bienvenido a la Elite Tech</h2>
                     
-                    <p style="color: #cbd5e1; line-height: 1.6;">Como lo prometimos, aquí tienes el acceso exclusivo a nuestro material privado para evitar cuellos de botella en tu próximo ensamble:</p>
+                    <p style="color: #cbd5e1; line-height: 1.6; text-align: center;">Gracias por suscribirte. Estás oficialmente en la lista VIP para recibir las mejores tendencias en Redes Enterprise, descubrimientos en Ciberseguridad IA y lanzamientos de Hardware High-End.</p>
                     
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://pandishu.com/docs/Pandishu_Checklist_PC_2026.pdf" 
-                           style="background-color: #6366f1; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase;">
-                            📥 Descargar Checklist (PDF)
-                        </a>
-                    </div>
-                    
-                    <hr style="border: 0; height: 1px; background: #334155; margin: 30px 0;">
+                    <hr style="border: 0; height: 1px; background: linear-gradient(90deg, transparent, #d946ef, transparent); margin: 30px 0;">
                     
                     <h3 style="color: #38bdf8;">¿Sabías qué? ⚡ Entrega Inmediata en CDMX</h3>
                     <p style="color: #94a3b8; font-size: 14px; line-height: 1.6;">
