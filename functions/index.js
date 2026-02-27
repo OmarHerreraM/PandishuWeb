@@ -374,14 +374,23 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
 
             const products = JSON.parse(fs.readFileSync(localPath, 'utf8'));
             const productArray = Array.isArray(products) ? products : (products.productos || []);
-            const mapped = productArray.map(p => ({
-                ingramPartNumber: String(p.clave || p.codigo || ''),
-                description: p.nombre || '',
-                price: parseFloat(p.precio) * (p.moneda === 'USD' ? MXN_RATE : 1),
-                currency: 'MXN',
-                image: p.imagen || '',
-                availability: { availableQuantity: parseInt(p.existencia || 0) }
-            })).filter(p => p.ingramPartNumber);
+            const mapped = productArray.map(p => {
+                let totalStock = 0;
+                if (typeof p.existencia === 'object' && p.existencia !== null) {
+                    totalStock = Object.values(p.existencia).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
+                } else {
+                    totalStock = parseInt(p.existencia || p.disponible || 0, 10) || 0;
+                }
+                return {
+                    ingramPartNumber: String(p.clave || p.codigo || ''),
+                    description: p.nombre || '',
+                    price: parseFloat(p.precio) * (p.moneda === 'USD' ? MXN_RATE : 1),
+                    currency: 'MXN',
+                    image: p.imagen || '',
+                    existencia: totalStock,
+                    availability: { availableQuantity: totalStock }
+                };
+            }).filter(p => p.ingramPartNumber);
 
             const db = admin.firestore();
             for (let i = 0; i < mapped.length; i += 400) {
