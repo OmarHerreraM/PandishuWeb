@@ -142,6 +142,20 @@
             left: 100%;
         }
 
+        .btn-cyan {
+            background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+            /* Cyan to Neon Green */
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-cyan:hover {
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6), 0 0 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
         .btn-whatsapp {
             background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
             position: relative;
@@ -328,9 +342,11 @@
                         Certificado</span>
                 </div>
 
-                <h1 class="text-5xl md:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-white">
-                    Tecnología que <br>
-                    <span class="gradient-text italic">define el futuro.</span>
+                <h1
+                    class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-white uppercase mt-4">
+                    Network Solutions,<br>
+                    <span class="gradient-text italic">Web Development,</span><br>
+                    <span class="text-slate-300">& Custom PC Builds.</span>
                 </h1>
 
                 <p class="text-lg text-slate-400 mb-10 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
@@ -340,8 +356,8 @@
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                     <a href="tienda"
-                        class="btn-premium px-8 py-4 rounded-2xl font-bold text-lg text-white text-center uppercase tracking-wide flex items-center justify-center gap-2 group">
-                        Ver Catálogo <i data-lucide="arrow-right"
+                        class="btn-cyan px-8 py-4 rounded-2xl font-black text-lg text-slate-950 text-center uppercase tracking-wide flex items-center justify-center gap-2 group">
+                        Go to Shop <i data-lucide="arrow-right"
                             class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
                     </a>
                     <a href="proyectos"
@@ -490,7 +506,7 @@
                         <i data-lucide="router" class="w-7 h-7"></i>
                     </div>
 
-                    <h3 class="text-2xl font-bold text-white mb-3">WiFi Mesh & Redes</h3>
+                    <h3 class="text-2xl font-bold text-white mb-3">Networking</h3>
                     <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
                         Diseño e instalación de redes empresariales en tu hogar. Eliminamos zonas muertas con sistemas
                         Mesh de última generación.
@@ -522,7 +538,7 @@
                         <i data-lucide="shield-check" class="w-7 h-7"></i>
                     </div>
 
-                    <h3 class="text-2xl font-bold text-white mb-3">Hardware & Seguridad</h3>
+                    <h3 class="text-2xl font-bold text-white mb-3">Custom PC Hardware</h3>
                     <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
                         Instalación de cámaras de seguridad IA y armado de PC High-End a medida. Mantenimiento
                         preventivo.
@@ -554,7 +570,7 @@
                         <i data-lucide="layout" class="w-7 h-7"></i>
                     </div>
 
-                    <h3 class="text-2xl font-bold text-white mb-3">Diseño Web & Apps</h3>
+                    <h3 class="text-2xl font-bold text-white mb-3">Web Development</h3>
                     <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
                         Presencia digital de alto impacto. Sitios web rápidos, tiendas en línea y aplicaciones a medida.
                     </p>
@@ -718,90 +734,62 @@
         </div>
     </a>
 
-    <!-- Lead Magnet Section -->
+    <!-- Newsletter Section -->
     <section class="max-w-4xl mx-auto py-16 px-6 relative z-10">
-        <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden border border-indigo-500/30">
+        <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden border border-cyan-500/30 text-center">
             <!-- Glow Effect -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none">
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8 items-center relative z-10">
-                <div>
-                    <div
-                        class="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/50 px-3 py-1 rounded-full mb-4">
-                        <i data-lucide="download" class="w-4 h-4 text-indigo-400"></i>
-                        <span class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Guía
-                            Gratuita</span>
+            <h2 class="text-3xl md:text-4xl font-black mb-4 uppercase text-white tracking-widest relative z-10">
+                Actualizaciones Tecnológicas
+            </h2>
+            <p class="text-slate-400 mb-8 font-light max-w-2xl mx-auto relative z-10">
+                Suscríbete para recibir información exclusiva sobre lanzamientos de hardware, tendencias en redes y
+                soluciones digitales. Sin spam, solo valor técnico.
+            </p>
+
+            <form id="lead-magnet-form" class="relative z-10 max-w-lg mx-auto">
+                <div id="form-spinner"
+                    class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl">
+                    <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2">
                     </div>
-                    <h2 class="text-3xl md:text-4xl font-black mb-4 italic uppercase text-white">
-                        Checklist 2026<br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">PC
-                            Gamer Perfecta</span>
-                    </h2>
-                    <p class="text-slate-400 mb-6 drop-shadow-md">
-                        Descarga gratis nuestra guía definitiva para armar tu PC sin cuellos de botella y ahorrando al
-                        máximo. Ideal para entusiastas del Hardware.
-                    </p>
-                    <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                        <span>Tus datos viajan encriptados por Firebase (Google).</span>
-                    </div>
+                    <span class="text-xs text-cyan-300 font-bold uppercase tracking-widest">Procesando...</span>
                 </div>
 
-                <!-- Form -->
-                <form id="lead-magnet-form" class="space-y-4 relative">
-                    <div id="form-spinner"
-                        class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl">
-                        <div
-                            class="w-8 h-8 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mb-2">
-                        </div>
-                        <span class="text-xs text-indigo-300 font-bold uppercase tracking-widest">Procesando...</span>
-                    </div>
+                <div id="form-success"
+                    class="hidden absolute inset-0 bg-emerald-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl border border-emerald-500/50 p-6 text-center">
+                    <i data-lucide="check-circle" class="w-12 h-12 text-emerald-400 mb-3 mx-auto"></i>
+                    <h3 class="text-white font-bold text-lg">¡Suscrito!</h3>
+                    <p class="text-emerald-200 text-sm mt-1">Gracias por unirte a nuestra comunidad.</p>
+                </div>
 
-                    <div id="form-success"
-                        class="hidden absolute inset-0 bg-emerald-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl border border-emerald-500/50 p-6 text-center">
-                        <i data-lucide="check-circle" class="w-12 h-12 text-emerald-400 mb-3"></i>
-                        <h3 class="text-white font-bold text-lg">¡Guía enviada!</h3>
-                        <p class="text-emerald-200 text-sm mt-1">Revisa tu bandeja de entrada o la carpeta de spam para
-                            obtener el Link.</p>
-                    </div>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <!-- Configuración LFPDPPP oculta -->
+                    <input type="text" id="lead-name" value="Newsletter Subscriber" class="hidden">
+                    <input type="checkbox" id="chk-marketing" checked class="hidden">
 
-                    <div>
-                        <input type="text" id="lead-name" required placeholder="Tu nombre"
-                            class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
-                    </div>
-                    <div>
-                        <input type="email" id="lead-email" required placeholder="tu@correo.com"
-                            class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
-                    </div>
-
-                    <!-- Compliance LFPDPPP -->
-                    <div class="space-y-3 pt-2">
-                        <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="chk-privacy" required
-                                class="mt-1 w-4 h-4 rounded border-slate-700 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-900 bg-slate-800">
-                            <span class="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
-                                He leído y acepto el <a href="privacidad.html" target="_blank"
-                                    class="text-indigo-400 hover:text-indigo-300 underline">Aviso de Privacidad</a>
-                                (Obligatorio).
-                            </span>
-                        </label>
-                        <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="chk-marketing"
-                                class="mt-1 w-4 h-4 rounded border-slate-700 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-900 bg-slate-800">
-                            <span class="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
-                                Acepto recibir ofertas VIP, lanzamientos de hardware y promociones exclusivas
-                                (Opcional).
-                            </span>
-                        </label>
-                    </div>
+                    <input type="email" id="lead-email" required placeholder="tu@correo.com"
+                        class="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
 
                     <button type="submit"
-                        class="w-full btn-premium text-white font-bold uppercase tracking-widest text-sm py-4 rounded-xl mt-2">
-                        Descargar Guía Gratis
+                        class="btn-cyan text-slate-950 font-black uppercase tracking-widest text-sm px-8 py-3 rounded-xl sm:w-auto w-full">
+                        Unirse ahora
                     </button>
-                </form>
-            </div>
+                </div>
+
+                <label class="flex items-center justify-center gap-2 cursor-pointer group">
+                    <input type="checkbox" id="chk-privacy" required
+                        class="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900 bg-slate-800">
+                    <span class="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
+                        Acepto el <a href="privacidad.html" target="_blank"
+                            class="text-cyan-400 hover:text-cyan-300 underline">Aviso de Privacidad</a>
+                    </span>
+                </label>
+            </form>
         </div>
     </section>
 
@@ -909,7 +897,7 @@
                         aceptaAviso: chkPrivacy,
                         aceptaPublicidad: chkMarketing,
                         fechaRegistro: serverTimestamp(),
-                        origen: "Lead_Magnet_Checklist_2026"
+                        origen: "Newsletter_Home"
                     });
 
                     // UI Success state
