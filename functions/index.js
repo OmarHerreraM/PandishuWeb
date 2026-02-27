@@ -314,12 +314,15 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
         try {
             const db = admin.firestore();
 
-            // TEMPORARY: disabled Ingram until images are provided
-            const ctSnap = await db.collection('ct_catalog').get();
+            // Fetch both CT and Ingram catalogs concurrently
+            const [ctSnap, ingramSnap] = await Promise.all([
+                db.collection('ct_catalog').get(),
+                db.collection('ingram_catalog').get()
+            ]);
 
             const ctProducts = ctSnap.docs.map(d => {
                 const data = { ...d.data() };
-                const stock = data.availability?.availableQuantity || data.existencia || 0;
+                const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
                 delete data.costoInterno;
                 delete data.gananciaBruta;
                 delete data.margenUtilidad;
@@ -327,7 +330,17 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
                 return { ...data, source: 'CT', vendorName: data.vendorName || 'CT', stock };
             });
 
-            const products = [...ctProducts];
+            const ingramProducts = ingramSnap.docs.map(d => {
+                const data = { ...d.data() };
+                const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
+                delete data.costoInterno;
+                delete data.gananciaBruta;
+                delete data.margenUtilidad;
+                delete data.costo;
+                return { ...data, source: 'Ingram', vendorName: data.vendorName || 'Ingram', stock };
+            });
+
+            const products = [...ctProducts, ...ingramProducts];
 
             const keyword = (req.body.keyword || '').toLowerCase();
             const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.sku || '').toLowerCase().includes(keyword)) : products;
