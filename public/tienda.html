@@ -28,6 +28,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+
+    <!-- Global UI System -->
+    <link rel="stylesheet" href="globals.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -36,8 +39,8 @@
             theme: {
                 extend: {
                     colors: {
-                        slate: { 850: '#151e2e', 950: '#020617' },
-                        brand: { purple: '#7c3aed', blue: '#2563eb', cyan: '#0891b2', dark: '#0f172a' }
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                        brand: { cyan: '#0891b2', indigo: '#4f46e5', accent: '#06b6d4' }
                     },
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                 }
@@ -45,187 +48,165 @@
         }
     </script>
 
-    <style>
-        :root {
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-        }
+    /* Product Cards */
+    .product-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    /* overflow visible so cart buttons are always clickable */
+    }
 
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
+    .product-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    }
 
-        .glass-nav {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
+    .product-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
 
-        /* Search */
-        .search-glow:focus-within {
-            box-shadow: 0 0 0 2px var(--accent), 0 0 40px var(--accent-glow);
-        }
+    .product-card:hover::before {
+    opacity: 1;
+    }
 
-        /* Product Cards */
-        .product-card {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 20px;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            /* overflow visible so cart buttons are always clickable */
-        }
+    /* Vendor badge */
+    .vendor-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    }
 
-        .product-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.35s ease;
-            pointer-events: none;
-        }
+    /* Availability dot */
+    .dot-green {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    }
 
-        .product-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(99, 102, 241, 0.35);
-            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.2);
-        }
+    .dot-yellow {
+    background: #eab308;
+    box-shadow: 0 0 8px #eab308;
+    }
 
-        .product-card:hover::before {
-            opacity: 1;
-        }
+    .dot-red {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+    }
 
-        /* Vendor badge */
-        .vendor-badge {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #94a3b8;
-        }
+    /* Skeleton */
+    .skeleton {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.6) 50%, rgba(30, 41, 59, 0.8) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+    }
 
-        /* Availability dot */
-        .dot-green {
-            background: #22c55e;
-            box-shadow: 0 0 8px #22c55e;
-        }
+    @keyframes shimmer {
+    0% {
+    background-position: 200% 0;
+    }
 
-        .dot-yellow {
-            background: #eab308;
-            box-shadow: 0 0 8px #eab308;
-        }
+    100% {
+    background-position: -200% 0;
+    }
+    }
 
-        .dot-red {
-            background: #ef4444;
-            box-shadow: 0 0 8px #ef4444;
-        }
+    /* Filter chip */
+    .filter-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #94a3b8;
+    white-space: nowrap;
+    }
 
-        /* Skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.6) 50%, rgba(30, 41, 59, 0.8) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 12px;
-        }
+    .filter-chip:hover,
+    .filter-chip.active {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.5);
+    color: #a5b4fc;
+    }
 
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
+    /* WhatsApp btn */
+    .btn-wa {
+    background: linear-gradient(135deg, #25d366, #128c52);
+    border-radius: 12px;
+    transition: all 0.25s;
+    }
 
-            100% {
-                background-position: -200% 0;
-            }
-        }
+    .btn-wa:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+    }
 
-        /* Filter chip */
-        .filter-chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 999px;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #94a3b8;
-            white-space: nowrap;
-        }
+    /* Price tag */
+    .price-tag {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 10px;
+    padding: 8px 14px;
+    }
 
-        .filter-chip:hover,
-        .filter-chip.active {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.5);
-            color: #a5b4fc;
-        }
+    /* Hero gradient text */
+    .gradient-text {
+    background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    }
 
-        /* WhatsApp btn */
-        .btn-wa {
-            background: linear-gradient(135deg, #25d366, #128c52);
-            border-radius: 12px;
-            transition: all 0.25s;
-        }
+    /* DEMO banner */
+    .demo-banner {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    }
 
-        .btn-wa:hover {
-            transform: scale(1.03);
-            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
-        }
+    /* Scroll custom */
+    ::-webkit-scrollbar {
+    width: 6px;
+    }
 
-        /* Price tag */
-        .price-tag {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            border-radius: 10px;
-            padding: 8px 14px;
-        }
+    ::-webkit-scrollbar-track {
+    background: #0f172a;
+    }
 
-        /* Hero gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 999px;
+    }
 
-        /* DEMO banner */
-        .demo-banner {
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 12px;
-        }
-
-        /* Scroll custom */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 999px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6366f1;
-        }
+    ::-webkit-scrollbar-thumb:hover {
+    background: #6366f1;
+    }
 
 
 
-        /* modal */
-        #modal-backdrop.show {
-            display: flex;
-        }
+    /* modal */
+    #modal-backdrop.show {
+    display: flex;
+    }
 
-        /* Cart Drawer transitions now handled by Tailwind */
+    /* Cart Drawer transitions now handled by Tailwind */
     </style>
 </head>
 
@@ -246,17 +227,15 @@
                 </div>
             </a>
             <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <!-- Header Links -->
                 <a href="index" class="hover:text-white transition-colors">Inicio</a>
-                <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
-                <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
 
-                <!-- Highlighted Tienda Link -->
                 <a href="tienda" class="relative group flex items-center gap-2">
                     <span
-                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
+                        class="absolute -inset-1 bg-gradient-to-r from-brand-cyan to-brand-indigo rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
                     <span
-                        class="relative text-white font-black tracking-widest border border-indigo-500/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
-                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i> Tienda
+                        class="relative text-white font-black tracking-widest border border-brand-cyan/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-brand-cyan"></i> Catálogo CT
                     </span>
                 </a>
 
@@ -292,11 +271,8 @@
         <div id="mobile-menu"
             class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
             <a href="index" class="hover:text-white transition-colors">Inicio</a>
-            <a href="tienda" class="hover:text-white transition-colors">Tienda</a>
-            <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
-            <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
-            <a href="tienda" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
-                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
+            <a href="tienda" class="text-brand-cyan flex items-center gap-2 border-l-2 border-brand-cyan pl-3">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Catálogo Completo
             </a>
             <a href="https://wa.me/525662580512" target="_blank"
                 class="text-green-400 flex items-center gap-2 border-t border-white/10 pt-4 mt-2">
@@ -381,95 +357,68 @@
                 </button>
             </div>
 
-            <!-- Filter chips row -->
-            <div class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none relative z-10">
-                <span
-                    class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mr-1 flex-shrink-0">Explorar:</span>
-                <button class="filter-chip active flex-shrink-0" onclick="filterBy('all', this)"
-                    id="chip-all">Todos</button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('apple', this)">
-                    <span class="mr-1">🍎</span> Apple
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('dell', this)">
-                    <span class="mr-1">🔵</span> Dell
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('ubiquiti', this)">
-                    <span class="mr-1">🛸</span> Ubiquiti
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('dahua', this)">
-                    <span class="mr-1">🛡️</span> Dahua
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('tplink', this)">
-                    <span class="mr-1">📡</span> TP-Link
-                </button>
-                <!-- Departments -->
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('laptop', this)">
-                    <span class="mr-1">💻</span> Laptops
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('desktop', this)">
-                    <span class="mr-1">🖥️</span> Computadoras
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('server', this)">
-                    <span class="mr-1">🗄️</span> Servidores
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('networking', this)">
-                    <span class="mr-1">🌐</span> Networking
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('security', this)">
-                    <span class="mr-1">📷</span> Seguridad
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('storage', this)">
-                    <span class="mr-1">💾</span> Almacenamiento
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('printing', this)">
-                    <span class="mr-1">🖨️</span> Impresión
-                </button>
-                <button class="filter-chip flex-shrink-0" onclick="filterBy('cargadores', this)">
-                    <span class="mr-1">⚡</span> Cargadores
-                </button>
+            <!-- Results info & Sort bar -->
+            <div
+                class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+                <p class="text-slate-400 text-sm font-medium">
+                    Mostrando <span id="result-count" class="text-brand-cyan font-bold">18</span> productos
+                    <span id="search-term-display" class="text-indigo-400"></span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-bold"><i data-lucide="filter"
+                            class="w-4 h-4 inline-block -mt-0.5"></i> Ordenar:</span>
+                    <select id="sort-select" onchange="sortProducts()"
+                        class="bg-slate-800 border border-white/10 text-slate-300 text-sm font-medium rounded-xl px-4 py-2 outline-none cursor-pointer hover:border-brand-cyan/50 focus:border-brand-cyan transition appearance-none">
+                        <option value="default">Relevancia</option>
+                        <option value="price-asc">Precio: Menor a mayor</option>
+                        <option value="price-desc">Precio: Mayor a menor</option>
+                        <option value="vendor">Marca A-Z</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Results info bar -->
-        <div class="flex items-center justify-between mb-6">
-            <p class="text-slate-400 text-sm font-medium">
-                Mostrando <span id="result-count" class="text-white font-bold">18</span> productos
-                <span id="search-term-display" class="text-indigo-400"></span>
-            </p>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider">Ordenar:</span>
-                <select id="sort-select" onchange="sortProducts()"
-                    class="bg-slate-800 border border-white/10 text-slate-300 text-xs rounded-xl px-4 py-2 outline-none cursor-pointer hover:border-indigo-500/50 transition">
-                    <option value="default">Relevancia</option>
-                    <option value="price-asc">Precio: Menor a mayor</option>
-                    <option value="price-desc">Precio: Mayor a menor</option>
-                    <option value="vendor">Marca A-Z</option>
-                </select>
-            </div>
-        </div>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Dynamic Brand Sidebar Filter -->
+                <aside class="w-full lg:w-64 flex-shrink-0">
+                    <div class="bg-slate-900 border border-white/5 rounded-2xl p-6 sticky top-24">
+                        <h3 class="text-white font-black uppercase italic tracking-widest mb-4 flex items-center gap-2">
+                            <i data-lucide="tag" class="w-5 h-5 text-brand-cyan"></i> Filtro por Marcas
+                        </h3>
+                        <div id="brand-filters-container"
+                            class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                            <!-- Checkboxes rendered dynamically by JS -->
+                            <div class="skeleton h-6 w-full mb-2"></div>
+                            <div class="skeleton h-6 w-3/4 mb-2"></div>
+                            <div class="skeleton h-6 w-5/6 mb-2"></div>
+                        </div>
+                    </div>
+                </aside>
 
-        <!-- Product Grid -->
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Products rendered by JS -->
-        </div>
+                <!-- Product Grid Area -->
+                <div class="flex-1">
+                    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Products rendered by JS -->
+                    </div>
 
-        <div id="empty-state" class="hidden py-32 text-center">
-            <div class="text-6xl mb-6">🔍</div>
-            <h3 class="text-2xl font-black text-white uppercase italic mb-3">Sin resultados</h3>
-            <p class="text-slate-400 text-sm">Intenta con otro término de búsqueda</p>
-            <button onclick="resetSearch()"
-                class="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-xl transition uppercase tracking-wider">
-                Ver todos los productos
-            </button>
-        </div>
+                    <div id="empty-state" class="hidden py-32 text-center">
+                        <div class="text-6xl mb-6">🔍</div>
+                        <h3 class="text-2xl font-black text-white uppercase italic mb-3">Sin resultados</h3>
+                        <p class="text-slate-400 text-sm">Intenta con otro término de búsqueda</p>
+                        <button onclick="resetSearch()"
+                            class="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-xl transition uppercase tracking-wider">
+                            Ver todos los productos
+                        </button>
+                    </div>
 
-        <!-- Pagination -->
-        <div id="load-more-container" class="hidden flex justify-center mt-10">
-            <button onclick="loadMoreProducts()"
-                class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3 rounded-xl transition border border-white/10 shadow-lg flex items-center gap-2 text-xs uppercase tracking-widest">
-                <i data-lucide="plus" class="w-4 h-4"></i> Cargar Más Productos
-            </button>
-        </div>
+                    <!-- Pagination -->
+                    <div id="load-more-container" class="hidden flex justify-center mt-10">
+                        <button onclick="loadMoreProducts()"
+                            class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3 rounded-xl transition border border-white/10 shadow-lg flex items-center gap-2 text-xs uppercase tracking-widest">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Mostrar Más
+                        </button>
+                    </div>
+                </div> <!-- End Flex-1 Product Area -->
+            </div> <!-- End Flex Split Layout -->
     </main>
 
     <!-- ═══════════════════════════════════════
@@ -501,16 +450,22 @@
     <!-- ═══════════════════════════════════════
          FOOTER
     ═══════════════════════════════════════ -->
-    <footer class="py-12 px-6 border-t border-white/5 text-center bg-slate-950">
-        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú © 2026 • Hardware &
-            Soluciones Tecnológicas</p>
-        <div
-            class="flex flex-wrap justify-center gap-6 text-[11px] text-slate-600 font-medium uppercase tracking-widest">
-            <a href="index" class="hover:text-indigo-400 transition">Inicio</a>
-            <a href="tienda" class="hover:text-indigo-400 transition">Tienda</a>
-            <a href="proyectos" class="hover:text-indigo-400 transition">Proyectos</a>
-            <a href="privacidad" class="hover:text-indigo-400 transition">Privacidad</a>
-            <a href="devoluciones" class="hover:text-indigo-400 transition">Devoluciones y Garantía</a>
+    <footer class="bg-slate-950 pt-16 pb-8 px-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
+            </div>
+            <div
+                class="flex flex-col gap-2 md:gap-6 text-sm font-bold text-slate-500 uppercase tracking-widest text-center md:text-right">
+                <span class="flex items-center gap-2 justify-center md:justify-end text-brand-cyan"><i
+                        data-lucide="shield" class="w-4 h-4"></i> CT Distribuidor Oficial</span>
+                <div class="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-end">
+                    <a href="privacidad.html" class="hover:text-white transition-colors">Aviso de Privacidad</a>
+                    <a href="terminos.html" class="hover:text-white transition-colors">Términos y Condiciones</a>
+                    <a href="devoluciones.html" class="hover:text-white transition-colors">Politicas de Garantía CT</a>
+                </div>
+            </div>
+            <p class="text-slate-600 text-xs font-bold uppercase">&copy; 2026 Pandishu E-Commerce.</p>
         </div>
     </footer>
 
@@ -604,25 +559,54 @@
         let currentPage = 1;
         const ITEMS_PER_PAGE = 48;
 
+        let selectedBrands = new Set();
+
         /* ─── RENDER ─── */
         function normalizeText(text) {
             return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        function renderSkeletons() {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = Array(8).fill(0).map(() => `
-                <div class="product-card p-5 flex flex-col gap-4">
-                    <div class="flex justify-between">
-                        <div class="skeleton w-20 h-4"></div>
-                        <div class="skeleton w-16 h-4"></div>
+        // Dynamically build the brand sidebar checkboxes based on available data
+        function renderBrandFilters() {
+            const container = document.getElementById('brand-filters-container');
+            if (!container) return;
+
+            // Extract unique vendors, count them, and sort alphabetically
+            const vendorCounts = {};
+            allProducts.forEach(p => {
+                const v = (p.vendorName || p.brand || 'Otros').trim();
+                vendorCounts[v] = (vendorCounts[v] || 0) + 1;
+            });
+
+            const sortedVendors = Object.keys(vendorCounts).sort((a, b) => a.localeCompare(b));
+
+            let html = '';
+            sortedVendors.forEach(vendor => {
+                html += `
+                <label class="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-800/50 rounded-xl transition">
+                    <div class="relative flex items-center">
+                        <input type="checkbox" value="${vendor}" onchange="toggleBrandFilter(this)" class="peer sr-only">
+                        <div class="w-5 h-5 rounded border border-slate-600 bg-slate-900 peer-checked:bg-brand-cyan peer-checked:border-brand-cyan transition-all flex items-center justify-center">
+                            <i data-lucide="check" class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                        </div>
                     </div>
-                    <div class="skeleton w-full h-6"></div>
-                    <div class="skeleton w-3/4 h-4"></div>
-                    <div class="skeleton w-full h-24 mb-2"></div>
-                    <div class="skeleton w-full h-10"></div>
-                </div>
-            `).join('');
+                    <span class="text-slate-300 text-sm font-medium group-hover:text-white transition-colors flex-1">${vendor}</span>
+                    <span class="text-slate-600 text-xs font-mono bg-slate-900 px-2 py-0.5 rounded-md border border-white/5">${vendorCounts[vendor]}</span>
+                </label>
+                `;
+            });
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function toggleBrandFilter(checkbox) {
+            if (checkbox.checked) {
+                selectedBrands.add(checkbox.value);
+            } else {
+                selectedBrands.delete(checkbox.value);
+            }
+            applyFilters();
         }
 
         function renderProducts(products, append = false) {
@@ -754,6 +738,7 @@
 
                 allProducts = data.catalog;
                 filteredProducts = allProducts;
+                renderBrandFilters();
                 applyFilters();
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -766,32 +751,13 @@
         /* ─── IN-MEMORY FILTER (instant, no API call) ─── */
         function applyFilters() {
             const q = currentSearch.toLowerCase().trim();
-            const cat = currentFilter;
 
             filteredProducts = allProducts.filter(p => {
-                // Category filter
-                if (cat !== 'all') {
-                    const category = (p.productCategory || '').toLowerCase();
-                    const name = (p.description || '').toLowerCase();
-                    const vendor = (p.vendorName || '').toLowerCase();
-                    const catMap = {
-                        apple: ['apple', 'macbook', 'ipad', 'iphone', 'mac'],
-                        dell: ['dell', 'alienware', 'optiplex', 'latitude', 'xps', 'poweredge'],
-                        ubiquiti: ['ubiquiti', 'unifi', 'airmax'],
-                        dahua: ['dahua'],
-                        tplink: ['tp-link', 'tplink'],
-                        networking: ['red', 'network', 'router', 'switch', 'wifi', 'access point', 'ap', 'cisco', 'modem', 'wireless'],
-                        security: ['camara', 'cámara', 'security', 'nvr', 'dvr', 'hikvision', 'vigilancia', 'cctv'],
-                        laptop: ['laptop', 'notebook', 'portatil', 'portátil', 'lenovo', 'hp', 'asus'],
-                        desktop: ['desktop', 'escritorio', 'pc', 'computadora', 'thinkcentre', 'all in one', 'aio'],
-                        server: ['servidor', 'server', 'rack', 'blade', 'proliant'],
-                        storage: ['disco', 'storage', 'nas', 'ssd', 'hdd', 'sata', 'nvme', 'almacenamiento'],
-                        printing: ['impresora', 'printer', 'toner', 'cartucho', 'plotter', 'epson', 'canon', 'brother'],
-                        cargadores: ['cargador', 'adaptador de corriente', 'power adapter', 'fuente de poder', 'eliminador', 'bateria', 'batería']
-                    };
-                    const keywords = catMap[cat] || [cat];
-                    const matches = keywords.some(k => category.includes(k) || name.includes(k) || vendor.includes(k));
-                    if (!matches) return false;
+                const vendor = (p.vendorName || p.brand || 'Otros').trim();
+
+                // Brand filter
+                if (selectedBrands.size > 0 && !selectedBrands.has(vendor)) {
+                    return false;
                 }
 
                 // Text search
@@ -803,7 +769,7 @@
                         p.description || '',
                         p.vendorName || '',
                         p.ingramPartNumber || '',
-                        p.vendorPartNumber || '',
+                        p.sku || '',
                         p.productCategory || ''
                     ].join(' '));
 
@@ -827,14 +793,6 @@
             renderProducts(filteredProducts.slice(0, ITEMS_PER_PAGE));
         }
 
-        /* ─── FILTER ─── */
-        function filterBy(cat, btn) {
-            currentFilter = cat;
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        }
-
         /* ─── SEARCH ─── */
         function doSearch() {
             currentSearch = document.getElementById('search-input').value.trim();
@@ -844,11 +802,8 @@
         function resetSearch() {
             currentSearch = '';
             document.getElementById('search-input').value = '';
-            currentFilter = 'all';
-            document.querySelectorAll('.filter-chip').forEach((c, i) => {
-                c.classList.remove('active');
-                if (i === 0) c.classList.add('active');
-            });
+            selectedBrands.clear();
+            document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
             applyFilters();
         }
 

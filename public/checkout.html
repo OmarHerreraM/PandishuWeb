@@ -32,21 +32,10 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
 
+    <!-- Global UI System -->
+    <link rel="stylesheet" href="globals.css">
+
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-
         .input-glass {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -56,19 +45,17 @@
 
         .input-glass:focus {
             background: rgba(255, 255, 255, 0.05);
-            border-color: #6366f1;
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
             outline: none;
         }
 
-        /* Fix blank text on browser-default dropdowns */
         select option {
             background-color: #0f172a;
             color: #f8fafc;
         }
     </style>
 </head>
-
 
 <body class="bg-slate-950 text-slate-300 leading-relaxed antialiased min-h-screen flex flex-col">
 
