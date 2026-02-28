@@ -135,7 +135,7 @@ const YOUR_DOMAIN = 'https://www.pandishu.com';
 exports.getConfig = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         return res.status(200).json({
-            MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84'
+            MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY
         });
     });
 });
