@@ -623,10 +623,8 @@
             empty.classList.add('hidden');
 
             const html = products.map(p => {
-                // CT Formula
-                const basePrice = parseFloat(p.precio || p.price || 0);
-                const computedPrice = basePrice * 1.05 * 1.15;
-                const retailPrice = parseFloat(p.retailPrice) || computedPrice;
+                // CT Formula (Backend handles the * 1.05 * 1.15 margin logic natively via p.price to prevent duplicate applying)
+                const retailPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
                 const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
                 const hasStock = stockCount > 0;
@@ -637,7 +635,7 @@
                     if (stockCount > 5) {
                         stockBadgeHTML = `<span class="bg-gradient-to-r from-emerald-500/20 to-green-600/20 border border-emerald-500/50 text-emerald-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(16,185,129,0.2)] flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3 h-3"></i> Envíos Full</span>`;
                     } else {
-                        stockBadgeHTML = `<span class="bg-gradient-to-r from-red-500/20 to-rose-600/20 border border-red-500/50 text-red-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(244,63,94,0.2)] flex items-center gap-1.5 animate-pulse"><i data-lucide="flame" class="w-3 h-3"></i> ¡Solo ${stockCount} disponibles!</span>`;
+                        stockBadgeHTML = `<span class="bg-gradient-to-r from-red-500/20 to-rose-600/20 border border-red-500/50 text-red-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(244,63,94,0.2)] flex items-center gap-1.5 animate-pulse"><i data-lucide="alert-circle" class="w-3 h-3"></i> ¡Solo ${stockCount} disponibles!</span>`;
                     }
                 } else {
                     stockBadgeHTML = `<span class="bg-slate-800 border border-slate-600 text-slate-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase flex items-center gap-1.5"><i data-lucide="clock" class="w-3 h-3"></i> Agotado Temporalmente</span>`;
@@ -646,9 +644,9 @@
                 // Image Selection Priority
                 let productImageUrl = 'Pandishu-Logo-26.png'; // Fallback
                 if (p.image && p.image.trim() !== "") {
-                    productImageUrl = p.image;
+                    productImageUrl = p.image.replace('http://', 'https://');
                 } else if (p.imagenUrl && p.imagenUrl.trim() !== "") {
-                    productImageUrl = p.imagenUrl;
+                    productImageUrl = p.imagenUrl.replace('http://', 'https://');
                 }
 
                 return `
@@ -845,9 +843,7 @@
             const p = filteredProducts.find(x => x.ingramPartNumber === sku);
             if (!p) return;
 
-            const price = parseFloat(p.precio || p.price || 0);
-            const computedPrice = price * 1.05 * 1.15;
-            const retailPrice = parseFloat(p.retailPrice) || computedPrice;
+            const retailPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
             const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
             const hasStock = stockCount > 0;

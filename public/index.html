@@ -97,7 +97,7 @@
             <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
                 <a href="#catalogo" class="hover:text-white transition-colors">Catálogo Completo</a>
                 <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
-                <a href="hardware" class="hover:text-white transition-colors">PC Custom</a>
+                <a href="#configuraciones-medida" class="hover:text-white transition-colors">PC Custom</a>
                 <a href="tienda" class="btn-premium px-5 py-2.5 rounded-xl text-white flex items-center gap-2">
                     <i data-lucide="shopping-cart" class="w-4 h-4"></i> Ir a Tienda Completa
                 </a>
@@ -114,6 +114,7 @@
             class="hidden px-6 pb-6 pt-4 bg-slate-900 border-b border-white/5 absolute w-full flex flex-col gap-4 text-sm font-bold uppercase text-slate-300">
             <a href="#catalogo" class="hover:text-brand-cyan">Catálogo Completo</a>
             <a href="#soluciones" class="hover:text-brand-cyan">Soluciones</a>
+            <a href="#configuraciones-medida" class="hover:text-brand-cyan">PC Custom</a>
             <a href="tienda" class="text-brand-cyan flex items-center gap-2"><i data-lucide="shopping-cart"
                     class="w-4 h-4"></i> Tienda Completa</a>
         </div>
@@ -231,13 +232,13 @@
                         data-filter="all">Todos</button>
                     <button
                         class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
-                        data-filter="networking">Networking</button>
+                        data-filter="asus">Asus</button>
                     <button
                         class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
-                        data-filter="seguridad">Seguridad</button>
+                        data-filter="corsair">Corsair</button>
                     <button
                         class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
-                        data-filter="software">Software</button>
+                        data-filter="tplink">TP-Link</button>
                 </div>
             </div>
 
@@ -262,6 +263,77 @@
                 <span class="flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest font-bold"><i
                         data-lucide="shield-check" class="w-3 h-3 text-brand-cyan"></i>Producto Original Garantizado por
                     CT</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- NUEVA SECCION: PC CUSTOM (CONFIGURACIONES A LA MEDIDA) -->
+    <section id="configuraciones-medida"
+        class="py-24 px-6 bg-slate-950 border-t border-white/5 relative overflow-hidden">
+        <div
+            class="absolute left-0 top-0 w-1/2 h-full bg-gradient-to-r from-brand-cyan/5 to-transparent pointer-events-none">
+        </div>
+        <div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
+            <div class="flex-1">
+                <span class="text-brand-cyan font-bold tracking-widest uppercase text-xs mb-2 block">Premium Custom
+                    Builds</span>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight uppercase italic">
+                    Configuraciones a la Medida</h2>
+                <p class="text-slate-400 text-lg font-light leading-relaxed mb-8">
+                    En Pandishú no solo vendemos piezas; diseñamos arquitecturas. Ofrecemos asesoría técnica VIP y
+                    ensamblaje experto para <strong>Workstations de grado industrial, rigs de 3D Modeling
+                        (Blender/Maya), post-producción 4K y setups Gaming de élite.</strong>
+                </p>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i>
+                        <span class="text-slate-300 font-medium">Asesoría de cuellos de botella garantizada.</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i>
+                        <span class="text-slate-300 font-medium">Cable management clínico y pruebas de estrés.</span>
+                    </div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i>
+                        <span class="text-slate-300 font-medium">Garantía directa en componentes CT.</span>
+                    </div>
+
+                    <a href="https://wa.me/525662580512?text=Solicito%20asesoría%20para%20armar%20una%20PC%20Custom."
+                        target="_blank"
+                        onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
+                        class="btn-premium inline-flex self-start items-center gap-2 px-8 py-4 rounded-xl font-bold uppercase tracking-widest text-sm text-white transition-all shadow-lg hover:shadow-brand-cyan/40">
+                        <i data-lucide="cpu" class="w-4 h-4"></i> Asesoría Experta
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full relative group">
+                <div
+                    class="absolute inset-0 bg-brand-cyan/20 rounded-3xl blur-2xl group-hover:bg-brand-cyan/30 transition-all duration-500">
+                </div>
+                <div class="bg-slate-900 border border-slate-700/50 p-6 rounded-3xl relative z-10 
+                            grid grid-cols-2 gap-4">
+                    <div
+                        class="bg-slate-800 rounded-2xl aspect-square flex flex-col items-center justify-center p-4 border border-white/5 hover:border-brand-cyan/50 transition">
+                        <i data-lucide="box" class="w-10 h-10 text-slate-400 mb-2"></i>
+                        <span class="text-white font-bold text-xs uppercase tracking-widest">3D Modeling</span>
+                    </div>
+                    <div
+                        class="bg-slate-800 rounded-2xl aspect-square flex flex-col items-center justify-center p-4 border border-white/5 hover:border-brand-cyan/50 transition">
+                        <i data-lucide="video" class="w-10 h-10 text-slate-400 mb-2"></i>
+                        <span class="text-white font-bold text-xs uppercase tracking-widest">Video Pro</span>
+                    </div>
+                    <div
+                        class="bg-slate-800 rounded-2xl aspect-square flex flex-col items-center justify-center p-4 border border-white/5 hover:border-brand-cyan/50 transition">
+                        <i data-lucide="database" class="w-10 h-10 text-slate-400 mb-2"></i>
+                        <span class="text-white font-bold text-xs uppercase tracking-widest">Server Rigs</span>
+                    </div>
+                    <div
+                        class="bg-slate-800 rounded-2xl aspect-square flex flex-col items-center justify-center p-4 border border-white/5 hover:border-brand-cyan/50 transition">
+                        <i data-lucide="gamepad-2" class="w-10 h-10 text-slate-400 mb-2"></i>
+                        <span class="text-white font-bold text-xs uppercase tracking-widest">Extreme Gaming</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -438,14 +510,15 @@
                     badgeHtml = `<span class="bg-red-900/80 text-red-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2"><i data-lucide="x-circle" class="w-3 h-3"></i> Agotado Temporalmente</span>`;
                 }
 
-                // Retail Price protection math exactly as requested
-                const basePrice = parseFloat(p.precio || p.price || 0);
-                const computedPrice = basePrice * 1.05 * 1.15;
-                const finalPrice = parseFloat(p.retailPrice) || computedPrice;
+                // CT Price Logic (Backend computed final price passed as p.price to prevent duplicate fees)
+                const finalPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
-                // Imagen fallback con logo corporativo
-                const imgSrc = p.image ? p.image : 'Pandishu-Logo-26.png';
-                const isPlaceholder = !p.image ? 'object-contain p-4 opacity-50' : 'object-cover';
+                // Imagen fallback con logo corporativo (CT requires HTTPS prefix logic)
+                let imgSrc = p.image || 'Pandishu-Logo-26.png';
+                if (imgSrc !== 'Pandishu-Logo-26.png') {
+                    imgSrc = imgSrc.replace('http://', 'https://');
+                }
+                const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
 
                 const card = `
                     <div class="glass-panel p-5 rounded-3xl flex flex-col group relative hover:border-brand-cyan/40 transition-all shadow-xl bg-slate-900 border border-slate-800">
@@ -527,12 +600,12 @@
                 // Para home, el filtro busca keywords genéricas en el set cargado (ej. Access Point, NVR, Antivirus)
                 if (filter === 'all') {
                     renderProducts(allProducts);
-                } else if (filter === 'networking') {
-                    renderProducts(allProducts.filter(p => (p.description || '').toLowerCase().includes('router') || (p.description || '').toLowerCase().includes('switch') || (p.description || '').toLowerCase().includes('access')));
-                } else if (filter === 'seguridad') {
-                    renderProducts(allProducts.filter(p => (p.description || '').toLowerCase().includes('camara') || (p.description || '').toLowerCase().includes('nvr') || (p.description || '').toLowerCase().includes('dvr')));
-                } else if (filter === 'software') {
-                    renderProducts(allProducts.filter(p => (p.description || '').toLowerCase().includes('licencia') || (p.description || '').toLowerCase().includes('microsoft') || (p.description || '').toLowerCase().includes('antivirus')));
+                } else if (filter === 'asus') {
+                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('asus')) || ((p.description || '').toLowerCase().includes('asus'))));
+                } else if (filter === 'corsair') {
+                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('corsair')) || ((p.description || '').toLowerCase().includes('corsair'))));
+                } else if (filter === 'tplink') {
+                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('tp-link')) || ((p.vendorName || p.brand || '').toLowerCase().includes('tplink')) || ((p.description || '').toLowerCase().includes('tp-link'))));
                 }
             });
         });
