@@ -45,10 +45,19 @@ exports.scheduledCTTokenRefresh = functions.pubsub.schedule('every 23 hours').on
 // Helper function to dynamically retrieve the fresh CT token inside APIs
 async function getCTToken() {
     const doc = await admin.firestore().collection('system_config').doc('ct_auth').get();
-    if (doc.exists && doc.data().token) {
-        return doc.data().token;
+    if (doc.exists && doc.data().token && doc.data().updatedAt) {
+        const updatedAt = doc.data().updatedAt.toDate().getTime();
+        const now = Date.now();
+        const ageInHours = (now - updatedAt) / (1000 * 60 * 60);
+
+        // Security Standard: Los tokens de CT caducan cada 24 horas. Refrescar si tiene > 22 horas.
+        if (ageInHours < 22) {
+            return doc.data().token;
+        }
+        console.log('CT Token found but expired. Generating a new one...');
     }
-    // Fallback: Generate it right now if it doesn't exist
+
+    // Fallback: Generate it right now if it doesn't exist or is expired
     const newToken = await generateCTToken();
     if (newToken) {
         await admin.firestore().collection('system_config').doc('ct_auth').set({
@@ -73,8 +82,7 @@ const getMailTransporter = () => {
     return mailTransporter;
 };
 
-// ─── SERVICIOS DE ENVÍO ────────────────────────────────────────────────────────
-const { getSkydropxQuoteForCart } = require('./services/shipping');
+// ─── SERVICIOS DE ENVÍO (CT Dropshipping gestionado en checkout) ─────────────────
 
 async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItems, totalAmount) {
     const transporter = getMailTransporter();
@@ -134,8 +142,7 @@ exports.getConfig = functions.https.onRequest(async (req, res) => {
 
 exports.createCheckoutSession = functions.runWith({
     timeoutSeconds: 60,
-    memory: '256MB',
-    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
+    memory: '256MB'
 }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
@@ -197,8 +204,7 @@ exports.createCheckoutSession = functions.runWith({
 
 exports.processPayment = functions.runWith({
     timeoutSeconds: 60,
-    memory: '256MB',
-    secrets: ['SKYDROPX_CLIENT_ID', 'SKYDROPX_CLIENT_SECRET']
+    memory: '256MB'
 }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         const client = getMercadoPagoClient();
@@ -271,35 +277,107 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
         if (payInfo.status === 'approved' && orderId) {
             const orderRef = admin.firestore().collection('orders').doc(orderId);
             const orderDoc = await orderRef.get();
+
             if (orderDoc.exists && orderDoc.data().status !== 'paid') {
                 const data = orderDoc.data();
 
-                // Asignar almacén CT óptimo
-                const { getCTItemStock } = require('./services/ctConnect');
+                // 1. Asignar almacén CT óptimo y agrupar (Only for CT)
+                const { getCTItemStock, createCTOrder, confirmCTOrder } = require('./services/ctConnect');
                 const { getOptimalWarehouse } = require('./services/warehouseManager');
-                let resolvedItems = data.items;
+
+                let resolvedItems = [];
+                let ctOrdersLog = [];
+                const warehouseGroups = {};
 
                 try {
                     const token = await getCTToken();
-                    resolvedItems = [];
+
                     for (let item of data.items) {
                         if (item.source === 'CT' || !item.vendorName || item.vendorName === 'CT') {
                             const ctStock = await getCTItemStock(item.sku, token);
                             const bestAlmacen = getOptimalWarehouse(data.shippingInfo.zipCode, ctStock);
-                            resolvedItems.push({ ...item, assignedWarehouse: bestAlmacen || 'PENDING' });
+                            const assignedItem = { ...item, assignedWarehouse: bestAlmacen || 'PENDING' };
+                            resolvedItems.push(assignedItem);
+
+                            if (bestAlmacen) {
+                                if (!warehouseGroups[bestAlmacen]) warehouseGroups[bestAlmacen] = [];
+                                warehouseGroups[bestAlmacen].push(assignedItem);
+                            }
                         } else {
                             resolvedItems.push(item);
                         }
                     }
+
+                    // 2. Por cada almacén, generar un pedido CT independiente
+                    for (const almacen in warehouseGroups) {
+                        const itemsForAlmacen = warehouseGroups[almacen];
+
+                        const ctPartidas = itemsForAlmacen.map(i => ({
+                            cantidad: i.quantity,
+                            clave: i.sku,
+                            precio: parseFloat(i.price),
+                            moneda: 'MXN'
+                        }));
+
+                        // Unique CT internal ID using timestamp + random
+                        const uniqueOrderId = parseInt(Date.now().toString().slice(-8) + Math.floor(Math.random() * 100), 10);
+                        const customer = data.customerInfo || {};
+                        const address = customer.address || {};
+
+                        const zipCheck = (address.zip || data.shippingInfo?.zipCode || '06000').toString().replace(/\D/g, '');
+                        const phoneCheck = (customer.phone || '0000000000').toString().replace(/\D/g, '');
+
+                        const ctEnvio = {
+                            nombre: customer.name || "Cliente Final",
+                            direccion: address.street || "Conocido",
+                            entreCalles: address.notes || "",
+                            noExterior: address.ext_number || "S/N",
+                            noInterior: address.int_number || "",
+                            colonia: address.colonia || address.neighborhood || "Centro",
+                            estado: address.state || "CMX",
+                            ciudad: address.city || "Ciudad de Mexico",
+                            codigoPostal: parseInt(zipCheck) || 0,
+                            telefono: parseInt(phoneCheck) || 0
+                        };
+
+                        const ctOrderPayload = {
+                            idPedido: uniqueOrderId,
+                            almacen: almacen,
+                            tipoPago: "99",
+                            cfdi: "G03",
+                            envio: [ctEnvio],
+                            partidas: ctPartidas
+                        };
+
+                        // 3. Crear y Confirmar Pedido en CT DropShipping
+                        const placedOrder = await createCTOrder(ctOrderPayload, token);
+                        if (placedOrder && placedOrder.respuesta === 'ok') {
+                            const ctFolio = placedOrder.pedidoWeb;
+                            const confirmedOrder = await confirmCTOrder(ctFolio, token);
+
+                            ctOrdersLog.push({
+                                almacen: almacen,
+                                pedidoWeb: ctFolio,
+                                subOrderId: uniqueOrderId,
+                                status: (confirmedOrder && confirmedOrder.respuesta === 'ok') ? 'confirmed' : 'placed_needs_confirmation',
+                                items: ctPartidas.map(i => i.clave)
+                            });
+                        } else {
+                            console.error(`Fallo CT para almacen ${almacen}:`, placedOrder);
+                            ctOrdersLog.push({ almacen, status: 'failed', error: placedOrder });
+                        }
+                    }
+
                 } catch (err) {
-                    console.error("Error asignando almacén:", err);
+                    console.error("Error procesando CT Dropshipping en Webhook:", err);
                 }
 
                 await orderRef.update({
                     status: 'paid',
                     mpPaymentId: paymentId,
                     paidAt: FieldValue.serverTimestamp(),
-                    items: resolvedItems
+                    items: resolvedItems,
+                    ctOrders: ctOrdersLog
                 });
 
                 await enviarCorreoConfirmacion(data.customerInfo.email, data.customerInfo.name, orderId, resolvedItems, data.amountTotal);
@@ -314,33 +392,21 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
         try {
             const db = admin.firestore();
 
-            // Fetch both CT and Ingram catalogs concurrently
-            const [ctSnap, ingramSnap] = await Promise.all([
-                db.collection('ct_catalog').get(),
-                db.collection('ingram_catalog').get()
-            ]);
+            // Solo buscamos en CT Catalog
+            const ctSnap = await db.collection('ct_catalog').get();
 
-            const ctProducts = ctSnap.docs.map(d => {
+            const products = ctSnap.docs.map(d => {
                 const data = { ...d.data() };
                 const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
+                // Limpieza de datos confidenciales
                 delete data.costoInterno;
                 delete data.gananciaBruta;
                 delete data.margenUtilidad;
                 delete data.costo;
+                delete data.precioPromocion;
+
                 return { ...data, source: 'CT', vendorName: data.vendorName || 'CT', stock };
             });
-
-            const ingramProducts = ingramSnap.docs.map(d => {
-                const data = { ...d.data() };
-                const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
-                delete data.costoInterno;
-                delete data.gananciaBruta;
-                delete data.margenUtilidad;
-                delete data.costo;
-                return { ...data, source: 'Ingram', vendorName: data.vendorName || 'Ingram', stock };
-            });
-
-            const products = [...ctProducts, ...ingramProducts];
 
             const keyword = (req.body.keyword || '').toLowerCase();
             const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.sku || '').toLowerCase().includes(keyword)) : products;
@@ -401,18 +467,30 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
             const productArray = Array.isArray(products) ? products : (products.productos || []);
             const mapped = productArray.map(p => {
                 let totalStock = 0;
+                let almacenesStock = {};
+
                 if (typeof p.existencia === 'object' && p.existencia !== null) {
+                    almacenesStock = p.existencia;
                     totalStock = Object.values(p.existencia).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
                 } else {
                     totalStock = parseInt(p.existencia || p.disponible || 0, 10) || 0;
                 }
+
+                // Parseo de promociones del feed de CT (garantía de mostrar mejor precio)
+                let promoPrice = null;
+                if (p.promocion && p.promocion.precio) {
+                    promoPrice = parseFloat(p.promocion.precio) * (p.moneda === 'USD' ? MXN_RATE : 1);
+                }
+
                 return {
                     ingramPartNumber: String(p.clave || p.codigo || ''),
                     description: p.nombre || '',
                     price: parseFloat(p.precio) * (p.moneda === 'USD' ? MXN_RATE : 1),
+                    precioPromocion: promoPrice,
                     currency: 'MXN',
                     image: p.imagen || '',
                     existencia: totalStock,
+                    almacenes: almacenesStock,
                     availability: { availableQuantity: totalStock }
                 };
             }).filter(p => p.ingramPartNumber);
@@ -428,38 +506,7 @@ exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB'
     });
 });
 
-exports.syncIngramCatalog = functions.runWith({ timeoutSeconds: 540, memory: '1GB' }).https.onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        try {
-            const apiKey = req.query.apiKey || req.headers['authorization'];
-            if (apiKey !== process.env.INGRAM_SECRET_KEY) {
-                return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
-            }
-
-            const path = require('path');
-            const os = require('os');
-            const { syncIngramCatalog } = require('./services/ingramSftp');
-            const { processProviderFile } = require('./process_providers');
-
-            const tempZipUrl = path.join(os.tmpdir(), 'PRICE.ZIP');
-
-            console.log('Descargando PRICE.ZIP via SFTP...');
-            const downloadedFile = await syncIngramCatalog('.', tempZipUrl);
-
-            if (!downloadedFile) {
-                return res.status(404).json({ error: "No se encontro archivo PRICE.ZIP en SFTP" });
-            }
-
-            console.log('Procesando CSV en Firestore...');
-            await processProviderFile(downloadedFile, 'Ingram');
-
-            return res.status(200).json({ success: true, message: 'Ingram catalog synced successfully.' });
-        } catch (e) {
-            console.error(e);
-            return res.status(500).json({ error: e.message });
-        }
-    });
-});
+// Eliminado syncIngramCatalog para dar paso exclusivo a CT Connect
 
 // ─── ORDER DASHBOARD (GET PEDIDOS) ────────────────────────────────────────────
 exports.getPedidos = functions.https.onRequest((req, res) => {
@@ -489,7 +536,7 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
 
             const { year, month, adminKey } = req.body;
             // Seguridad básica para evitar acceso público a datos de ventas
-            const masterKey = process.env.INGRAM_SECRET_KEY; // Usamos la misma llave maestra configurada
+            const masterKey = process.env.ADMIN_SECRET_KEY || process.env.INGRAM_SECRET_KEY; // Fallback temporal hasta actualizar env vars
             const providedKey = adminKey || req.headers['x-admin-key'];
 
             if (!providedKey || providedKey !== masterKey) {
