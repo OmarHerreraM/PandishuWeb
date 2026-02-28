@@ -395,9 +395,19 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
             // Solo buscamos en CT Catalog
             const ctSnap = await db.collection('ct_catalog').get();
 
+            // ─── LÓGICA DE PRECIOS Y BLINDAJE CAMBIARIO ─────────────────────────────────────────
+            // Formula: Precio Venta = (Precio Base MXN * 1.05 [Cobertura FX]) * 1.15 [Margen Utilidad]
+            const FX_BUFFER = 1.05;
+            const UTILITY_MARGIN = 1.15;
+
             const products = ctSnap.docs.map(d => {
                 const data = { ...d.data() };
                 const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
+
+                // Aplicar fórmula de precio blindado
+                const basePrice = parseFloat(data.price) || 0;
+                let finalPrice = basePrice * FX_BUFFER * UTILITY_MARGIN;
+
                 // Limpieza de datos confidenciales
                 delete data.costoInterno;
                 delete data.gananciaBruta;
@@ -405,13 +415,22 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
                 delete data.costo;
                 delete data.precioPromocion;
 
-                return { ...data, source: 'CT', vendorName: data.vendorName || 'CT', stock };
+                return {
+                    ...data,
+                    price: finalPrice, // Sobreescribiendo con precio público blindado
+                    source: 'CT',
+                    vendorName: data.vendorName || 'CT',
+                    stock
+                };
             });
 
             const keyword = (req.body.keyword || '').toLowerCase();
-            const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.sku || '').toLowerCase().includes(keyword)) : products;
+            const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.sku || p.ingramPartNumber || '').toLowerCase().includes(keyword)) : products;
 
-            return res.status(200).json({ recordsFound: filtered.length, catalog: filtered });
+            // Retornamos solo los 24 más relevantes si no hay búsqueda para no saturar el catálogo inicial del escaparate
+            const finalResults = keyword ? filtered : filtered.slice(0, 24);
+
+            return res.status(200).json({ recordsFound: filtered.length, catalog: finalResults });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     });
 });
