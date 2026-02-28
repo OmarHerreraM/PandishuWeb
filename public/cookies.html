@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <script src="analytics.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Cookies | Pandishú Oficial</title>
+    <meta name="description" content="Información legal sobre el uso de Cookies y Rastreo en Pandishú E-Commerce.">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+
+    <!-- Global UI System -->
+    <link rel="stylesheet" href="globals.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                        brand: { cyan: '#0891b2', indigo: '#4f46e5', accent: '#06b6d4' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col pt-20">
+
+    <!-- NAVEGACIÓN COMPARTIDA -->
+    <nav class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-[10px] text-brand-cyan font-bold tracking-[0.2em] uppercase">Premium Shop</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <a href="tienda.html" class="hover:text-brand-cyan transition-colors">Tienda Oficial</a>
+            </div>
+            <!-- Mobile Menu Btn -->
+            <button onclick="document.getElementById('mobile-nav').classList.toggle('hidden')"
+                class="md:hidden text-white p-2 rounded-xl bg-slate-800">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Dropdown -->
+        <div id="mobile-nav"
+            class="hidden absolute top-full left-0 w-full bg-slate-900 border-b border-white/5 flex flex-col gap-4 p-6 text-sm font-bold uppercase tracking-widest text-slate-400 z-40">
+            <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+            <a href="tienda.html" class="hover:text-brand-cyan transition-colors">Tienda Oficial</a>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="flex-grow max-w-4xl mx-auto px-6 py-12 text-slate-300">
+
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 mb-6">
+            <i data-lucide="cookie" class="w-4 h-4 text-brand-cyan"></i>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-cyan">Marco Legal</span>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight capitalize">Política de <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-indigo">Cookies</span>
+        </h1>
+
+        <div class="prose prose-invert prose-slate max-w-none text-sm md:text-base leading-relaxed space-y-6">
+            <p>En cumplimiento con la normativa legal de Protección de Datos Personales en México,
+                <strong>Pandishú</strong> informa a sus usuarios acerca del uso de Cookies y tecnologías de rastreo
+                similares en esta plataforma E-Commerce.</p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">1. ¿Qué son las Cookies?</h2>
+            <p>Las cookies son pequeños archivos de texto que los sitios web almacenan en su navegador cuando los
+                visita. Éstas nos permiten recordar sus preferencias de navegación, el contenido de su carrito de
+                compras y obtener métricas analíticas para mejorar nuestros servicios y la oferta del catálogo oficial
+                de CT Internacional.</p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">2. Cookies Estrictamente Necesarias</h2>
+            <p>Estas cookies son fundamentales para el funcionamiento de la tienda online (e.g., mantener productos en
+                el carrito tras cambiar de página, integración segura con la API del pasarela de pagos MarcadoPago). Sin
+                ellas, la plataforma no puede funcionar y, por ley, <strong>no pueden desactivarse</strong> en nuestros
+                sistemas.</p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">3. Google Analytics 4 (Cookies de Rendimiento)</h2>
+            <p>Con su previo consentimiento, <strong>Pandishú</strong> utiliza Google Analytics 4 (GA4) para recopilar
+                información totalmente anónima sobre el comportamiento de navegación (como las páginas más visitadas y
+                rutas de compra). Esta integración de terceros no archiva PII (Personal Identifiable Information) como
+                nombres o números de tarjeta.</p>
+            <ul class="list-disc pl-6 space-y-2 mt-4 marker:text-brand-cyan">
+                <li><strong>Proveedor:</strong> Google LLC.</li>
+                <li><strong>Datos Medidos:</strong> Disparos de adición al carrito, vistas de productos de hardware y
+                    valor analítico cifrado de conversiones comerciales en MXN.</li>
+                <li><strong>Retención:</strong> 2 meses por defecto.</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">4. Configuración y Retiro de Consentimiento</h2>
+            <p>Usted tiene el control absoluto de sus datos. Si usted aceptó las cookies analíticas y desea revocar su
+                decisión, utilice el siguiente botón. El efecto será inmediato e impedirá que Google Analytics recolecte
+                nuevos eventos, además de borrar las cookies previas asociadas a su navegador.</p>
+
+            <div
+                class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-white mb-1">Estado de Consentimiento GA4</h3>
+                    <p id="consent-status" class="text-xs text-slate-400 font-mono">Verificando estado actual...</p>
+                </div>
+                <button id="btn-revoke" onclick="revokeConsent()"
+                    class="bg-slate-900 border border-red-500/50 hover:bg-red-500/10 text-red-400 font-bold px-4 py-2 rounded-xl transition text-sm flex items-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Revocar Permisos
+                </button>
+            </div>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">5. Contacto Legal</h2>
+            <p>Si tiene dudas constructivas sobre la privacidad de sus datos al comprar sus equipos, contacte
+                directamente con nuestro canal de atención por WhatsApp o correo soporte.</p>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 pt-16 pb-8 px-6 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
+            </div>
+            <div
+                class="flex flex-col gap-2 md:gap-6 text-sm font-bold text-slate-500 uppercase tracking-widest text-center md:text-right">
+                <span class="flex items-center gap-2 justify-center md:justify-end text-brand-cyan"><i
+                        data-lucide="shield" class="w-4 h-4"></i> Privacidad Aislada</span>
+                <div class="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-end">
+                    <a href="index.html" class="hover:text-white transition-colors">Regresar al Home</a>
+                    <a href="tienda.html" class="hover:text-white transition-colors">Tienda Oficial</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function updateStatusUI() {
+            const consent = localStorage.getItem('pandishu_cookie_consent');
+            const el = document.getElementById('consent-status');
+            if (consent === 'granted') {
+                el.innerHTML = '<span class="text-brand-cyan">● RASTREO ACTIVO (Otorgado)</span>';
+            } else if (consent === 'denied') {
+                el.innerHTML = '<span class="text-slate-500">○ RASTREO RECHAZADO (Privado)</span>';
+            } else {
+                el.innerHTML = '<span class="text-yellow-500">○ PENDIENTE (Banner Activo)</span>';
+            }
+        }
+
+        function revokeConsent() {
+            localStorage.setItem('pandishu_cookie_consent', 'denied');
+
+            // Wipe Google Analytics cookies explicitly
+            document.cookie.split(";").forEach(function (c) {
+                if (c.includes('_ga') || c.includes('_gid')) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                }
+            });
+
+            alert('Has revocado el permiso. Se han bloqueado los rastreos analíticos en su navegador.');
+            updateStatusUI();
+
+            // Reload page to purge dynamic GA objects from window
+            setTimeout(() => window.location.reload(), 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', updateStatusUI);
+    </script>
+</body>
+
+</html>

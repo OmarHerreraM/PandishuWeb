@@ -2,14 +2,8 @@
 <html lang="es" class="scroll-smooth">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-6VQC13MZ6E');
-    </script>
+    <!-- Privacy Control Engine (GA4) -->
+    <script src="analytics.js"></script>
     <!-- Mercado Pago SDK -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -241,6 +235,7 @@
                 </a>
 
                 <a href="https://wa.me/525662580512" target="_blank"
+                    onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                     class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
                     <i data-lucide="message-circle" class="w-4 h-4"></i> Agendar
                 </a>
@@ -441,6 +436,7 @@
             </p>
             <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA!%20Busco%20un%20producto%20que%20no%20vi%20en%20la%20tienda..."
                 target="_blank"
+                onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                 class="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-black text-sm px-10 py-4 rounded-2xl transition-all shadow-lg shadow-green-500/20 hover:shadow-green-500/30 hover:scale-105 uppercase tracking-wider">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
                 Soporte de Ventas Especiales
@@ -856,6 +852,21 @@
             const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
             const hasStock = stockCount > 0;
 
+            // Tracking GA4: View Item
+            if (typeof window.pandishuTrack === 'function') {
+                window.pandishuTrack('view_item', {
+                    currency: "MXN",
+                    value: retailPrice,
+                    items: [{
+                        item_id: p.ingramPartNumber || p.sku,
+                        item_name: p.description,
+                        item_brand: p.vendorName || p.brand,
+                        price: retailPrice,
+                        quantity: 1
+                    }]
+                });
+            }
+
             document.getElementById('modal-product-badge').textContent = p.vendorName || 'Fabricante';
             document.getElementById('modal-title').textContent = p.description;
             document.getElementById('modal-sku').textContent = `SKU: ${p.ingramPartNumber}`;
@@ -967,6 +978,21 @@
                     image: product.image || product.imagenUrl || 'Pandishu-Logo-26.png', // Priority fallback
                     stock: stock,
                     quantity: quantity
+                });
+            }
+
+            // Tracking GA4: Add to Cart
+            if (typeof window.pandishuTrack === 'function') {
+                window.pandishuTrack('add_to_cart', {
+                    currency: "MXN",
+                    value: retailPrice * quantity,
+                    items: [{
+                        item_id: product.ingramPartNumber || product.sku,
+                        item_name: product.description,
+                        item_brand: product.vendorName || product.brand,
+                        price: retailPrice,
+                        quantity: quantity
+                    }]
                 });
             }
 

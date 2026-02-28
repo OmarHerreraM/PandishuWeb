@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Privacy Control Engine (GA4) -->
+    <script src="analytics.js"></script>
     <title>Pandishú | Tienda Premium de Tecnología y Hardware Oficial</title>
     <meta name="description"
         content="Tu fuente premium de hardware, software, networking y seguridad original en México. Envíos nacionales seguros y facturación SAT inmediata.">
@@ -296,6 +298,7 @@
                     </p>
                     <a href="https://wa.me/525662580512?text=Me%20interesa%20una%20solucion%20de%20Redes."
                         target="_blank"
+                        onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                         class="text-brand-cyan font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase">
                         Cotizar Instalación <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
@@ -316,6 +319,7 @@
                     </p>
                     <a href="https://wa.me/525662580512?text=Me%20interesa%20mantenimiento%20o%20armado%20de%20PC."
                         target="_blank"
+                        onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                         class="text-indigo-400 font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase relative z-10">
                         Agendar Cita <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
@@ -335,6 +339,7 @@
                     </p>
                     <a href="https://wa.me/525662580512?text=Quiero%20una%20reunion%20para%20un%20proyecto%20web."
                         target="_blank"
+                        onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                         class="text-emerald-400 font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase">
                         Programar Reunión <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
@@ -344,7 +349,8 @@
     </section>
 
     <!-- FAB WHATSAPP -->
-    <a href="https://wa.me/525662580512" target="_blank" class="fixed bottom-8 right-8 z-50 group">
+    <a href="https://wa.me/525662580512" target="_blank" class="fixed bottom-8 right-8 z-50 group"
+        onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');">
         <span class="absolute inset-0 rounded-full bg-green-500 opacity-20 animate-ping"></span>
         <div
             class="relative flex items-center gap-3 bg-slate-900 border border-green-500/40 p-3 pr-6 rounded-full shadow-2xl transition-all group-hover:-translate-y-1 group-hover:border-green-400">
@@ -458,7 +464,23 @@
                             <span class="text-slate-500 text-[10px] block mb-1">SKU: ${p.sku || p.ingramPartNumber || 'N/A'}</span>
                             <p class="text-brand-cyan font-black text-xl mb-4">$${finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="text-[10px] text-slate-500 font-normal">MXN</span></p>
                             
-                            <button onclick="window.location.href='tienda.html'" class="w-full py-3 ${stock > 0 ? 'bg-slate-800 hover:bg-brand-cyan hover:text-slate-950 text-white' : 'bg-slate-800/50 text-slate-500 cursor-not-allowed'} font-bold rounded-xl text-xs uppercase tracking-widest text-center transition-all flex justify-center items-center gap-2">
+                            <!-- Analytics Hook on Checkout Flow -->
+                            <button onclick="
+                                if(typeof window.pandishuTrack === 'function'){
+                                    window.pandishuTrack('add_to_cart', {
+                                        currency: 'MXN',
+                                        value: ${finalPrice},
+                                        items: [{
+                                            item_id: '${p.ingramPartNumber || p.sku}',
+                                            item_name: '${(p.description || p.name).replace(/'/g, "\\'")}',
+                                            item_brand: '${p.vendorName || p.brand}',
+                                            price: ${finalPrice},
+                                            quantity: 1
+                                        }]
+                                    });
+                                }
+                                window.location.href='tienda.html';
+                            " class="w-full py-3 ${stock > 0 ? 'bg-slate-800 hover:bg-brand-cyan hover:text-slate-950 text-white' : 'bg-slate-800/50 text-slate-500 cursor-not-allowed'} font-bold rounded-xl text-xs uppercase tracking-widest text-center transition-all flex justify-center items-center gap-2">
                                 ${stock > 0 ? 'Comprar en Tienda <i data-lucide="shopping-cart" class="w-3 h-3"></i>' : 'Sin Stock'}
                             </button>
                         </div>

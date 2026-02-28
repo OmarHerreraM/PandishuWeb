@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Privacy Control Engine (GA4) -->
+    <script src="analytics.js"></script>
     <title>¡Pago Exitoso! | Pandishú</title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;900&display=swap"
@@ -108,6 +110,7 @@
                 <i data-lucide="shopping-bag" class="w-4 h-4"></i> Seguir Comprando
             </a>
             <a href="https://wa.me/5216442041543?text=Hola!+Realicé+un+pedido+en+pandishu.com" target="_blank"
+                onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                 class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
                 <i data-lucide="message-circle" class="w-4 h-4"></i> Contactar Soporte
             </a>
@@ -133,15 +136,37 @@
             document.getElementById('order-details').classList.remove('hidden');
         }
 
+        // Extract cart to compute accurate total for GA4 before wiping
+        let purchaseTotal = 0;
+        let purchasedItems = [];
+        try {
+            const rawCart = localStorage.getItem('pandishu_cart');
+            if (rawCart) {
+                const parsedCart = JSON.parse(rawCart);
+                parsedCart.forEach(item => {
+                    const lineTotal = (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
+                    purchaseTotal += lineTotal;
+                    purchasedItems.push({
+                        item_id: item.sku,
+                        item_name: item.name,
+                        item_brand: item.vendor,
+                        price: item.price,
+                        quantity: item.quantity
+                    });
+                });
+            }
+        } catch (e) { console.error('Error fetching cart for tracking', e); }
+
         // Limpiar carrito tras pago exitoso
         localStorage.removeItem('pandishu_cart');
 
-        // GA4 purchase event
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'purchase', {
-                transaction_id: paymentId || 'unknown',
-                value: 0,
+        // GA4 purchase event via Safe Wrapper
+        if (typeof window.pandishuTrack === 'function') {
+            window.pandishuTrack('purchase', {
+                transaction_id: paymentId || 'tx_' + Math.random().toString(36).substr(2, 9),
+                value: purchaseTotal,
                 currency: 'MXN',
+                items: purchasedItems
             });
         }
     </script>
