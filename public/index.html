@@ -2,972 +2,402 @@
 <html lang="es" class="scroll-smooth">
 
 <head>
-    <!-- Forzar actualización a HTTPS -->
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6VQC13MZ6E"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-6VQC13MZ6E');
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandishú | Arquitectura de Redes & Hardware Premium CDMX</title>
+    <title>Pandishú | Tienda Premium de Tecnología y Hardware Oficial</title>
     <meta name="description"
-        content="Expertos en WiFi Mesh Enterprise, Seguridad IA y Hardware High-End en CDMX. Instalación profesional de redes y configuración de PC Gamer y Workstations a domicilio.">
-    <meta name="keywords"
-        content="WiFi Mesh CDMX, Instalación de Redes, Soporte Técnico CDMX, PC Gamer CDMX, Hardware High-End, Seguridad IA, Cámaras de Seguridad, Pandishú">
-    <link rel="canonical" href="https://www.pandishu.com/" />
-
-    <!-- Local SEO Tags -->
-    <meta name="geo.region" content="MX-CMX" />
-    <meta name="geo.placename" content="Ciudad de México" />
-    <meta name="geo.position" content="19.432608;-99.133209" />
-    <meta name="ICBM" content="19.432608, -99.133209" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.pandishu.com/" />
-    <meta property="og:title" content="Pandishú | Soluciones Tecnológicas Premium en CDMX" />
-    <meta property="og:description"
-        content="Transformamos tu hogar u oficina con WiFi Mesh, Seguridad Inteligente y Hardware de Alto Rendimiento. Servicio profesional en Ciudad de México." />
-    <meta property="og:image" content="https://www.pandishu.com/img/og-image.jpg" />
-
-    <!-- Favicons -->
+        content="Tu fuente premium de hardware, software, networking y seguridad original en México. Envíos nacionales seguros y facturación SAT inmediata.">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" href="apple-icon-144x144.png">
 
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Configuración Custom Tailwind -->
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        slate: {
-                            850: '#151e2e',
-                            950: '#020617',
-                        },
-                        brand: {
-                            purple: '#7c3aed',
-                            blue: '#2563eb',
-                            cyan: '#0891b2',
-                            dark: '#0f172a'
-                        }
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                        brand: { cyan: '#0891b2', indigo: '#4f46e5', accent: '#06b6d4' }
                     },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    backgroundImage: {
-                        'hero-pattern': "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')",
-                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
-                    }
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
                 }
             }
         }
     </script>
 
     <style>
-        /* Efectos Premium Custom */
         body {
             background-color: #0f172a;
-            /* Slate 900 */
             color: #f8fafc;
         }
 
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .glass-card {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
-            /* Purple Glow */
-            border-color: rgba(124, 58, 237, 0.3);
-        }
-
-        .text-glow {
-            text-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
         }
 
         .btn-premium {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
         }
 
         .btn-premium:hover {
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .btn-premium::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: 0.5s;
-        }
-
-        .btn-premium:hover::after {
-            left: 100%;
-        }
-
-        .btn-cyan {
-            background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-            /* Cyan to Neon Green */
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
-        }
-
-        .btn-cyan:hover {
-            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6), 0 0 20px rgba(16, 185, 129, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .btn-whatsapp {
-            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-        }
-
-        .btn-whatsapp:hover {
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.5);
             transform: translateY(-2px);
         }
 
         .grid-bg {
             background-size: 40px 40px;
+            background-image: linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px);
             mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
         }
 
-        /* Animaciones */
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .gradient-text {
-            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Modal Styles */
-        #review-modal,
-        #privacy-modal,
-        #returns-modal {
-            backdrop-filter: blur(8px);
-        }
-
-        .star.active {
-            color: #fbbf24;
-            fill: #fbbf24;
-        }
-
-        .star {
-            color: #475569;
-            transition: color 0.2s;
-            cursor: pointer;
+        .text-glow {
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
         }
     </style>
 </head>
 
-<body class="antialiased selection:bg-indigo-500 selection:text-white">
+<body class="antialiased selection:bg-brand-cyan selection:text-white">
 
-    <!-- BANNER DE OFERTA (Diseño Dark) -->
+    <!-- TOP BAR (Trust) -->
     <div
-        class="bg-gradient-to-r from-red-900 to-rose-950 text-white py-2 px-4 border-b border-red-500/20 relative overflow-hidden">
-        <div
-            class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10">
-        </div>
-        <div
-            class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-3 relative z-10 text-xs sm:text-sm">
-            <span
-                class="bg-red-500/20 border border-red-500/50 text-red-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
-                Flash Sale
-            </span>
-            <p class="font-medium text-center">
-                <span class="text-slate-300">Corsair Nautilus 240 RS ARGB:</span>
-                <span class="line-through text-slate-500 mx-1">$2,141</span>
-                <span class="text-white font-bold text-base">$1,799</span>
-            </p>
-            <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA%2C%20quiero%20la%20oferta%20del%20Corsair%20Nautilus%20en%20%241799"
-                target="_blank"
-                class="flex items-center gap-1 text-red-300 hover:text-white font-bold uppercase tracking-wide transition-colors text-xs underline decoration-red-500/50 hover:decoration-white">
-                Apartar <i data-lucide="arrow-right" class="w-3 h-3"></i>
-            </a>
-        </div>
+        class="bg-indigo-900/40 border-b border-indigo-500/20 text-center py-2 px-4 text-xs font-bold text-indigo-200 uppercase tracking-widest flex flex-wrap justify-center gap-4 md:gap-8">
+        <span class="flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-brand-cyan"></i>
+            Garantía Original</span>
+        <span class="flex items-center gap-2"><i data-lucide="receipt" class="w-4 h-4 text-brand-cyan"></i> Facturación
+            SAT Inmediata</span>
+        <span class="flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-cyan"></i> Envíos Seguros
+            Todo México</span>
     </div>
 
-    <!-- NAVEGACIÓN (Universal) -->
-    <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
+    <!-- NAVEGACIÓN -->
+    <nav class="sticky top-0 w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/5 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
             <a href="index" class="flex items-center gap-3">
                 <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
-                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
-                    onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10" onerror="this.style.display='none'">
                 <div class="flex flex-col leading-none">
                     <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
-                    <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tech Solutions</span>
+                    <span class="text-[10px] text-brand-cyan font-bold tracking-[0.2em] uppercase">Premium Shop</span>
                 </div>
             </a>
-            <div class="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
-                <a href="index" class="hover:text-white transition-colors">Inicio</a>
-                <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
-                <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
 
-                <!-- Highlighted Tienda Link -->
-                <a href="tienda" class="relative group flex items-center gap-2">
-                    <span
-                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-40 group-hover:opacity-100 transition duration-300"></span>
-                    <span
-                        class="relative text-white font-black tracking-widest border border-indigo-500/50 bg-slate-900 px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all group-hover:bg-slate-800">
-                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i> Tienda
-                    </span>
-                </a>
-
-                <a href="https://wa.me/525662580512" target="_blank"
-                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full transition-all border border-white/10 flex items-center gap-2">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> Agendar
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="#catalogo" class="hover:text-white transition-colors">Catálogo Completo</a>
+                <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
+                <a href="hardware" class="hover:text-white transition-colors">PC Custom</a>
+                <a href="tienda" class="btn-premium px-5 py-2.5 rounded-xl text-white flex items-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Ir a Tienda Completa
                 </a>
             </div>
-            <button onclick="toggleMenu()"
-                class="md:hidden text-white p-2 rounded-xl border border-white/10 hover:border-indigo-500/50 transition bg-slate-800/50">
+
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                class="md:hidden text-white p-2 rounded-xl bg-slate-800">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
         </div>
+
         <!-- Mobile Menu -->
         <div id="mobile-menu"
-            class="hidden px-6 pt-4 pb-6 border-t border-white/5 mt-3 flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-400 bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-2xl">
-            <a href="index" class="hover:text-white transition-colors">Inicio</a>
-            <a href="hardware" class="hover:text-white transition-colors">Hardware PC</a>
-            <a href="proyectos" class="hover:text-white transition-colors">Proyectos</a>
-            <a href="tienda" class="text-indigo-400 flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
-                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial
-            </a>
-            <a href="https://wa.me/525662580512" target="_blank"
-                class="text-green-400 flex items-center gap-2 border-t border-white/10 pt-4 mt-2">
-                <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
-            </a>
+            class="hidden px-6 pb-6 pt-4 bg-slate-900 border-b border-white/5 absolute w-full flex flex-col gap-4 text-sm font-bold uppercase text-slate-300">
+            <a href="#catalogo" class="hover:text-brand-cyan">Catálogo Completo</a>
+            <a href="#soluciones" class="hover:text-brand-cyan">Soluciones</a>
+            <a href="tienda" class="text-brand-cyan flex items-center gap-2"><i data-lucide="shopping-cart"
+                    class="w-4 h-4"></i> Tienda Completa</a>
         </div>
     </nav>
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.classList.add('flex');
-            } else {
-                menu.classList.remove('flex');
-                menu.classList.add('hidden');
-            }
-        }
-    </script>
 
-    <!-- HERO SECTION (Diseño Impactante) -->
-    <header class="relative pt-32 pb-40 overflow-hidden">
-        <!-- Fondo Abstracto -->
+    <!-- HERO SECTION -->
+    <header class="relative pt-24 pb-32 overflow-hidden border-b border-white/5">
         <div class="absolute inset-0 bg-slate-950">
-            <div class="absolute inset-0 bg-hero-pattern opacity-20 bg-cover bg-center mix-blend-overlay"></div>
-            <div class="absolute inset-0 bg-gradient-to-b from-slate-900/0 via-slate-900/80 to-slate-900"></div>
-            <!-- Grid Cyberpunk -->
-            <div class="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
+            <div class="absolute inset-0 grid-bg opacity-30"></div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-cyan/20 rounded-full blur-[120px] pointer-events-none">
+            </div>
         </div>
 
-        <!-- Efectos de Luz -->
-        <div
-            class="absolute top-20 left-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-[128px] pointer-events-none animate-pulse">
-        </div>
-        <div
-            class="absolute bottom-20 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-[128px] pointer-events-none">
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-            <!-- Texto Principal -->
-            <div class="text-center lg:text-left">
-                <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    <span class="text-green-400 text-[10px] font-bold uppercase tracking-widest">Socio Tecnológico
-                        Certificado</span>
-                </div>
-
-                <h1
-                    class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-white uppercase mt-4">
-                    Network Solutions,<br>
-                    <span class="gradient-text italic">Web Development,</span><br>
-                    <span class="text-slate-300">& Custom PC Builds.</span>
-                </h1>
-
-                <p class="text-lg text-slate-400 mb-10 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
-                    Elevamos tu estándar de vida y trabajo con redes WiFi Enterprise, Seguridad Inteligente y Hardware
-                    de Alto Rendimiento.
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="tienda"
-                        class="btn-cyan px-8 py-4 rounded-2xl font-black text-lg text-slate-950 text-center uppercase tracking-wide flex items-center justify-center gap-2 group">
-                        Go to Shop <i data-lucide="arrow-right"
-                            class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                    <a href="proyectos"
-                        class="px-8 py-4 rounded-2xl font-bold text-lg text-slate-300 border border-white/10 hover:bg-white/5 hover:text-white transition-all text-center uppercase tracking-wide backdrop-blur-sm">
-                        Ver Proyectos
-                    </a>
-                </div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 mb-8 mx-auto">
+                <span class="flex h-2 w-2 relative">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-cyan"></span>
+                </span>
+                <span class="text-slate-300 text-[10px] font-bold uppercase tracking-widest">Distribuidor Oficial
+                    Autorizado</span>
             </div>
 
-            <!-- Visual Hero (Video/Imagen) -->
-            <div class="hidden lg:block relative animate-float">
-                <div
-                    class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-[40px] blur-2xl opacity-30">
-                </div>
-                <div class="relative bg-slate-900 border border-white/10 rounded-[35px] p-2 shadow-2xl overflow-hidden">
-                    <!-- Placeholder de video o imagen high-tech -->
-                    <video class="w-full rounded-[30px] shadow-inner" autoplay muted loop playsinline
-                        poster="img/hardware/img-pc-pro.jpg">
-                        <source src="e.mp4" type="video/mp4">
-                        <!-- Fallback visual -->
-                        <img src="img/hardware/img-pc-pro.jpg" class="w-full h-full object-cover rounded-[30px]"
-                            alt="PC Gamer Setup">
-                    </video>
+            <h1
+                class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-white uppercase">
+                Tu Fuente Premium de<br>
+                <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-indigo text-glow italic">Tecnología
+                    Original</span><br>
+                En todo México.
+            </h1>
 
-                    <!-- Floating Badge -->
-                    <div
-                        class="absolute bottom-8 left-8 bg-black/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-4">
-                        <div class="bg-indigo-600 p-2 rounded-lg">
-                            <i data-lucide="zap" class="text-white w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <p class="text-white text-xs font-bold uppercase">Potencia Total</p>
-                            <p class="text-slate-400 text-[10px]">Instalaciones Pro</p>
-                        </div>
-                    </div>
-                </div>
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+                Descubre el catálogo más grande de Hardware, Redes, Seguridad y Software con logística respaldada a
+                nivel nacional. Facturación inmediata incluida.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="tienda"
+                    class="btn-premium px-8 py-4 rounded-xl font-black text-lg text-white uppercase tracking-wide flex items-center justify-center gap-2">
+                    <i data-lucide="search" class="w-5 h-5"></i> Explorar Catálogo
+                </a>
+                <a href="#soluciones"
+                    class="px-8 py-4 rounded-xl font-bold text-lg text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors uppercase tracking-wide text-center">
+                    Ver Soluciones
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- STATISTICS STRIP -->
-    <div class="border-y border-white/5 bg-slate-900/50 backdrop-blur-sm">
-        <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div class="text-center">
-                <p class="text-3xl font-black text-white mb-1">+500</p>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Clientes Felices</p>
+    <!-- TRUST STRIP -->
+    <div class="bg-slate-900 border-b border-white/5 py-12">
+        <div
+            class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
+            <div class="p-4 flex flex-col items-center">
+                <div class="bg-indigo-900/30 p-4 rounded-2xl text-indigo-400 mb-4 border border-indigo-500/20">
+                    <i data-lucide="package-check" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-white font-black uppercase tracking-wide text-lg mb-2">Logística Nacional</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Envíos asegurados a toda la República. Procesamiento
+                    directo desde almacenes centrales.</p>
             </div>
-            <div class="text-center">
-                <p class="text-3xl font-black text-white mb-1">100%</p>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Cobertura WiFi</p>
+            <div class="p-4 flex flex-col items-center">
+                <div class="bg-cyan-900/30 p-4 rounded-2xl text-cyan-400 mb-4 border border-cyan-500/20">
+                    <i data-lucide="shield" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-white font-black uppercase tracking-wide text-lg mb-2">Original y Sellado</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">100% de productos respaldados por garantía oficial del
+                    fabricante en México.</p>
             </div>
-            <div class="text-center">
-                <p class="text-3xl font-black text-white mb-1">24/7</p>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Soporte Vital</p>
-            </div>
-            <div class="text-center">
-                <p class="text-3xl font-black text-white mb-1">5 Estrellas</p>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Calificación Google</p>
+            <div class="p-4 flex flex-col items-center">
+                <div class="bg-emerald-900/30 p-4 rounded-2xl text-emerald-400 mb-4 border border-emerald-500/20">
+                    <i data-lucide="file-check-2" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-white font-black uppercase tracking-wide text-lg mb-2">Facturación SAT</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Descarga tus facturas y archivos XML al instante
+                    después de procesar tu pedido.</p>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN: DIVISIÓN HARDWARE (High End) -->
-    <section class="py-24 px-6 relative overflow-hidden bg-slate-900 border-b border-white/5">
-        <!-- Efecto de Fondo -->
-        <div class="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
-
-        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
-            <!-- Texto -->
-            <div class="order-2 lg:order-1">
-                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 uppercase italic tracking-tight">
-                    <span
-                        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 mb-2">PC
-                        Master Race</span>
-                    Construye tu Legado
-                </h2>
-                <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-                    No es solo una computadora, es tu herramienta de dominio. Workstations para arquitectura y Rigs de
-                    Gaming Extremo con los componentes más exclusivos del mercado.
-                </p>
-
-                <div class="flex gap-4 mb-10 overflow-x-auto pb-2">
-                    <span
-                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">AMD
-                        Ryzen 7000/9000</span>
-                    <span
-                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">NVIDIA
-                        RTX 40 Series</span>
-                    <span
-                        class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 border border-slate-700 whitespace-nowrap">DDR5
-                        High Speed</span>
+    <!-- GRID CATEGORÍAS Y PRODUCTOS -->
+    <section id="catalogo" class="py-24 px-6 bg-slate-950 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-slate-800 pb-8">
+                <div>
+                    <span class="text-brand-cyan font-bold tracking-widest uppercase text-xs mb-2 block">Top Ventas
+                        Nacionales</span>
+                    <h2 class="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tight">Destacados
+                    </h2>
                 </div>
 
-                <div class="flex flex-wrap gap-4">
-                    <a href="hardware"
-                        class="btn-premium px-8 py-4 rounded-xl font-bold uppercase tracking-wider text-sm text-white flex items-center justify-center w-full sm:w-auto">
-                        <i data-lucide="cpu" class="w-5 h-5 mr-3"></i> Explorar Hardware
-                    </a>
+                <!-- Filtros Räpidos -->
+                <div class="flex flex-wrap gap-2" id="filter-buttons">
+                    <button
+                        class="px-5 py-2 bg-brand-cyan text-slate-950 text-xs font-bold uppercase tracking-widest rounded-full filter-btn"
+                        data-filter="all">Todos</button>
+                    <button
+                        class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
+                        data-filter="networking">Networking</button>
+                    <button
+                        class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
+                        data-filter="seguridad">Seguridad</button>
+                    <button
+                        class="px-5 py-2 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition filter-btn"
+                        data-filter="software">Software</button>
                 </div>
             </div>
 
-            <!-- Visual 3D -->
-            <div class="order-1 lg:order-2 relative group">
-                <div
-                    class="absolute inset-0 bg-blue-500/20 rounded-full blur-[100px] group-hover:bg-blue-500/30 transition-all duration-500">
-                </div>
-                <img src="img/hardware/img-pc-pro.jpg" alt="Master PC Build"
-                    class="relative z-10 w-full rounded-[30px] border-2 border-white/10 shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-500"
-                    onerror="this.src='https://placehold.co/800x800/1e293b/ffffff?text=PC+GAMER+PANDISHU'">
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Se inyecta por JS -->
+            </div>
 
-                <!-- Spec Card Overlay -->
-                <div
-                    class="absolute -bottom-6 -right-6 z-20 bg-slate-800/90 backdrop-blur border border-white/10 p-6 rounded-2xl hidden md:block shadow-xl">
-                    <p class="text-sky-400 text-xs font-bold uppercase mb-1">Configuración Top</p>
-                    <p class="text-white font-black text-xl mb-2">Ryzen 9 + RX 9070 XT</p>
-                    <div class="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-sky-500 w-[95%]"></div>
-                    </div>
-                </div>
+            <div class="mt-12 text-center">
+                <a href="tienda"
+                    class="btn-premium inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold uppercase tracking-widest text-sm text-white transition-all">
+                    Explorar inventario completo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- SECCIÓN DE SOLUCIONES (Servicios CDMX) -->
-    <section id="servicios" class="py-24 px-6 relative">
-        <div class="max-w-7xl mx-auto">
+    <!-- NUEVA SECCION: SOLUCIONES PANDISHU -->
+    <section id="soluciones" class="py-24 px-6 bg-slate-900 border-t border-white/5 relative overflow-hidden">
+        <div
+            class="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-indigo-900/10 to-transparent pointer-events-none">
+        </div>
+        <div class="max-w-7xl mx-auto relative z-10">
             <div class="text-center mb-16">
-                <span class="text-indigo-400 font-bold tracking-widest uppercase text-xs mb-2 block">Cobertura Total en
-                    Ciudad de México</span>
-                <h2 class="text-4xl font-black text-white mb-4 tracking-tight uppercase">Ecosistema Integral</h2>
+                <span class="text-indigo-400 font-bold tracking-widest uppercase text-xs mb-2 block">Division de
+                    Servicios Profesionales</span>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight uppercase italic">Soluciones
+                    Pandishú</h2>
                 <p class="text-slate-400 max-w-2xl mx-auto text-lg font-light">
-                    Soluciones tecnológicas con servicio de instalación profesional a domicilio en CDMX y Zona
-                    Metropolitana.
+                    Mas allá del producto. Implementamos tecnología empresarial para hogares modernos y corporativos en
+                    crecimiento.
                 </p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- Card WiFi -->
-                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <i data-lucide="wifi" class="w-32 h-32 text-indigo-500"></i>
-                    </div>
-
+                <!-- Servicio: Redes -->
+                <div
+                    class="glass-panel p-8 rounded-[32px] group hover:border-brand-cyan/50 transition-all flex flex-col h-full">
                     <div
-                        class="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/30">
-                        <i data-lucide="router" class="w-7 h-7"></i>
+                        class="w-16 h-16 bg-cyan-900/30 text-cyan-400 rounded-2xl flex items-center justify-center mb-6 border border-cyan-500/30 group-hover:scale-110 transition-transform">
+                        <i data-lucide="wifi" class="w-8 h-8"></i>
                     </div>
-
-                    <h3 class="text-2xl font-bold text-white mb-3">Networking</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
-                        Diseño e instalación de redes empresariales en tu hogar. Eliminamos zonas muertas con sistemas
-                        Mesh de última generación.
+                    <h3 class="text-2xl font-bold text-white mb-3">Redes para el Hogar & Empresa</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                        Diseño e instalación de redes Mesh y cableado estructurado. Eliminación total de zonas muertas y
+                        configuración para alta demanda (Streaming, Gaming, APs).
                     </p>
-                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-indigo-500"></i> Diagnóstico de cobertura en sitio</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-indigo-500"></i> Cableado estructurado estético</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-indigo-500"></i> Configuración optimizada</li>
-                    </ul>
-
-                    <a href="https://wa.me/525662580512?text=Hola%20Pandish%C3%BA%2C%20necesito%20una%20visita%20t%C3%A9cnica%20para%20mejorar%20mi%20WiFi%20en%20CDMX."
+                    <a href="https://wa.me/525662580512?text=Me%20interesa%20una%20solucion%20de%20Redes."
                         target="_blank"
-                        class="mt-auto flex items-center text-indigo-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
-                        Agendar Visita Técnica <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                        class="text-brand-cyan font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase">
+                        Cotizar Instalación <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
                 </div>
 
-                <!-- Card Hardware/Seguridad -->
-                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <i data-lucide="settings" class="w-32 h-32 text-red-500"></i>
-                    </div>
-
+                <!-- Servicio: Hardware -->
+                <div
+                    class="glass-panel p-8 rounded-[32px] group hover:border-indigo-500/50 transition-all flex flex-col h-full relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-transparent"></div>
                     <div
-                        class="w-14 h-14 bg-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mb-6 border border-red-500/30">
-                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        class="relative z-10 w-16 h-16 bg-indigo-900/30 text-indigo-400 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/30 group-hover:scale-110 transition-transform">
+                        <i data-lucide="cpu" class="w-8 h-8"></i>
                     </div>
-
-                    <h3 class="text-2xl font-bold text-white mb-3">Custom PC Hardware</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
-                        Instalación de cámaras de seguridad IA y armado de PC High-End a medida. Mantenimiento
-                        preventivo.
+                    <h3 class="text-2xl font-bold text-white mb-3 relative z-10">Mantenimiento y Optimización HW</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow relative z-10">
+                        Ensamblaje experto de Workstations y PC Gamer. Mantenimiento preventivo, cambio de pastas
+                        térmicas, diagnósticos y limpieza profunda de hardware.
                     </p>
-                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-red-500"></i> Armado de PC Gamer/Workstation</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-red-500"></i> Instalación de Cámaras Tapo/Ezviz</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-red-500"></i> Mantenimiento de Hardware</li>
-                    </ul>
-
-                    <a href="https://wa.me/525662580512?text=Me%20interesa%20una%20cotizaci%C3%B3n%20de%20hardware%20o%20seguridad."
+                    <a href="https://wa.me/525662580512?text=Me%20interesa%20mantenimiento%20o%20armado%20de%20PC."
                         target="_blank"
-                        class="mt-auto flex items-center text-red-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
-                        Cotizar Hardware <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                        class="text-indigo-400 font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase relative z-10">
+                        Agendar Cita <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
                 </div>
 
-                <!-- Card Web Dev -->
-                <div class="glass-card p-8 rounded-[32px] flex flex-col group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <i data-lucide="code-2" class="w-32 h-32 text-green-500"></i>
-                    </div>
-
+                <!-- Servicio: Web -->
+                <div
+                    class="glass-panel p-8 rounded-[32px] group hover:border-emerald-500/50 transition-all flex flex-col h-full">
                     <div
-                        class="w-14 h-14 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center mb-6 border border-green-500/30">
-                        <i data-lucide="layout" class="w-7 h-7"></i>
+                        class="w-16 h-16 bg-emerald-900/30 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 border border-emerald-500/30 group-hover:scale-110 transition-transform">
+                        <i data-lucide="code" class="w-8 h-8"></i>
                     </div>
-
-                    <h3 class="text-2xl font-bold text-white mb-3">Web Development</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
-                        Presencia digital de alto impacto. Sitios web rápidos, tiendas en línea y aplicaciones a medida.
+                    <h3 class="text-2xl font-bold text-white mb-3">Desarrollo Web Modular</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                        Creación de Sitios Web, e-commerce robustos y Landing Pages corporativas. Incluye hosting
+                        profesional de alta disponibilidad y estrategias técnicas SEO.
                     </p>
-                    <ul class="text-slate-500 text-xs space-y-2 mb-8 border-t border-white/5 pt-4">
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-green-500"></i> Landing Pages Premium</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-green-500"></i> E-commerce & Branding</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2"
-                                class="w-3 h-3 text-green-500"></i> SEO Técnico Incluido</li>
-                    </ul>
-
-                    <a href="https://wa.me/525662580512?text=Me%20interesa%20un%20sitio%20web%20profesional."
+                    <a href="https://wa.me/525662580512?text=Quiero%20una%20reunion%20para%20un%20proyecto%20web."
                         target="_blank"
-                        class="mt-auto flex items-center text-green-400 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
-                        Iniciar Proyecto <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                        class="text-emerald-400 font-bold uppercase text-xs tracking-widest hover:text-white flex items-center mt-auto uppercase">
+                        Programar Reunión <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TESTIMONIALS (Clean Dark) -->
-    <section class="py-24 px-6 bg-slate-950 border-t border-white/5">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                <div>
-                    <h2 class="text-3xl font-black text-white uppercase tracking-tight mb-2">Historias Reales</h2>
-                    <p class="text-slate-500">La confianza se construye con resultados.</p>
-                </div>
-                <!-- Botón Reseña -->
-                <button onclick="toggleReviewModal()"
-                    class="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 font-bold uppercase text-xs tracking-widest border border-yellow-500/30 px-4 py-2 rounded-full hover:bg-yellow-500/10 transition-colors">
-                    <i data-lucide="star" class="w-4 h-4 fill-current"></i> Escribir reseña
-                </button>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- Review 1 -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl relative">
-                    <div class="flex gap-1 mb-4">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                    </div>
-                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
-                        "El cambio en la velocidad de internet fye brutal. Antes no podía tener videollamadas en mi
-                        cuarto, ahora con los Deco vuela. Súper profesionales."
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-500 text-xs">
-                            EM</div>
-                        <div>
-                            <p class="text-white text-sm font-bold">Eduardo M.</p>
-                            <p class="text-slate-500 text-xs">Instalación WiFi Mesh</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Review 2 -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl relative">
-                    <div class="flex gap-1 mb-4">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
-                    </div>
-                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
-                        "Me armaron una PC para arquitectura increíble. Los precios fueron mejores que en Amazon y me la
-                        entregaron lista con Windows instalado."
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-500 text-xs">
-                            BE</div>
-                        <div>
-                            <p class="text-white text-sm font-bold">Berenice E.</p>
-                            <p class="text-slate-500 text-xs">Workstation Build</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER PREMIUM -->
-    <footer class="bg-slate-950 pt-20 pb-10 px-6 border-t border-white/5">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
-            <div class="md:col-span-2">
-                <a href="#" class="flex items-center gap-3 mb-6">
-                    <img src="Pandishu-Logo-26.png" class="h-12 w-12 rounded-xl" alt="Logo">
-                    <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
-                </a>
-                <p class="text-slate-400 text-sm max-w-sm leading-relaxed mb-8">
-                    Somos tu departamento de TI personal. Soluciones de infraestructura de red y hardware de alto nivel
-                    para hogares exigentes y negocios modernos.
-                </p>
-                <div class="flex gap-4">
-                    <a href="https://www.facebook.com/PandishuTec" target="_blank"
-                        class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-blue-500 hover:bg-blue-600 transition-all">
-                        <i data-lucide="facebook" class="w-5 h-5"></i>
-                    </a>
-                    <a href="https://www.instagram.com/pandishutec/" target="_blank"
-                        class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-pink-500 hover:bg-pink-600 transition-all">
-                        <i data-lucide="instagram" class="w-5 h-5"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Navegación</h4>
-                <ul class="space-y-4 text-sm text-slate-400">
-                    <li><a href="tienda" class="hover:text-indigo-400 transition-colors">Tienda</a></li>
-                    <li><a href="hardware" class="hover:text-indigo-400 transition-colors">PC Hardware</a></li>
-                    <li><a href="proyectos" class="hover:text-indigo-400 transition-colors">Portafolio</a></li>
-                    <li><a href="tienda"
-                            class="hover:text-indigo-400 transition-colors text-indigo-300 font-bold flex items-center gap-2"><i
-                                data-lucide="shopping-cart" class="w-4 h-4"></i> Tienda Oficial</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Legal</h4>
-                <ul class="space-y-4 text-sm text-slate-400">
-                    <li><a href="privacidad" class="hover:text-indigo-400 transition-colors">Aviso de
-                            Privacidad</a></li>
-                    <li><a href="devoluciones" class="hover:text-indigo-400 transition-colors">Política de
-                            Garantía</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div
-            class="max-w-7xl mx-auto pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">© 2026 Pandishú Technology.</p>
-            <p class="text-slate-700 text-[10px] uppercase">Designed in CDMX</p>
-        </div>
-    </footer>
-
-    <!-- FAB WHATSAPP (Premium Redesign) -->
+    <!-- FAB WHATSAPP -->
     <a href="https://wa.me/525662580512" target="_blank" class="fixed bottom-8 right-8 z-50 group">
-        <!-- Pulse Effect -->
         <span class="absolute inset-0 rounded-full bg-green-500 opacity-20 animate-ping"></span>
-        <span class="absolute inset-0 rounded-full bg-green-400 opacity-10 animate-pulse delay-75"></span>
-
         <div
-            class="relative flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-green-500/30 p-2 pr-6 rounded-full shadow-[0_0_30px_rgba(37,211,102,0.3)] hover:shadow-[0_0_50px_rgba(37,211,102,0.5)] transition-all duration-300 group-hover:-translate-y-1">
+            class="relative flex items-center gap-3 bg-slate-900 border border-green-500/40 p-3 pr-6 rounded-full shadow-2xl transition-all group-hover:-translate-y-1 group-hover:border-green-400">
             <div
-                class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                <i data-lucide="message-circle" class="w-6 h-6 text-white fill-current"></i>
-            </div>
-            <div class="flex flex-col">
-                <span
-                    class="text-[10px] text-green-400 font-bold uppercase tracking-wider leading-none mb-0.5">Online</span>
-                <span class="text-white font-bold text-sm leading-none">Chat Venta</span>
-            </div>
+                class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center text-white">
+                <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i></div>
+            <span class="text-white font-bold text-sm">Asesoría Directa</span>
         </div>
     </a>
 
-    <!-- Newsletter Section -->
-    <section class="max-w-4xl mx-auto py-16 px-6 relative z-10">
-        <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden border border-cyan-500/30 text-center">
-            <!-- Glow Effect -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none">
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 pt-16 pb-8 px-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
             </div>
-            <div
-                class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none">
+            <div class="flex gap-6 text-sm font-bold text-slate-500 uppercase tracking-widest">
+                <a href="privacidad.html" class="hover:text-white">Privacidad</a>
+                <a href="devoluciones.html" class="hover:text-white">Garantías</a>
             </div>
-
-            <h2 class="text-3xl md:text-4xl font-black mb-4 uppercase text-white tracking-widest relative z-10">
-                Actualizaciones Tecnológicas
-            </h2>
-            <p class="text-slate-400 mb-8 font-light max-w-2xl mx-auto relative z-10">
-                Suscríbete para recibir información exclusiva sobre lanzamientos de hardware, tendencias en redes y
-                soluciones digitales. Sin spam, solo valor técnico.
-            </p>
-
-            <form id="lead-magnet-form" class="relative z-10 max-w-lg mx-auto">
-                <div id="form-spinner"
-                    class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl">
-                    <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2">
-                    </div>
-                    <span class="text-xs text-cyan-300 font-bold uppercase tracking-widest">Procesando...</span>
-                </div>
-
-                <div id="form-success"
-                    class="hidden absolute inset-0 bg-emerald-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl border border-emerald-500/50 p-6 text-center">
-                    <i data-lucide="check-circle" class="w-12 h-12 text-emerald-400 mb-3 mx-auto"></i>
-                    <h3 class="text-white font-bold text-lg">¡Suscrito!</h3>
-                    <p class="text-emerald-200 text-sm mt-1">Gracias por unirte a nuestra comunidad.</p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                    <!-- Configuración LFPDPPP oculta -->
-                    <input type="text" id="lead-name" value="Newsletter Subscriber" class="hidden">
-                    <input type="checkbox" id="chk-marketing" checked class="hidden">
-
-                    <input type="email" id="lead-email" required placeholder="tu@correo.com"
-                        class="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
-
-                    <button type="submit"
-                        class="btn-cyan text-slate-950 font-black uppercase tracking-widest text-sm px-8 py-3 rounded-xl sm:w-auto w-full">
-                        Unirse ahora
-                    </button>
-                </div>
-
-                <label class="flex items-center justify-center gap-2 cursor-pointer group">
-                    <input type="checkbox" id="chk-privacy" required
-                        class="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900 bg-slate-800">
-                    <span class="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
-                        Acepto el <a href="privacidad.html" target="_blank"
-                            class="text-cyan-400 hover:text-cyan-300 underline">Aviso de Privacidad</a>
-                    </span>
-                </label>
-            </form>
+            <p class="text-slate-600 text-xs font-bold uppercase">&copy; 2026 Pandishu E-Commerce.</p>
         </div>
-    </section>
+    </footer>
 
-    <!-- Modals (Hidden by default) -->
-    <div id="review-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-950/80">
-        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-8 relative shadow-2xl">
-            <button onclick="toggleReviewModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i
-                    data-lucide="x"></i></button>
-            <h3 class="text-2xl font-black text-white mb-6 uppercase">Tu Opinión</h3>
-            <form onsubmit="sendReview(event)" class="space-y-4">
-                <div class="flex gap-2 justify-center mb-6">
-                    <!-- Stars handled by JS -->
-                    <div id="star-input" class="flex gap-2">
-                        <span class="star text-3xl" onclick="setRating(1)">★</span>
-                        <span class="star text-3xl" onclick="setRating(2)">★</span>
-                        <span class="star text-3xl" onclick="setRating(3)">★</span>
-                        <span class="star text-3xl" onclick="setRating(4)">★</span>
-                        <span class="star text-3xl" onclick="setRating(5)">★</span>
-                    </div>
-                </div>
-                <input type="text" id="review-name" placeholder="Tu Nombre"
-                    class="w-full bg-slate-800 border-none rounded-xl p-4 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500">
-                <textarea id="review-comment" rows="3" placeholder="Cuéntanos tu experiencia"
-                    class="w-full bg-slate-800 border-none rounded-xl p-4 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500"></textarea>
-                <button type="submit"
-                    class="btn-premium w-full py-4 rounded-xl text-white font-bold uppercase tracking-wider">Enviar
-                    Reseña</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Script de Funcionalidad -->
+    <!-- LOGIC SCRIPT -->
     <script>
         lucide.createIcons();
 
-        // Modal Logic
-        function togglePrivacyModal() { alert("El Aviso de Privacidad completo se abriría aquí."); }
-        function toggleReturnsModal() { alert("La Política de Devoluciones completa se abriría aquí."); }
+        // Productos Demo (Ejemplos rápidos para la Home para fomentar el clic a la tienda)
+        const products = [
+            { id: 1, name: "Sistema Mesh Deco X50 (3 Pack) AX3000 WiFi 6", brand: "TP-Link", price: 3499, category: "networking", image: "https://placehold.co/400x400/1e293b/06b6d4?text=MESH+X50" },
+            { id: 2, name: "Cámara Wi-Fi Seguridad Exterior Tapo C320WS", brand: "TP-Link", price: 959, category: "seguridad", image: "https://placehold.co/400x400/1e293b/06b6d4?text=TAPO+CAM" },
+            { id: 3, name: "Licencia Office 365 Personal Digital 1 Año", brand: "Microsoft", price: 1150, category: "software", image: "https://placehold.co/400x400/1e293b/4f46e5?text=OFFICE+365" },
+            { id: 4, name: "Procesador Ryzen 7 7800X3D AM5", brand: "AMD", price: 7499, category: "componentes", image: "https://placehold.co/400x400/1e293b/4f46e5?text=RYZEN+7" },
+            { id: 5, name: "Router VPN Omada Gigabit ER605", brand: "TP-Link", price: 1099, category: "networking", image: "https://placehold.co/400x400/1e293b/06b6d4?text=OMADA+VPN" },
+            { id: 6, name: "Licencia Windows 11 Pro DSP OEM", brand: "Microsoft", price: 2899, category: "software", image: "https://placehold.co/400x400/1e293b/4f46e5?text=WIN+11+PRO" },
+            { id: 7, name: "NVR PoE 8 Canales VIGI RN1008H", brand: "TP-Link", price: 2199, category: "seguridad", image: "https://placehold.co/400x400/1e293b/06b6d4?text=VIGI+NVR" },
+            { id: 8, name: "SSD NVMe M.2 1TB P3 Plus PCIe 4.0", brand: "Crucial", price: 1399, category: "componentes", image: "https://placehold.co/400x400/1e293b/4f46e5?text=SSD+1TB" }
+        ];
 
-        function toggleReviewModal() {
-            const modal = document.getElementById('review-modal');
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('flex');
-        }
+        function renderProducts(filter = 'all') {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
 
-        let currentRating = 5;
-        function setRating(n) {
-            currentRating = n;
-            const stars = document.querySelectorAll('.star');
-            stars.forEach((s, i) => {
-                if (i < n) s.classList.add('active');
-                else s.classList.remove('active');
-            });
-        }
+            const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
 
-        // Init rating
-        setRating(5);
-
-        function sendReview(e) {
-            e.preventDefault();
-            const name = document.getElementById('review-name').value;
-            const comment = document.getElementById('review-comment').value;
-            const stars = "⭐".repeat(currentRating);
-            const msg = `Hola Pandishú, quiero dejar una reseña:%0AName: ${name}%0ARating: ${stars}%0AComment: ${comment}`;
-            window.open(`https://wa.me/525662580512?text=${msg}`, '_blank');
-            toggleReviewModal();
-        }
-    </script>
-
-    <!-- Módulo Asíncrono para Lead Magnet (Firebase v11) -->
-    <script type="module" defer>
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-        // Auto-hidratación de configuración desde Firebase Hosting (Seguro y Cero-Mantenimiento)
-        const response = await fetch('/__/firebase/init.json');
-        const firebaseConfig = await response.json();
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const form = document.getElementById('lead-magnet-form');
-        if (form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const name = document.getElementById('lead-name').value;
-                const email = document.getElementById('lead-email').value;
-                const chkPrivacy = document.getElementById('chk-privacy').checked;
-                const chkMarketing = document.getElementById('chk-marketing').checked;
-
-                if (!chkPrivacy) return; // Validación LFPDPPP extra
-
-                // UI loading state
-                document.getElementById('form-spinner').classList.remove('hidden');
-                const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-
-                try {
-                    // Carga Cero hacia el Backend/Proxy - Inserción directa en Firestore
-                    await addDoc(collection(db, "newsletter_leads"), {
-                        nombre: name,
-                        correo: email,
-                        aceptaAviso: chkPrivacy,
-                        aceptaPublicidad: chkMarketing,
-                        fechaRegistro: serverTimestamp(),
-                        origen: "Newsletter_Home"
-                    });
-
-                    // UI Success state
-                    document.getElementById('form-spinner').classList.add('hidden');
-                    document.getElementById('form-success').classList.remove('hidden');
-                    form.reset();
-                } catch (error) {
-                    console.error("Firestore Error:", error);
-                    document.getElementById('form-spinner').classList.add('hidden');
-                    submitBtn.disabled = false;
-                    alert('Ocurrió un error al procesar tu solicitud. Por favor intenta de nuevo.');
-                }
-            });
-        }
-    </script>
-
-    <!-- Glassmorphism Cookie Banner (Zero-Load) -->
-    <div id="cookie-banner"
-        class="fixed bottom-0 left-0 w-full z-[100] transform translate-y-full transition-transform duration-700 ease-in-out">
-        <div
-            class="bg-fuchsia-950/40 backdrop-blur-xl border-t border-fuchsia-500/50 shadow-[0_-10px_40px_rgba(217,70,239,0.15)]">
-            <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex items-start gap-4 flex-1">
-                    <i data-lucide="cookie"
-                        class="w-8 h-8 text-fuchsia-400 mt-1 flex-shrink-0 drop-shadow-[0_0_8px_rgba(217,70,239,0.8)]"></i>
-                    <div class="text-fuchsia-100 text-sm leading-relaxed font-light">
-                        <strong class="text-white block mb-1 uppercase tracking-wide">Tu privacidad es
-                            importante</strong>
-                        Utilizamos cookies propias y de terceros para brindarte la mejor experiencia visualiznado
-                        nuestro catálogo de hardware y mejorar nuestros servicios web.
-                        Al hacer clic en "Aceptar", asientes el uso de cookies conforme a nuestro <a
-                            href="privacidad.html" target="_blank"
-                            class="text-fuchsia-300 font-medium underline hover:text-fuchsia-200 hover:drop-shadow-[0_0_5px_rgba(217,70,239,0.8)] transition-all">Aviso
-                            legal y Política de
-                            Privacidad</a>.
+            filtered.forEach(p => {
+                const card = `
+                    <div class="glass-panel p-5 rounded-3xl flex flex-col group relative hover:border-brand-cyan/30 transition-all shadow-xl bg-slate-900 border border-slate-800">
+                        <div class="bg-slate-800 rounded-2xl mb-4 overflow-hidden aspect-square flex items-center justify-center p-4">
+                            <span class="text-slate-500 font-bold tracking-widest text-[10px] uppercase block mb-1 absolute top-6 left-6 z-10 bg-slate-900/80 px-2 py-1 rounded">${p.brand}</span>
+                            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover rounded-xl opacity-80 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-500">
+                        </div>
+                        <h3 class="text-white font-bold text-sm leading-tight mb-2 flex-grow line-clamp-2">${p.name}</h3>
+                        <p class="text-brand-cyan font-black text-xl mb-4">$${p.price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        <a href="tienda" class="w-full py-3 bg-slate-800 hover:bg-brand-cyan hover:text-slate-950 text-white font-bold rounded-xl text-xs uppercase tracking-widest text-center transition-all flex justify-center items-center gap-2">
+                            Añadir al Carrito <i data-lucide="shopping-cart" class="w-3 h-3"></i>
+                        </a>
                     </div>
-                </div>
-                <div class="flex items-center gap-3 w-full md:w-auto shrink-0">
-                    <button onclick="acceptCookies()"
-                        class="flex-1 md:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-sm tracking-widest uppercase shadow-[0_0_15px_rgba(217,70,239,0.5)] transition-all transform hover:-translate-y-0.5 border border-fuchsia-400/50">
-                        Aceptar
-                    </button>
-                    <button onclick="dismissCookies()"
-                        class="flex-1 md:flex-none px-6 py-3 rounded-xl text-fuchsia-200 font-bold text-sm tracking-widest uppercase border border-fuchsia-500/30 hover:bg-fuchsia-900/50 hover:border-fuchsia-400/80 transition-all">
-                        Solo Esenciales
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                `;
+                grid.innerHTML += card;
+            });
+            lucide.createIcons();
+        }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Ejecución aplazada o asíncrona para Zero-Load
-            setTimeout(() => {
-                if (!localStorage.getItem('pandishu_cookies_accepted')) {
-                    const banner = document.getElementById('cookie-banner');
-                    if (banner) banner.classList.remove('translate-y-full');
-                }
-            }, 3000); // 3 Segundos de gracia post-carga
+        renderProducts();
+
+        // Filtros Logic
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('bg-brand-cyan', 'text-slate-950');
+                    b.classList.add('bg-slate-800', 'text-slate-400');
+                });
+                e.target.classList.add('bg-brand-cyan', 'text-slate-950');
+                e.target.classList.remove('bg-slate-800', 'text-slate-400');
+                renderProducts(e.target.dataset.filter);
+            });
         });
-
-        function acceptCookies() {
-            localStorage.setItem('pandishu_cookies_accepted', 'true');
-            // Aquí se inyectarían cookies no esenciales
-            document.getElementById('cookie-banner').classList.add('translate-y-full');
-        }
-        function dismissCookies() {
-            localStorage.setItem('pandishu_cookies_accepted', 'essential_only');
-            document.getElementById('cookie-banner').classList.add('translate-y-full');
-        }
     </script>
 </body>
 
