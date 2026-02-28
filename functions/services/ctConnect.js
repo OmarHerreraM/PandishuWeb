@@ -79,5 +79,72 @@ async function getCTItemStock(codigo, token) {
         return null;
     }
 }
+async function createCTOrder(orderPayload, token) {
+    try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
 
-module.exports = { generateCTToken, getCTItemStock };
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+
+        console.log(`[CT Connect] Creando orden de compra... Payload:`, JSON.stringify(orderPayload));
+        const response = await axios.post(`${baseUrl}/pedido`, orderPayload, {
+            headers: {
+                'x-auth': token,
+                'Content-Type': 'application/json'
+            },
+            timeout: 25000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
+        });
+
+        console.log(`[CT Connect] Respuesta creacion pedido:`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`[CT Connect] Error creando orden CT:`);
+        if (error.response) {
+            console.error(`Status: ${error.response.status}`);
+            console.error(`Data:`, error.response.data);
+            return error.response.data; // Retornamos para poder ver el error en el log de compras
+        } else {
+            console.error(error.message);
+        }
+        throw error;
+    }
+}
+
+async function confirmCTOrder(folio, token) {
+    try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+
+        const payload = { folio };
+        console.log(`[CT Connect] Confirmando pedido CT Folio: ${folio}`);
+        const response = await axios.post(`${baseUrl}/pedido/confirmar`, payload, {
+            headers: {
+                'x-auth': token,
+                'Content-Type': 'application/json'
+            },
+            timeout: 15000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
+        });
+
+        console.log(`[CT Connect] Respuesta confirmando pedido:`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`[CT Connect] Error confirmando pedido CT:`);
+        if (error.response) {
+            console.error(`Status: ${error.response.status}`);
+            console.error(`Data:`, error.response.data);
+        } else {
+            console.error(error.message);
+        }
+        throw error;
+    }
+}
+
+module.exports = { generateCTToken, getCTItemStock, createCTOrder, confirmCTOrder };

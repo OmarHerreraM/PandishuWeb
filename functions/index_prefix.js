@@ -911,90 +911,82 @@ exports.processCustomPayment = functions.runWith({
 });
 
 /**
- * FUNCTION â€” placeCTOrder
- * Crea el pedido real en CT Internacional usando su API Connect (Dropshipping).
+ * FUNCTION — placeCTOrderFromWebhook
+ * Crea el pedido real en CT Internacional usando su API Connect y lo autoconfirma.
  */
-async function placeCTOrder(orderId, orderData) {
-    console.log(`[CT Connect] Iniciando colocaciÃ³n de pedido para ID: ${orderId}`);
+async function placeCTOrderFromWebhook(orderId, orderData, itemsForWh, almacen) {
+    console.log(`[CT Connect] Iniciando colocación de pedido ID: ${orderId} para almacén: ${almacen}`);
+
+    let result = {
+        almacen,
+        idPedido: orderId,
+        status: 'failed',
+        folio: null,
+        errorDev: null
+    };
+
     try {
+        const { createCTOrder, confirmCTOrder, getCTToken } = require('./services/ctConnect');
         const token = await getCTToken();
         const customer = orderData.customerInfo;
-        const items = orderData.items || [];
+        const address = customer.address || {};
 
-        // Para CT, necesitamos mapear los productos al formato de listado
-        const productos = items.map(item => ({
+        const productos = itemsForWh.map(item => ({
             cantidad: parseInt(item.quantity) || 1,
-            clave: item.sku || item.id, // Es la clave Ãºnica de CT
+            clave: item.sku || item.id,
             precio: parseFloat(item.price) || 0,
             moneda: 'MXN'
         }));
 
-        // Estructura del pedido segÃºn documentaciÃ³n de CT Connect
         const pedidoRequest = {
-            idPedido: orderId, // Nuestro identificador Ãºnico
-            almacen: "01A", // Por defecto AlmacÃ©n Principal, CT lo ajusta segÃºn stock
-            tipoPago: "99", // CrÃ©dito CT (estÃ¡ndar para integraciones)
-            cfdi: "G01",    // G01 = AdquisiciÃ³n de mercancias (default segÃºn docs)
+            idPedido: orderId,
+            almacen: almacen,
+            tipoPago: "99",
+            cfdi: "G01",
             envio: [
                 {
-                    nombre: customer.name,
-                    direccion: customer.address.street || "DirecciÃ³n pendiente",
-                    entreCalles: "",
-                    noExterior: customer.address.ext_number || "S/N",
-                    noInterior: customer.address.int_number || "",
-                    colonia: customer.address.neighborhood || "Centro",
-                    estado: customer.address.state,
-                    ciudad: customer.address.city,
-                    codigoPostal: parseInt((customer.address.zip || '').replace(/\D/g, '')) || 0,
-                    telefono: parseInt((customer.phone || '').replace(/\D/g, '')) || 0
+                    nombre: customer.name || "Cliente Pandishu",
+                    direccion: address.street || "Conocido",
+                    entreCalles: address.notes || "",
+                    noExterior: address.ext_number || "S/N",
+                    noInterior: address.int_number || "",
+                    colonia: address.colonia || address.neighborhood || "Centro",
+                    estado: address.state || "CMX",
+                    ciudad: address.city || "Ciudad de Mexico",
+                    codigoPostal: parseInt((address.zip || orderData.shippingInfo?.zipCode || '06000').replace(/\D/g, '')) || 0,
+                    telefono: parseInt((customer.phone || '0000000000').replace(/\D/g, '')) || 0
                 }
             ],
             producto: productos
         };
 
-        // â”€â”€â”€ Paso 1: Crear pedido â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        const response = await fetch(`${CT_API_BASE}/pedido`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-auth': token },
-            body: JSON.stringify(pedidoRequest)
-        });
+        const ctRes = await createCTOrder(pedidoRequest, token);
+        result.ctResponse = ctRes;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`CT Order Failed (${response.status}): ${errorText}`);
-        }
+        const ctFolio = ctRes?.respuestaCT?.pedidoWeb;
 
-        const data = await response.json();
+        if (ctFolio) {
+            result.folio = ctFolio;
+            result.status = 'created';
 
-        // Respuesta oficial: { idPedido, respuestaCT: { pedidoWeb, tipoDeCambio, estatus, errores } }
-        const ctFolio = data?.respuestaCT?.pedidoWeb;
-        const ctErrores = data?.respuestaCT?.errores || [];
-
-        if (!ctFolio) {
-            console.error('[CT Connect] No se recibiÃ³ pedidoWeb:', JSON.stringify(data));
-            throw new Error('CT no devolviÃ³ un folio vÃ¡lido (pedidoWeb)');
-        }
-
-        if (ctErrores.length > 0) {
-            console.warn('[CT Connect] Pedido con errores:', JSON.stringify(ctErrores));
-        }
-
-        console.log(`[CT Connect] Pedido creado. Folio: ${ctFolio}. Confirmando...`);
-
-        // â”€â”€â”€ Paso 2: Confirmar (OBLIGATORIO â€” 48h o CT cancela automÃ¡ticamente) â”€
-        const confirmResponse = await fetch(`${CT_API_BASE}/pedido/confirmar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-auth': token },
-            body: JSON.stringify({ folio: ctFolio })
-        });
-
-        if (!confirmResponse.ok) {
-            const confirmError = await confirmResponse.text();
-            console.error(`[CT Connect] Error al confirmar ${ctFolio}: ${confirmError}`);
-            // No lanzamos error â€” el folio existe y puede reintentarse confirmaciÃ³n
+            try {
+                const confRes = await confirmCTOrder(ctFolio, token);
+                if (confRes && confRes.okCode === "2000") {
+                    result.status = 'confirmed';
+                } else {
+                    result.status = 'created (pending confirmation)';
+                    result.errorDev = confRes;
+                }
+            } catch (e) {
+                result.status = 'created (confirmation failed)';
+                result.errorDev = e.message;
+            }
         } else {
-            const confirmData = await confirmResponse.json();
-            console.log(`[CT Connect] Pedido ${ctFolio} confirmado: ${confirmData.okMessage}`);
+            result.errorDev = "CT no devolvió un folio válido (pedidoWeb)";
         }
+    } catch (e) {
+        console.error(`[CT Connect] Exception en placeCTOrderFromWebhook:`, e);
+        result.errorDev = e.message;
+    }
 
-        return {
+    return result;

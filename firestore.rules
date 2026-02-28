@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Growth Marketing: Lead Generation
+    match /newsletter_leads/{leadId} {
+      allow read: if false; 
+      
+      // Permitir crear prospectos solo si envían los campos requeridos por UI y LFPDPPP
+      allow create: if request.resource.data.nombre is string 
+                    && request.resource.data.correo is string 
+                    && request.resource.data.aceptaAviso == true;
+                    
+      allow update, delete: if false;
+    }
+
+    // Otras reglas predeterminadas preventivas (Secure by Default)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
