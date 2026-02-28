@@ -425,12 +425,17 @@
                 // FOMO Logic (Fear of missing out)
                 let badgeHtml = '';
                 if (stock > 5) {
-                    badgeHtml = `<span class="bg-emerald-900/80 text-emerald-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Stock Disponible - Envío Inmediato</span>`;
+                    badgeHtml = `<span class="bg-emerald-900/80 text-emerald-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Stock Disponible</span>`;
                 } else if (stock > 0) {
-                    badgeHtml = `<span class="bg-orange-900/80 text-orange-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2 animate-pulse"><i data-lucide="alert-circle" class="w-3 h-3"></i> Pocas Unidades (${stock})</span>`;
+                    badgeHtml = `<span class="bg-orange-900/80 text-orange-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2 animate-pulse"><i data-lucide="alert-circle" class="w-3 h-3"></i> Últimas piezas</span>`;
                 } else {
                     badgeHtml = `<span class="bg-red-900/80 text-red-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 mb-2"><i data-lucide="x-circle" class="w-3 h-3"></i> Agotado Temporalmente</span>`;
                 }
+
+                // Retail Price protection math exactly as requested
+                const basePrice = parseFloat(p.precio || p.price || 0);
+                const computedPrice = basePrice * 1.05 * 1.15;
+                const finalPrice = parseFloat(p.retailPrice) || computedPrice;
 
                 // Imagen fallback con logo corporativo
                 const imgSrc = p.image ? p.image : 'Pandishu-Logo-26.png';
@@ -451,7 +456,7 @@
                         
                         <div class="mt-auto pt-2 border-t border-slate-800 border-dashed">
                             <span class="text-slate-500 text-[10px] block mb-1">SKU: ${p.sku || p.ingramPartNumber || 'N/A'}</span>
-                            <p class="text-brand-cyan font-black text-xl mb-4">$${parseFloat(p.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })} <span class="text-[10px] text-slate-500 font-normal">MXN</span></p>
+                            <p class="text-brand-cyan font-black text-xl mb-4">$${finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="text-[10px] text-slate-500 font-normal">MXN</span></p>
                             
                             <button onclick="window.location.href='tienda.html'" class="w-full py-3 ${stock > 0 ? 'bg-slate-800 hover:bg-brand-cyan hover:text-slate-950 text-white' : 'bg-slate-800/50 text-slate-500 cursor-not-allowed'} font-bold rounded-xl text-xs uppercase tracking-widest text-center transition-all flex justify-center items-center gap-2">
                                 ${stock > 0 ? 'Comprar en Tienda <i data-lucide="shopping-cart" class="w-3 h-3"></i>' : 'Sin Stock'}

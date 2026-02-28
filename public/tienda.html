@@ -48,165 +48,166 @@
         }
     </script>
 
-    /* Product Cards */
-    .product-card {
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 20px;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    /* overflow visible so cart buttons are always clickable */
-    }
+    <style>
+        /* Product Cards */
+        .product-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            /* overflow visible so cart buttons are always clickable */
+        }
 
-    .product-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-    }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+        }
 
-    .product-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(99, 102, 241, 0.35);
-    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.2);
-    }
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
 
-    .product-card:hover::before {
-    opacity: 1;
-    }
+        .product-card:hover::before {
+            opacity: 1;
+        }
 
-    /* Vendor badge */
-    .vendor-badge {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #94a3b8;
-    }
+        /* Vendor badge */
+        .vendor-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+        }
 
-    /* Availability dot */
-    .dot-green {
-    background: #22c55e;
-    box-shadow: 0 0 8px #22c55e;
-    }
+        /* Availability dot */
+        .dot-green {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
 
-    .dot-yellow {
-    background: #eab308;
-    box-shadow: 0 0 8px #eab308;
-    }
+        .dot-yellow {
+            background: #eab308;
+            box-shadow: 0 0 8px #eab308;
+        }
 
-    .dot-red {
-    background: #ef4444;
-    box-shadow: 0 0 8px #ef4444;
-    }
+        .dot-red {
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
 
-    /* Skeleton */
-    .skeleton {
-    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.6) 50%, rgba(30, 41, 59, 0.8) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 12px;
-    }
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.6) 50%, rgba(30, 41, 59, 0.8) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 12px;
+        }
 
-    @keyframes shimmer {
-    0% {
-    background-position: 200% 0;
-    }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
 
-    100% {
-    background-position: -200% 0;
-    }
-    }
+            100% {
+                background-position: -200% 0;
+            }
+        }
 
-    /* Filter chip */
-    .filter-chip {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #94a3b8;
-    white-space: nowrap;
-    }
+        /* Filter chip */
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
 
-    .filter-chip:hover,
-    .filter-chip.active {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.5);
-    color: #a5b4fc;
-    }
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #a5b4fc;
+        }
 
-    /* WhatsApp btn */
-    .btn-wa {
-    background: linear-gradient(135deg, #25d366, #128c52);
-    border-radius: 12px;
-    transition: all 0.25s;
-    }
+        /* WhatsApp btn */
+        .btn-wa {
+            background: linear-gradient(135deg, #25d366, #128c52);
+            border-radius: 12px;
+            transition: all 0.25s;
+        }
 
-    .btn-wa:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
-    }
+        .btn-wa:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+        }
 
-    /* Price tag */
-    .price-tag {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
-    border: 1px solid rgba(99, 102, 241, 0.25);
-    border-radius: 10px;
-    padding: 8px 14px;
-    }
+        /* Price tag */
+        .price-tag {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 10px;
+            padding: 8px 14px;
+        }
 
-    /* Hero gradient text */
-    .gradient-text {
-    background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    }
+        /* Hero gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    /* DEMO banner */
-    .demo-banner {
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 12px;
-    }
+        /* DEMO banner */
+        .demo-banner {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+        }
 
-    /* Scroll custom */
-    ::-webkit-scrollbar {
-    width: 6px;
-    }
+        /* Scroll custom */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    ::-webkit-scrollbar-track {
-    background: #0f172a;
-    }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
 
-    ::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 999px;
-    }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
 
-    ::-webkit-scrollbar-thumb:hover {
-    background: #6366f1;
-    }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
 
 
 
-    /* modal */
-    #modal-backdrop.show {
-    display: flex;
-    }
+        /* modal */
+        #modal-backdrop.show {
+            display: flex;
+        }
 
-    /* Cart Drawer transitions now handled by Tailwind */
+        /* Cart Drawer transitions now handled by Tailwind */
     </style>
 </head>
 
@@ -626,36 +627,49 @@
             empty.classList.add('hidden');
 
             const html = products.map(p => {
+                // CT Formula
                 const basePrice = parseFloat(p.precio || p.price || 0);
-                const retailPrice = parseFloat(p.retailPrice) || (basePrice * 1.35) || 0;
+                const computedPrice = basePrice * 1.05 * 1.15;
+                const retailPrice = parseFloat(p.retailPrice) || computedPrice;
+
                 const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
                 const hasStock = stockCount > 0;
-                const stockText = `Stock: ${stockCount}`;
+
+                // FOMO Badge Logic
+                let stockBadgeHTML = '';
+                if (hasStock) {
+                    if (stockCount > 5) {
+                        stockBadgeHTML = `<span class="bg-gradient-to-r from-emerald-500/20 to-green-600/20 border border-emerald-500/50 text-emerald-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(16,185,129,0.2)] flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3 h-3"></i> Envíos Full</span>`;
+                    } else {
+                        stockBadgeHTML = `<span class="bg-gradient-to-r from-red-500/20 to-rose-600/20 border border-red-500/50 text-red-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(244,63,94,0.2)] flex items-center gap-1.5 animate-pulse"><i data-lucide="flame" class="w-3 h-3"></i> ¡Solo ${stockCount} disponibles!</span>`;
+                    }
+                } else {
+                    stockBadgeHTML = `<span class="bg-slate-800 border border-slate-600 text-slate-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase flex items-center gap-1.5"><i data-lucide="clock" class="w-3 h-3"></i> Agotado Temporalmente</span>`;
+                }
+
+                // Image Selection Priority
+                let productImageUrl = 'Pandishu-Logo-26.png'; // Fallback
+                if (p.image && p.image.trim() !== "") {
+                    productImageUrl = p.image;
+                } else if (p.imagenUrl && p.imagenUrl.trim() !== "") {
+                    productImageUrl = p.imagenUrl;
+                }
 
                 return `
                 <div class="product-card p-5 flex flex-col gap-4">
-                    <!-- Header -->
+                    <!-- Header Badges -->
                     <div class="flex items-start justify-between gap-2">
-                        <div>
-                            ${p.source === 'CT'
-                        ? `<span class="bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/50 text-orange-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(249,115,22,0.2)] flex items-center gap-1.5" title="CT Internacional"><i data-lucide="package" class="w-3 h-3"></i> BODEGA</span>`
-                        : `<span class="bg-gradient-to-r from-blue-500/20 to-indigo-600/20 border border-blue-500/50 text-blue-400 px-3 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-[0_0_10px_rgba(59,130,246,0.2)] flex items-center gap-1.5" title="Ingram Micro"><i data-lucide="package" class="w-3 h-3"></i> BODEGA</span>`
-                    }
-                        </div>
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <span class="w-1.5 h-1.5 rounded-full ${hasStock ? 'dot-green' : 'dot-yellow'}"></span>
-                            <span class="text-xs font-bold ${hasStock ? 'text-green-400' : 'text-yellow-400'}">${stockText}</span>
-                        </div>
+                        <div>${stockBadgeHTML}</div>
                     </div>
 
                     <!-- Image (Zero Egress Cost Hotlinking) -->
-                    <div class="h-32 flex items-center justify-center bg-slate-950/50 rounded-xl overflow-hidden group">
-                        <img src="${p.imagenUrl || p.image || (p.source === 'CT' ? `https://imagenes.ctonline.mx/promociones/${p.ingramPartNumber || p.sku}.jpg` : `https://inquirecontent2.ingrammicro.com/images/500/${p.upc || p.ean || p.vendorPartNumber || p.ingramPartNumber || p.sku}.jpg`)}" 
-                             alt="${p.description}"
-                             loading="lazy"
-                             referrerpolicy="no-referrer"
-                             class="max-h-full max-w-full object-contain transition-transform group-hover:scale-110"
-                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/1e293b/a5b4fc?text=No+Imagen';">
+                    <div class="h-40 flex items-center justify-center rounded-xl overflow-hidden group mix-blend-screen bg-transparent p-2">
+                         <img src="${productImageUrl}" 
+                              alt="${p.description || 'Producto'}"
+                              loading="lazy"
+                              referrerpolicy="no-referrer"
+                              class="${productImageUrl === 'Pandishu-Logo-26.png' ? 'w-24 h-24 opacity-30 object-contain grayscale' : 'max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110'}"
+                              onerror="this.onerror=null; this.src='Pandishu-Logo-26.png'; this.className='w-24 h-24 opacity-30 object-contain grayscale';">
                     </div>
 
                     <!-- Product name -->
@@ -835,7 +849,10 @@
             const p = filteredProducts.find(x => x.ingramPartNumber === sku);
             if (!p) return;
 
-            const price = p.price || 0;
+            const price = parseFloat(p.precio || p.price || 0);
+            const computedPrice = price * 1.05 * 1.15;
+            const retailPrice = parseFloat(p.retailPrice) || computedPrice;
+
             const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
             const hasStock = stockCount > 0;
 
@@ -844,7 +861,6 @@
             document.getElementById('modal-sku').textContent = `SKU: ${p.ingramPartNumber}`;
             document.getElementById('modal-vendor-part').textContent = `Vendor PN: ${p.vendorPartNumber}`;
 
-            const retailPrice = p.retailPrice || price * 1.35;
             document.getElementById('modal-price').textContent = retailPrice > 0 ? `$${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : 'Cotización requerida';
             document.getElementById('modal-availability').textContent = hasStock ? `✅ ${stockCount} unidades en stock` : '⏳ Consultar disponibilidad / Backorder';
 
@@ -923,11 +939,14 @@
                 return;
             }
 
-            // Usar el precio de venta (PVP)
-            const price = parseFloat(product.retailPrice) || (parseFloat(product.price) * 1.35) || 1;
-            const stock = parseInt(product.availability?.availableQuantity) || 99;
+            // Calculate base pricing correctly using the 1.05 * 1.15 formula
+            const basePrice = parseFloat(product.precio || product.price || 0);
+            const computedPrice = basePrice * 1.05 * 1.15;
+            const retailPrice = parseFloat(product.retailPrice) || computedPrice || 1;
 
-            if (price <= 0 || stock <= 0) {
+            const stock = parseInt(product.availability?.availableQuantity || product.stock || product.existencia) || 99;
+
+            if (retailPrice <= 0 || stock <= 0) {
                 alert('Este producto no tiene precio definido o no hay stock.');
                 return;
             }
@@ -943,9 +962,9 @@
                 cart.push({
                     sku: product.ingramPartNumber,
                     name: product.description,
-                    price: price,
+                    price: retailPrice,
                     vendor: product.vendorName,
-                    image: product.image || '', // Placeholder if API provides it
+                    image: product.image || product.imagenUrl || 'Pandishu-Logo-26.png', // Priority fallback
                     stock: stock,
                     quantity: quantity
                 });
