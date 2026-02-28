@@ -487,7 +487,16 @@ exports.getPedidos = functions.https.onRequest((req, res) => {
                 });
             }
 
-            const { year, month } = req.body;
+            const { year, month, adminKey } = req.body;
+            // Seguridad básica para evitar acceso público a datos de ventas
+            const masterKey = process.env.INGRAM_SECRET_KEY; // Usamos la misma llave maestra configurada
+            const providedKey = adminKey || req.headers['x-admin-key'];
+
+            if (!providedKey || providedKey !== masterKey) {
+                console.warn('[Security] Intento de acceso no autorizado a getPedidos');
+                return res.status(401).json({ error: 'Unauthorized: Invalid Admin Key' });
+            }
+
             if (!year || !month) return res.status(400).json({ error: 'Falta year y month en body' });
 
             const monthStr = month.toString().padStart(2, '0');

@@ -62,12 +62,58 @@
             color: #818cf8;
             border: 1px solid rgba(99, 102, 241, 0.5);
         }
+
+        /* Modal animations */
+        #order-modal {
+            transition: opacity 0.3s ease;
+        }
+
+        #order-modal-content {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-hidden #order-modal-content {
+            transform: scale(0.95) translateY(20px);
+        }
     </style>
 </head>
 
 <body class="antialiased min-h-screen p-4 md:p-8">
 
-    <div class="max-w-7xl mx-auto">
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
+        <div
+            class="glass-panel p-8 rounded-3xl w-full max-w-md border border-indigo-500/20 shadow-2xl shadow-indigo-500/10">
+            <div class="text-center mb-8">
+                <div class="inline-block bg-indigo-600/20 p-4 rounded-2xl mb-4">
+                    <i data-lucide="shield-lock" class="w-10 h-10 text-indigo-400"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white italic uppercase tracking-tight">Acceso Restringido</h2>
+                <p class="text-slate-400 text-sm mt-2 font-bold uppercase tracking-widest">Pandishú Admin Central</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Llave
+                        Maestra</label>
+                    <input type="password" id="admin-pass" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors font-mono"
+                        placeholder="••••••••••••">
+                </div>
+                <button type="submit"
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.98]">
+                    DESBLOQUEAR SISTEMA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto opacity-0 transition-opacity duration-1000" id="main-content">
         <!-- HEADER -->
         <header
             class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-800 pb-6 gap-4">
@@ -77,8 +123,7 @@
                 </div>
                 <div>
                     <h1 class="text-3xl font-black text-white tracking-tight uppercase italic">Dashboard de Pedidos</h1>
-                    <p class="text-slate-400 text-sm font-bold tracking-widest uppercase mt-1">Monitor Dropshipping
-                        Interno</p>
+                    <p class="text-slate-400 text-sm font-bold tracking-widest uppercase mt-1">Control Center 2.0</p>
                 </div>
             </div>
 
@@ -86,7 +131,7 @@
                 <select id="year-select"
                     class="bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-2 text-sm font-bold flex-1 md:flex-none">
                     <option value="2025">2025</option>
-                    <option value="2026" selected>2026</option>
+                    <option value="2026">2026</option>
                     <option value="2027">2027</option>
                 </select>
                 <select id="month-select"
@@ -108,148 +153,243 @@
                     class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-indigo-600/20 flex items-center gap-2">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i> Cargar
                 </button>
+                <button onclick="logout()"
+                    class="bg-slate-800 text-slate-400 p-2 rounded-lg hover:bg-red-500/20 hover:text-red-400 border border-slate-700 transition-all">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
             </div>
         </header>
 
         <!-- DASHBOARD STATS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 text-white/5 group-hover:text-indigo-500/10 transition-colors"><i
-                        data-lucide="banknote" class="w-32 h-32"></i></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-indigo-500">
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Ingresos del
                     Mes</p>
-                <p class="text-4xl font-black text-white relative z-10" id="stat-total">$0.00</p>
+                <p class="text-3xl font-black text-white relative z-10" id="stat-total">$0.00</p>
             </div>
-            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 text-white/5 group-hover:text-green-500/10 transition-colors"><i
-                        data-lucide="check-circle" class="w-32 h-32"></i></div>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Órdenes Pagadas
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-green-500">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Ventas Cerradas
                 </p>
-                <p class="text-4xl font-black text-green-400 relative z-10" id="stat-count">0</p>
+                <p class="text-3xl font-black text-green-400 relative z-10" id="stat-count">0</p>
             </div>
-            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 text-white/5 group-hover:text-yellow-500/10 transition-colors"><i
-                        data-lucide="clock" class="w-32 h-32"></i></div>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Pendientes /
-                    Procesando</p>
-                <p class="text-4xl font-black text-yellow-400 relative z-10" id="stat-pending">0</p>
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-yellow-500">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">En Proceso</p>
+                <p class="text-3xl font-black text-yellow-400 relative z-10" id="stat-pending">0</p>
+            </div>
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-pink-500">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 relative z-10">Dropshipping CT
+                </p>
+                <p class="text-3xl font-black text-pink-400 relative z-10" id="stat-ct">0</p>
             </div>
         </div>
 
         <!-- ORDERS LIST -->
-        <div class="glass-panel rounded-2xl overflow-hidden border border-slate-700">
+        <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-300">
                     <thead
-                        class="text-xs uppercase bg-slate-950 text-slate-400 font-bold border-b border-slate-800 tracking-wider">
+                        class="text-xs uppercase bg-slate-900/50 text-slate-400 font-bold border-b border-slate-800 tracking-wider">
                         <tr>
-                            <th scope="col" class="px-6 py-5 whitespace-nowrap">ID de Orden</th>
-                            <th scope="col" class="px-6 py-5">Cliente / Contacto</th>
+                            <th scope="col" class="px-6 py-5">Orden e Info</th>
+                            <th scope="col" class="px-6 py-5">Cliente</th>
                             <th scope="col" class="px-6 py-5">Artículos</th>
                             <th scope="col" class="px-6 py-5">Monto Total</th>
-                            <th scope="col" class="px-6 py-5">Estatus M.Pago</th>
-                            <th scope="col" class="px-6 py-5">Acción</th>
+                            <th scope="col" class="px-6 py-5 text-center">Estatus</th>
+                            <th scope="col" class="px-6 py-5 text-right">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="orders-body" class="divide-y divide-slate-800">
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-500 italic">Selecciona un mes y
-                                presiona Cargar para ver los pedidos.</td>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-500 italic">Desbloquea el sistema
+                                para ver pedidos.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
 
+    <!-- DETAIL MODAL -->
+    <div id="order-modal"
+        class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 modal-hidden">
+        <div id="order-modal-content"
+            class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div>
+                    <h3 class="text-xl font-black text-white italic uppercase" id="modal-order-id">Detalle de Orden</h3>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest" id="modal-order-date">
+                        Fecha</p>
+                </div>
+                <button onclick="closeModal()"
+                    class="text-slate-400 hover:text-white p-2 bg-slate-800 rounded-lg transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+                <!-- Customer Section -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Información del
+                            Cliente</p>
+                        <p class="text-white font-bold" id="modal-cust-name">-</p>
+                        <p class="text-xs text-slate-400" id="modal-cust-email">-</p>
+                        <p class="text-xs text-slate-400" id="modal-cust-phone">-</p>
+                    </div>
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-2">Dirección de
+                            Envío</p>
+                        <p class="text-xs text-slate-300 leading-relaxed" id="modal-address">-</p>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Artículos del
+                        Carrito</p>
+                    <div id="modal-items-list" class="space-y-2">
+                        <!-- Items injecteds here -->
+                    </div>
+                </div>
+
+                <!-- CT Dropshipping Status -->
+                <div id="modal-ct-section" class="hidden">
+                    <p class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-3">Trazabilidad
+                        Dropshipping CT</p>
+                    <div id="modal-ct-orders" class="space-y-2">
+                        <!-- CT responses injecteds here -->
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-between items-center">
+                <div class="text-left">
+                    <p class="text-[10px] text-slate-500 font-black uppercase">Total Pagado</p>
+                    <p class="text-2xl font-black text-white" id="modal-total">$0.00</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btn-copy-info"
+                        class="bg-slate-800 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                        <i data-lucide="copy" class="w-3 h-3"></i> Copiar Datos
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- SCRIPT -->
     <script>
         lucide.createIcons();
+        let loadedOrders = [];
 
-        // Autoselect current month & year
+        // Initialization
         const now = new Date();
         document.getElementById('month-select').value = (now.getMonth() + 1).toString();
         document.getElementById('year-select').value = now.getFullYear().toString();
 
+        function handleLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass').value;
+            sessionStorage.setItem('adminKey', pass);
+            checkAuth();
+        }
+
+        function checkAuth() {
+            const key = sessionStorage.getItem('adminKey');
+            if (key) {
+                document.getElementById('login-overlay').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('opacity-0');
+                fetchOrders();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminKey');
+            location.reload();
+        }
+
         function getStatusBadge(status) {
-            if (status === 'paid') return `<span class="status-badge status-paid"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Pagado</span>`;
-            if (status === 'processing') return `<span class="status-badge status-processing"><i data-lucide="clock" class="w-3 h-3"></i> Procesando</span>`;
-            if (status === 'dispatched_ct') return `<span class="status-badge status-dropship"><i data-lucide="truck" class="w-3 h-3"></i> Enviado CT</span>`;
-            if (status === 'dispatched_ingram') return `<span class="status-badge status-dropship"><i data-lucide="truck" class="w-3 h-3"></i> Enviado Ingram</span>`;
-            return `<span class="status-badge bg-slate-800 text-slate-400">${status}</span>`;
+            const s = (status || '').toLowerCase();
+            if (s === 'paid' || s === 'approved') return `<span class="status-badge status-paid"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Pagado</span>`;
+            if (s === 'processing' || s === 'pending_payment') return `<span class="status-badge status-processing"><i data-lucide="clock" class="w-3 h-3"></i> En Espera</span>`;
+            return `<span class="status-badge bg-slate-800 text-slate-500">${s.toUpperCase()}</span>`;
         }
 
         async function fetchOrders() {
+            const adminKey = sessionStorage.getItem('adminKey');
+            if (!adminKey) return;
+
             const tbody = document.getElementById('orders-body');
-            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-indigo-400 font-bold animate-pulse flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Obteniendo datos seguros de la API...</td></tr>`;
-            lucide.createIcons();
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-20 text-center"><div class="flex flex-col items-center gap-4"><div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div><p class="text-indigo-400 font-black tracking-widest uppercase text-xs">Accediendo a la base de datos segura...</p></div></td></tr>`;
 
             const year = document.getElementById('year-select').value;
             const month = document.getElementById('month-select').value;
 
-            const URL_GET_PEDIDOS = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/getPedidos';
-
             try {
-                const response = await fetch(URL_GET_PEDIDOS, {
+                const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getPedidos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ year, month })
+                    body: JSON.stringify({ year, month, adminKey })
                 });
 
-                if (!response.ok) throw new Error('Error al conectar con la API');
+                if (response.status === 401) {
+                    alert('Llave Maestra incorrecta.');
+                    sessionStorage.removeItem('adminKey');
+                    location.reload();
+                    return;
+                }
 
                 const data = await response.json();
-                const pedidos = data.pedidos || [];
+                const orders = data.pedidos || [];
+                loadedOrders = orders;
 
-                let totalAcumulado = 0;
-                let countPagados = 0;
-                let countPendientes = 0;
+                let stats = { total: 0, paid: 0, pending: 0, ct: 0 };
 
-                if (pedidos.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 italic">No hay órdenes registradas para el periodo ${month}/${year}.</td></tr>`;
+                if (orders.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-600 font-bold italic">No se encontraron órdenes para este periodo.</td></tr>`;
                 } else {
-                    const html = pedidos.map(p => {
-                        const itemsList = (p.items || []).map(i => `<li class="truncate max-w-[220px]" title="${i.title}"><span class="text-indigo-400 font-bold">${i.quantity}x</span> ${i.title} <span class="text-[10px] text-slate-500">(${i.source || 'N/A'})</span></li>`).join('');
+                    const html = orders.map(o => {
+                        const itemsCount = (o.items || []).length;
+                        const isPaid = (o.status === 'paid' || o.status === 'approved');
+                        const isCT = (o.ctOrders && o.ctOrders.length > 0);
 
-                        // Estadísticas
-                        if (p.status === 'paid') countPagados++;
-                        if (p.status === 'processing') countPendientes++;
-                        if (p.status === 'paid' || p.status === 'processing' || p.status === 'dispatched_ct' || p.status === 'dispatched_ingram') {
-                            totalAcumulado += parseFloat(p.amountTotal || 0);
-                        }
+                        if (isPaid) stats.paid++;
+                        if (!isPaid) stats.pending++;
+                        if (isCT) stats.ct++;
+                        if (isPaid && o.amountTotal) stats.total += parseFloat(o.amountTotal);
 
-                        // Fecha formated
-                        let dateStr = 'N/A';
-                        if (p.createdAt && p.createdAt._seconds) {
-                            dateStr = new Date(p.createdAt._seconds * 1000).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                        let dateStr = '??/??';
+                        if (o.createdAt?._seconds) {
+                            dateStr = new Date(o.createdAt._seconds * 1000).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
                         }
 
                         return `
-                        <tr class="hover:bg-slate-800/50 transition-colors group">
-                            <td class="px-6 py-5 align-top">
-                                <span class="font-mono text-xs text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">#${p.id.substring(0, 8).toUpperCase()}</span>
-                                <p class="text-[10px] text-slate-500 mt-2 font-bold uppercase">${dateStr}</p>
+                        <tr class="hover:bg-slate-800/30 transition-all group">
+                            <td class="px-6 py-6 whitespace-nowrap">
+                                <span class="font-mono text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">#${o.id.substring(0, 8).toUpperCase()}</span>
+                                <p class="text-[10px] text-slate-500 mt-2 font-black uppercase tracking-widest">${dateStr}</p>
                             </td>
-                            <td class="px-6 py-5 align-top">
-                                <p class="font-bold text-white">${p.customerInfo?.name || 'Cliente sin nombre'}</p>
-                                <p class="text-xs text-slate-400 mb-1">${p.customerInfo?.email || 'N/A'}</p>
-                                <div class="flex items-center gap-1 mt-1">
-                                    <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono border border-slate-700">CP: ${p.shippingInfo?.zipCode || '00000'}</span>
-                                    <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">${p.shippingInfo?.provider || 'SkydropX'} ($${p.shippingInfo?.cost || 0})</span>
+                            <td class="px-6 py-6">
+                                <p class="text-white font-bold leading-tight">${o.customerInfo?.name || 'Cliente'}</p>
+                                <p class="text-[10px] text-slate-500 truncate max-w-[150px]">${o.customerInfo?.email}</p>
+                            </td>
+                            <td class="px-6 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs bg-slate-800 text-slate-400 w-6 h-6 flex items-center justify-center rounded-lg font-bold">${itemsCount}</span>
+                                    <span class="text-[10px] text-slate-500 font-bold uppercase">${itemsCount === 1 ? 'Producto' : 'Productos'}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-5 align-top text-xs font-mono text-slate-300">
-                                <ul class="space-y-1">${itemsList}</ul>
+                            <td class="px-6 py-6">
+                                <p class="text-white font-black text-lg">$${parseFloat(o.amountTotal || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
                             </td>
-                            <td class="px-6 py-5 align-top">
-                                <span class="font-bold text-white text-base">$${parseFloat(p.amountTotal || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                                <p class="text-[10px] text-slate-500 uppercase mt-1">MXN</p>
+                            <td class="px-6 py-6 text-center">
+                                ${getStatusBadge(o.status)}
+                                ${isCT ? '<div class="mt-2"><span class="bg-pink-500/10 text-pink-500 text-[8px] font-black px-1.5 py-0.5 rounded border border-pink-500/20 uppercase tracking-tighter">DROPSHIPPING</span></div>' : ''}
                             </td>
-                            <td class="px-6 py-5 align-top">${getStatusBadge(p.status)}</td>
-                            <td class="px-6 py-5 align-top">
-                                <button onclick="alert('Detalle completo del pedido ${p.id}\\nActualmente en desarrollo.')" class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-lg transition-colors border border-slate-700 hover:border-slate-500 group-hover:text-indigo-400" title="Ver Detalle Completo">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                            <td class="px-6 py-6 text-right">
+                                <button onclick="viewDetail('${o.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-indigo-400 p-3 rounded-xl transition-all border border-slate-700">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
                                 </button>
                             </td>
                         </tr>
@@ -259,20 +399,104 @@
                     lucide.createIcons();
                 }
 
-                // Actualizar Stats
-                document.getElementById('stat-total').textContent = `$${totalAcumulado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;
-                document.getElementById('stat-count').textContent = countPagados;
-                document.getElementById('stat-pending').textContent = countPendientes;
+                // Update Stats
+                document.getElementById('stat-total').textContent = `$${stats.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;
+                document.getElementById('stat-count').textContent = stats.paid;
+                document.getElementById('stat-pending').textContent = stats.pending;
+                document.getElementById('stat-ct').textContent = stats.ct;
 
-            } catch (error) {
-                console.error(error);
-                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400 font-bold bg-red-500/10"><i data-lucide="alert-triangle" class="w-5 h-5 inline mr-2 text-red-500"></i> Error de conexión con el servidor API. Revisa tu consola.</td></tr>`;
-                lucide.createIcons();
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400 font-bold uppercase tracking-widest text-xs">Error: No se pudo conectar con el servidor central.</td></tr>`;
             }
         }
 
-        // Fetch inicial
-        setTimeout(fetchOrders, 400);
+        function viewDetail(id) {
+            const order = loadedOrders.find(o => o.id === id);
+            if (!order) return;
+
+            document.getElementById('modal-order-id').textContent = `Orden #${id.toUpperCase()}`;
+
+            let dateStr = 'Fecha desconocida';
+            if (order.createdAt?._seconds) {
+                dateStr = new Date(order.createdAt._seconds * 1000).toLocaleString('es-MX');
+            }
+            document.getElementById('modal-order-date').textContent = dateStr;
+            document.getElementById('modal-cust-name').textContent = order.customerInfo?.name;
+            document.getElementById('modal-cust-email').textContent = order.customerInfo?.email;
+            document.getElementById('modal-cust-phone').textContent = order.customerInfo?.phone;
+
+            const addr = order.customerInfo?.address || {};
+            document.getElementById('modal-address').textContent = `${addr.street} ${addr.ext_number || ''} ${addr.int_number || ''}, ${addr.colonia || ''}, ${addr.city}, ${addr.state}, CP ${addr.zip}`;
+
+            // Items list
+            const itemsHtml = (order.items || []).map(i => `
+                <div class="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <span class="text-indigo-500 font-black text-xs">x${i.quantity}</span>
+                        <div class="text-left">
+                            <p class="text-xs text-white font-bold leading-tight">${i.name}</p>
+                            <p class="text-[9px] text-slate-500 font-mono">${i.sku || 'S/SKU'}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 font-bold">$${parseFloat(i.price).toLocaleString()}</p>
+                </div>
+            `).join('');
+            document.getElementById('modal-items-list').innerHTML = itemsHtml;
+
+            // CT Dropshipping Data
+            const ctSection = document.getElementById('modal-ct-section');
+            if (order.ctOrders && order.ctOrders.length > 0) {
+                ctSection.classList.remove('hidden');
+                document.getElementById('modal-ct-orders').innerHTML = order.ctOrders.map(ct => `
+                    <div class="bg-indigo-950/20 border border-indigo-500/30 p-4 rounded-xl">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase">Almacén: ${ct.almacen}</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Folio: <span class="text-white">${ct.folio || 'N/A'}</span></span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 italic">Estatus CT: <strong class="${ct.status === 'confirmed' ? 'text-green-400' : 'text-yellow-400'}">${ct.status.toUpperCase()}</strong></p>
+                    </div>
+                `).join('');
+            } else {
+                ctSection.classList.add('hidden');
+            }
+
+            document.getElementById('modal-total').textContent = `$${parseFloat(order.amountTotal || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;
+
+            // Open modal
+            const modal = document.getElementById('order-modal');
+            modal.classList.remove('modal-hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').classList.add('modal-hidden');
+        }
+
+        document.getElementById('btn-copy-info').addEventListener('click', () => {
+            const id = document.getElementById('modal-order-id').innerText;
+            const name = document.getElementById('modal-cust-name').innerText;
+            const addr = document.getElementById('modal-address').innerText;
+            const total = document.getElementById('modal-total').innerText;
+
+            const textToCopy = `Orden: ${id}\nCliente: ${name}\nDirección: ${addr}\nTotal: ${total}`;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = document.getElementById('btn-copy-info');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> ¡Copiado!';
+                lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                }, 2000);
+            });
+        });
+
+        // Check if key already exists on load
+        if (sessionStorage.getItem('adminKey')) {
+            checkAuth();
+        }
     </script>
 </body>
 
