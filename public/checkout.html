@@ -268,8 +268,7 @@
                                 EnvÃ­o
                             </span>
                             <span id="checkout-shipping"
-                                class="font-bold text-emerald-400 text-xs uppercase tracking-widest">Gestionado por
-                                CT</span>
+                                class="font-bold text-slate-400 text-xs" id="checkout-shipping-badge">Ingresa tu CP para calcular</span>
                         </div>
 
                         <div class="flex justify-between text-lg font-black text-white pt-4 border-t border-white/5">
@@ -361,12 +360,13 @@
                 </div>`;
             }).join('');
 
-            const SHIPPING_COST = 0; // Se calcularÃ¡ con app de envÃ­os maÃ±ana
+            const SHIPPING_COST = 0;
             window._cartSubtotal = subtotal;
             window._shippingCost = SHIPPING_COST;
             orderTotal = subtotal + SHIPPING_COST;
             document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)} MXN`;
             document.getElementById('checkout-total').textContent = `$${orderTotal.toFixed(2)} MXN`;
+            document.getElementById('checkout-shipping').innerHTML = '<span class="text-slate-400 text-xs" id="checkout-shipping-badge">Ingresa tu CP para calcular</span>';
             lucide.createIcons();
 
             initializeCardForm();
@@ -384,12 +384,52 @@
                 // However, for UX, showing the updated total is key.
             }
         }
-
         async function calculateShippingCost() {
-            // Ya no calculamos con SkydropX,CT gestionarÃ¡ el envÃ­o interno
-            // Mantenemos la funciÃ³n para no romper referencias de "onblur" si las hubiera, 
-            // pero sÃ³lo recargamos el total standard.
-            refreshTotal();
+            const zip = document.getElementById('shipping_zip').value.trim();
+            if (!zip || zip.length < 4) return;
+
+            const shippingEl = document.getElementById('checkout-shipping');
+            shippingEl.innerHTML = '<span class="text-slate-400 animate-pulse">Calculando env\u00edo...</span>';
+            try {
+                const res = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getShippingQuote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart, zipCode: zip })
+                });
+                const data = await res.json();
+                const cost = parseFloat(data.costMXN) || 0;
+                window._shippingCost = cost;
+                if (cost > 0) {
+                    shippingEl.innerHTML = <span class="font-black text-white"> + '$' + ${cost.toFixed(2)} MXN</span>;
+                } else {
+                    shippingEl.innerHTML = '<span class="font-bold text-emerald-400 text-xs uppercase tracking-widest">Incluido por CT</span>';
+                }
+                refreshTotal();
+            } catch (e) {
+                shippingEl.innerHTML = '<span class="text-slate-500 text-xs">No disponible</span>';
+            }
+        }
+
+            try {
+                const res = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getShippingQuote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart, zipCode: zip })
+                });
+                const data = await res.json();
+                const cost = parseFloat(data.costMXN) || 0;
+                window._shippingCost = cost;
+
+                if (cost > 0) {
+                    shippingEl.innerHTML = `<span class="font-black text-white">${cost.toFixed(2)} MXN</span>`;
+                } else {
+                    shippingEl.innerHTML = '<span class="font-bold text-emerald-400 text-xs uppercase tracking-widest">Incluido por CT</span>';
+                }
+                refreshTotal();
+            } catch (e) {
+                console.warn('No se pudo calcular envio:', e);
+                shippingEl.innerHTML = '<span class="text-slate-500 text-xs">No disponible</span>';
+            }
         }
 
         function initializeCardForm() {
@@ -566,7 +606,7 @@
                         'Content-Type': 'application/json',
                         'X-Meli-Session-Id': typeof MP_DEVICE_SESSION_ID !== 'undefined' ? MP_DEVICE_SESSION_ID : ''
                     },
-                    body: JSON.stringify({ items: cart, customer: customerData, zipCode: customerData.address.zip })
+                    body: JSON.stringify({ items: cart, customer: customerData, zipCode: customerData.address.zip, shippingCost: window._shippingCost || 0 })
                 });
 
                 const data = await response.json();

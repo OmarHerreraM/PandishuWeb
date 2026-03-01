@@ -147,4 +147,52 @@ async function confirmCTOrder(folio, token) {
     }
 }
 
-module.exports = { generateCTToken, getCTItemStock, createCTOrder, confirmCTOrder };
+async function getCTFreight({ items, destinoCP, almacen, token }) {
+    try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+
+        // CT /fletes expects: { almacen, cp, partidas: [{clave, cantidad, precio}] }
+        const payload = {
+            almacen: almacen || '01A',
+            cp: parseInt((destinoCP || '06000').replace(/\D/g, ''), 10),
+            partidas: items.map(i => ({
+                clave: i.sku || i.clave,
+                cantidad: parseInt(i.quantity || i.cantidad || 1),
+                precio: parseFloat(i.price || i.precio || 0)
+            }))
+        };
+
+        console.log('[CT Freight] Requesting freight quote:', JSON.stringify(payload));
+
+        const response = await axios.post(`${baseUrl}/fletes`, payload, {
+            headers: {
+                'x-auth': token,
+                'Content-Type': 'application/json'
+            },
+            timeout: 15000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
+        });
+
+        console.log('[CT Freight] Response:', response.data);
+        // CT returns { total, costo, guia, empresa } or similar
+        const cost = response.data?.total || response.data?.costo || response.data?.flete || 0;
+        return {
+            costMXN: parseFloat(cost) || 0,
+            carrier: response.data?.empresa || 'CT DropShipping',
+            raw: response.data
+        };
+
+    } catch (error) {
+        console.error('[CT Freight] Error fetching freight quote:', error.response?.data || error.message);
+        // On error, return a safe fallback (0 to not block checkout)
+        return { costMXN: 0, carrier: 'CT DropShipping', error: error.message };
+    }
+}
+
+module.exports = { generateCTToken, getCTItemStock, createCTOrder, confirmCTOrder, getCTFreight };
+

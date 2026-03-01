@@ -148,19 +148,22 @@ exports.createCheckoutSession = functions.runWith({
         const client = getMercadoPagoClient();
         if (!client) return res.status(500).json({ error: 'MP not configured' });
         try {
-            const { items, customer, zipCode } = req.body;
+            const { items, customer, zipCode, shippingCost: clientShippingCost } = req.body;
 
-            // 1. Array de items base para Mercado Pago
+            // 1. Use the pre-calculated shipping cost from the client (from getShippingQuote call)
+            //    If not provided, fall back to 0 (CT covers it in dropshipping price)
+            const destinoCp = zipCode || '64000';
+            const shippingCost = typeof clientShippingCost === 'number' ? clientShippingCost : 0;
+
+            // 2. Array de items para Mercado Pago
             const preferenceItems = items.map(p => ({
                 id: p.sku || 'SKU', title: p.name, quantity: p.quantity, unit_price: Number(p.price), currency_id: 'MXN'
             }));
 
-            // 2. Envío gestionado por CT
-            const destinoCp = zipCode || '64000';
-            const shippingCost = 0; // Se delega a la gestión de Dropshipping de CT
-
-            // 3. Añadir el costo de envío a los items que el cliente pagará (si fuera necesario)
-            preferenceItems.push({ id: 'ENVIO', title: 'Costo de Envío', quantity: 1, unit_price: shippingCost, currency_id: 'MXN' });
+            // 3. Add shipping as a separate MP line item (only if > 0)
+            if (shippingCost > 0) {
+                preferenceItems.push({ id: 'ENVIO', title: 'Envío CT DropShipping', quantity: 1, unit_price: shippingCost, currency_id: 'MXN' });
+            }
 
             const amountTotal = items.reduce((s, i) => s + (i.price * i.quantity), 0) + shippingCost;
 
