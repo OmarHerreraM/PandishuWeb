@@ -557,38 +557,29 @@
         const ITEMS_PER_PAGE = 48;
 
         let selectedBrands = new Set();
+        let allBrands = [];
 
         /* ─── RENDER ─── */
         function normalizeText(text) {
             return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        // Dynamically build the brand sidebar checkboxes based on available data
         function renderBrandFilters() {
             const container = document.getElementById('brand-filters-container');
             if (!container) return;
 
-            // Extract unique vendors, count them, and sort alphabetically
-            const vendorCounts = {};
-            allProducts.forEach(p => {
-                const v = (p.vendorName || p.brand || 'Otros').trim();
-                vendorCounts[v] = (vendorCounts[v] || 0) + 1;
-            });
-
-            const sortedVendors = Object.keys(vendorCounts).sort((a, b) => a.localeCompare(b));
-
             let html = '';
-            sortedVendors.forEach(vendor => {
+            allBrands.forEach(vendor => {
+                const isChecked = selectedBrands.has(vendor) ? 'checked' : '';
                 html += `
                 <label class="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-800/50 rounded-xl transition">
                     <div class="relative flex items-center">
-                        <input type="checkbox" value="${vendor}" onchange="toggleBrandFilter(this)" class="peer sr-only">
+                        <input type="checkbox" value="${vendor}" onchange="toggleBrandFilter(this)" ${isChecked} class="peer sr-only">
                         <div class="w-5 h-5 rounded border border-slate-600 bg-slate-900 peer-checked:bg-brand-cyan peer-checked:border-brand-cyan transition-all flex items-center justify-center">
                             <i data-lucide="check" class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
                         </div>
                     </div>
                     <span class="text-slate-300 text-sm font-medium group-hover:text-white transition-colors flex-1">${vendor}</span>
-                    <span class="text-slate-600 text-xs font-mono bg-slate-900 px-2 py-0.5 rounded-md border border-white/5">${vendorCounts[vendor]}</span>
                 </label>
                 `;
             });
@@ -603,7 +594,7 @@
             } else {
                 selectedBrands.delete(checkbox.value);
             }
-            applyFilters();
+            fetchProducts(true);
         }
 
         function renderProducts(products, append = false) {
@@ -702,109 +693,69 @@
                 grid.innerHTML = html;
             }
 
-            if (filteredProducts.length > currentPage * ITEMS_PER_PAGE) {
-                loadMoreBtn.classList.remove('hidden');
-            } else {
-                loadMoreBtn.classList.add('hidden');
-            }
-
             lucide.createIcons();
         }
 
-        // ─── All products loaded once ───────────────────────────────────────
-        let allProducts = [];
-
         function loadMoreProducts() {
-            const startIndex = currentPage * ITEMS_PER_PAGE;
-            const nextItems = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-            if (nextItems.length > 0) {
-                renderProducts(nextItems, true);
-                currentPage++;
-            }
+            currentPage++;
+            fetchProducts(false);
         }
 
-        /* ─── API CALL — single load, then in-memory filter ─── */
-        async function fetchProducts() {
+        /* ─── API CALL — SERVER-SIDE SEARCH ─── */
+        async function fetchProducts(resetPage = false) {
             if (isLoading) return;
             isLoading = true;
-            renderSkeletons();
+            if (resetPage) currentPage = 1;
+
+            if (currentPage === 1) renderSkeletons();
 
             try {
                 const response = await fetch(`${API_BASE}/searchProducts`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({}) // load all
+                    body: JSON.stringify({
+                        keyword: currentSearch,
+                        brands: Array.from(selectedBrands),
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE
+                    })
                 });
                 const data = await response.json();
 
-                if (!data.catalog || data.catalog.length === 0) {
-                    allProducts = [];
-                    filteredProducts = [];
-                    renderProducts([]);
-                    return;
+                if (resetPage) filteredProducts = [];
+
+                if (data.catalog) {
+                    filteredProducts = resetPage ? data.catalog : [...filteredProducts, ...data.catalog];
                 }
 
-                allProducts = data.catalog;
-                filteredProducts = allProducts;
-                renderBrandFilters();
-                applyFilters();
+                if (currentSearch === '' && selectedBrands.size === 0 && currentPage === 1 && data.brands) {
+                    allBrands = data.brands;
+                    renderBrandFilters();
+                }
+
+                renderProducts(filteredProducts, !resetPage);
+
+                const loadMoreBtn = document.getElementById('load-more-container');
+                if (currentPage < data.totalPages) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+
+                document.getElementById('result-count').textContent = data.recordsFound || filteredProducts.length;
+
             } catch (error) {
                 console.error('Fetch error:', error);
-                renderProducts([]);
+                if (resetPage) renderProducts([]);
             } finally {
                 isLoading = false;
             }
         }
 
-        /* ─── IN-MEMORY FILTER (instant, no API call) ─── */
-        function applyFilters() {
-            const q = currentSearch.toLowerCase().trim();
-
-            filteredProducts = allProducts.filter(p => {
-                const vendor = (p.vendorName || p.brand || 'Otros').trim();
-
-                // Brand filter
-                if (selectedBrands.size > 0 && !selectedBrands.has(vendor)) {
-                    return false;
-                }
-
-                // Text search
-                if (q) {
-                    const normalizedQ = normalizeText(q);
-                    const terms = normalizedQ.split(/\s+/).filter(t => t.length > 0);
-
-                    const searchable = normalizeText([
-                        p.description || '',
-                        p.vendorName || '',
-                        p.ingramPartNumber || '',
-                        p.sku || '',
-                        p.productCategory || ''
-                    ].join(' '));
-
-                    const allTermsMatch = terms.every(term => searchable.includes(term));
-                    if (!allTermsMatch) return false;
-                }
-
-                return true;
-            });
-
-            // Push out-of-stock items to the bottom
-            filteredProducts.sort((a, b) => {
-                const stockA = parseInt(a.availability?.availableQuantity || a.stock || a.existencia || 0, 10);
-                const stockB = parseInt(b.availability?.availableQuantity || b.stock || b.existencia || 0, 10);
-                if (stockA > 0 && stockB <= 0) return -1;
-                if (stockA <= 0 && stockB > 0) return 1;
-                return 0; // maintain relative randomized order
-            });
-
-            currentPage = 1;
-            renderProducts(filteredProducts.slice(0, ITEMS_PER_PAGE));
-        }
-
         /* ─── SEARCH ─── */
         function doSearch() {
             currentSearch = document.getElementById('search-input').value.trim();
-            applyFilters();
+            fetchProducts(true);
         }
 
         function resetSearch() {
@@ -812,7 +763,7 @@
             document.getElementById('search-input').value = '';
             selectedBrands.clear();
             document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
-            applyFilters();
+            fetchProducts(true);
         }
 
         /* ─── SORT ─── */
@@ -1110,14 +1061,13 @@
         /* ─── REAL-TIME SEARCH ─── */
         document.getElementById('search-input').addEventListener('input', function () {
             currentSearch = this.value.trim();
-            // Debounce: wait 200ms after typing stops
+            // Debounce: wait 400ms after typing stops
             clearTimeout(this._searchTimer);
-            this._searchTimer = setTimeout(applyFilters, 200);
+            this._searchTimer = setTimeout(() => { fetchProducts(true); }, 400);
         });
 
         /* ─── INIT ─── */
-        // Carga inicial (un solo fetch, filtros en memoria después)
-        fetchProducts();
+        fetchProducts(true);
 
     </script>
 </body>

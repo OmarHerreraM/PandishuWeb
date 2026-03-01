@@ -387,50 +387,94 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
     } catch (e) { return res.status(200).send('OK'); }
 });
 
+let cachedCTCatalog = null;
+let cachedBrands = [];
+let lastCatalogFetch = 0;
+const CACHE_TTL = 1000 * 60 * 60; // 1 hr cache
+
 exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }).https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
             const db = admin.firestore();
 
-            // Solo buscamos en CT Catalog
-            const ctSnap = await db.collection('ct_catalog').get();
-
-            // ─── LÓGICA DE PRECIOS Y BLINDAJE CAMBIARIO ─────────────────────────────────────────
-            // Formula: Precio Venta = (Precio Base MXN * 1.05 [Cobertura FX]) * 1.15 [Margen Utilidad]
             const FX_BUFFER = 1.05;
             const UTILITY_MARGIN = 1.15;
 
-            const products = ctSnap.docs.map(d => {
-                const data = { ...d.data() };
-                const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
+            if (!cachedCTCatalog || Date.now() - lastCatalogFetch > CACHE_TTL) {
+                console.log('Fetching ct_catalog from Firestore to build memory cache...');
+                const ctSnap = await db.collection('ct_catalog').get();
 
-                // Aplicar fórmula de precio blindado
-                const basePrice = parseFloat(data.price) || 0;
-                let finalPrice = basePrice * FX_BUFFER * UTILITY_MARGIN;
+                const brandsSet = new Set();
+                cachedCTCatalog = ctSnap.docs.map(d => {
+                    const data = { ...d.data() };
+                    const stock = parseInt(data.availability?.availableQuantity || data.existencia || 0, 10);
 
-                // Limpieza de datos confidenciales
-                delete data.costoInterno;
-                delete data.gananciaBruta;
-                delete data.margenUtilidad;
-                delete data.costo;
-                delete data.precioPromocion;
+                    const basePrice = parseFloat(data.price) || 0;
+                    let finalPrice = basePrice * FX_BUFFER * UTILITY_MARGIN;
 
-                return {
-                    ...data,
-                    price: finalPrice, // Sobreescribiendo con precio público blindado
-                    source: 'CT',
-                    vendorName: data.vendorName || 'CT',
-                    stock
-                };
+                    delete data.costoInterno;
+                    delete data.gananciaBruta;
+                    delete data.margenUtilidad;
+                    delete data.costo;
+                    delete data.precioPromocion;
+
+                    const vendorName = data.vendorName || data.brand || 'CT';
+                    if (vendorName) brandsSet.add(vendorName.trim());
+
+                    return {
+                        ...data,
+                        price: finalPrice,
+                        source: 'CT',
+                        vendorName: vendorName,
+                        stock
+                    };
+                });
+
+                cachedBrands = Array.from(brandsSet).sort((a, b) => a.localeCompare(b));
+                lastCatalogFetch = Date.now();
+                console.log(`Cache updated. ${cachedCTCatalog.length} products loaded. ${cachedBrands.length} brands.`);
+            }
+
+            const products = cachedCTCatalog;
+            const keyword = (req.body.keyword || '').toLowerCase();
+            const brandFilters = req.body.brands || []; // Array of selected brands
+
+            // 1. Filter phase
+            let filtered = products;
+
+            if (brandFilters.length > 0) {
+                filtered = filtered.filter(p => brandFilters.includes(p.vendorName.trim()));
+            }
+
+            if (keyword) {
+                filtered = filtered.filter(p =>
+                    (p.description || '').toLowerCase().includes(keyword) ||
+                    (p.sku || p.ingramPartNumber || '').toLowerCase().includes(keyword) ||
+                    (p.vendorName || '').toLowerCase().includes(keyword)
+                );
+            }
+
+            // Push out-of-stock items to the bottom in the backend too
+            filtered.sort((a, b) => {
+                const stockA = a.stock > 0 ? 1 : 0;
+                const stockB = b.stock > 0 ? 1 : 0;
+                return stockB - stockA; // 1 (in stock) comes before 0 (out of stock)
             });
 
-            const keyword = (req.body.keyword || '').toLowerCase();
-            const filtered = keyword ? products.filter(p => (p.description || '').toLowerCase().includes(keyword) || (p.sku || p.ingramPartNumber || '').toLowerCase().includes(keyword)) : products;
+            // Pagination defaults to 48 items
+            const limit = parseInt(req.body.limit) || 48;
+            const page = parseInt(req.body.page) || 1;
+            const startIndex = (page - 1) * limit;
 
-            // Retornamos solo los 24 más relevantes si no hay búsqueda para no saturar el catálogo inicial del escaparate
-            const finalResults = keyword ? filtered : filtered.slice(0, 24);
+            const finalResults = filtered.slice(startIndex, startIndex + limit);
 
-            return res.status(200).json({ recordsFound: filtered.length, catalog: finalResults });
+            return res.status(200).json({
+                recordsFound: filtered.length,
+                catalog: finalResults,
+                brands: cachedBrands,
+                page,
+                totalPages: Math.ceil(filtered.length / limit)
+            });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     });
 });
