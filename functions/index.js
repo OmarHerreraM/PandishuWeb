@@ -676,57 +676,65 @@ exports.onLeadCreated = functions.firestore
 exports.getOrderStatus = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
         try {
-            const { email } = req.body;
-            if (!email || typeof email !== 'string') {
-                return res.status(400).json({ error: 'Se requiere el correo electrónico.' });
+            const { email, orderId } = req.body;
+
+            if (!email && !orderId) {
+                return res.status(400).json({ error: 'Se requiere el correo electrónico o el número de pedido.' });
             }
 
             const db = admin.firestore();
-            const normalizedEmail = email.toLowerCase().trim();
             const now = new Date();
             const foundOrders = [];
 
-            // Scan last 6 months to find matching orders
+            const buildOrderPayload = (docId, data) => ({
+                orderId: docId,
+                status: data.status,
+                createdAt: data.createdAt,
+                paidAt: data.paidAt || null,
+                amountTotal: data.amountTotal,
+                items: (data.items || []).map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    sku: item.sku
+                })),
+                ctOrders: (data.ctOrders || []).map(ct => ({
+                    pedidoWeb: ct.pedidoWeb,
+                    status: ct.status,
+                    almacen: ct.almacen
+                }))
+            });
+
             for (let i = 0; i < 6; i++) {
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 const year = d.getFullYear().toString();
                 const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                const colRef = db.collection('orders').doc(year).collection(month);
 
                 try {
-                    const snap = await db.collection('orders').doc(year).collection(month)
-                        .where('customerInfo.email', '==', normalizedEmail)
-                        .orderBy('createdAt', 'desc')
-                        .limit(10)
-                        .get();
-
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        foundOrders.push({
-                            orderId: doc.id,
-                            status: data.status,
-                            createdAt: data.createdAt,
-                            paidAt: data.paidAt || null,
-                            amountTotal: data.amountTotal,
-                            items: (data.items || []).map(item => ({
-                                name: item.name,
-                                quantity: item.quantity,
-                                sku: item.sku
-                            })),
-                            ctOrders: (data.ctOrders || []).map(ct => ({
-                                pedidoWeb: ct.pedidoWeb,
-                                status: ct.status,
-                                almacen: ct.almacen
-                            }))
-                        });
-                    });
+                    if (orderId) {
+                        // Lookup by specific orderId
+                        const docSnap = await colRef.doc(orderId).get();
+                        if (docSnap.exists) {
+                            foundOrders.push(buildOrderPayload(docSnap.id, docSnap.data()));
+                            break; // Found it, stop scanning
+                        }
+                    } else {
+                        // Lookup all orders by email
+                        const normalizedEmail = email.toLowerCase().trim();
+                        const snap = await colRef
+                            .where('customerInfo.email', '==', normalizedEmail)
+                            .orderBy('createdAt', 'desc')
+                            .limit(10)
+                            .get();
+                        snap.forEach(doc => foundOrders.push(buildOrderPayload(doc.id, doc.data())));
+                    }
                 } catch (queryErr) {
-                    // Skip months with no data / missing index
                     console.warn(`Skipping ${year}/${month}:`, queryErr.message);
                 }
             }
 
             if (foundOrders.length === 0) {
-                return res.status(404).json({ error: 'No se encontraron pedidos para este correo.' });
+                return res.status(404).json({ error: 'Pedido no encontrado. Verifica el número de pedido o el correo.' });
             }
 
             return res.status(200).json({ orders: foundOrders });

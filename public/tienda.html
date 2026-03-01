@@ -503,6 +503,81 @@
     </div>
 
     <!-- ═══════════════════════════════════════
+         ORDER TRACKING MODAL
+    ═══════════════════════════════════════ -->
+    <div id="track-backdrop" class="fixed inset-0 z-[350] hidden bg-slate-950/80 backdrop-blur-sm"
+        onclick="closeTrackModal()"></div>
+    <div id="track-modal"
+        class="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-full md:rounded-3xl bg-slate-900 border border-white/10 shadow-2xl z-[400] translate-y-full md:translate-y-0 md:scale-95 md:opacity-0 transition-all duration-300 overflow-hidden"
+        style="will-change:transform,opacity;">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-white/5">
+            <h2 class="text-lg font-black text-white flex items-center gap-3 uppercase italic">
+                <i data-lucide="package-search" class="w-5 h-5 text-indigo-400"></i> Rastrear Pedido
+            </h2>
+            <button onclick="closeTrackModal()"
+                class="text-slate-500 hover:text-white transition p-2 rounded-xl hover:bg-white/5">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Search Form -->
+        <div class="p-6 border-b border-white/5">
+            <p class="text-slate-400 text-sm mb-4">Ingresa el <strong class="text-white">número de pedido</strong> que
+                recibiste en tu correo de confirmación.</p>
+            <div class="flex gap-3">
+                <div
+                    class="flex-1 flex items-center bg-slate-800 border border-white/10 rounded-2xl px-4 gap-3 focus-within:border-indigo-500 transition">
+                    <i data-lucide="hash" class="w-4 h-4 text-slate-500 flex-shrink-0"></i>
+                    <input id="track-order-input" type="text" placeholder="ID de pedido (ej. abc123xyz)"
+                        class="w-full bg-transparent text-white text-sm py-3 outline-none placeholder-slate-600"
+                        onkeydown="if(event.key==='Enter') trackOrder()">
+                </div>
+                <button onclick="trackOrder()" id="track-search-btn"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs px-5 rounded-2xl uppercase tracking-widest transition flex items-center gap-2 whitespace-nowrap">
+                    <i data-lucide="search" class="w-4 h-4"></i> Buscar
+                </button>
+            </div>
+            <p id="track-error" class="hidden text-red-400 text-xs font-bold mt-3 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                <span id="track-error-text">Pedido no encontrado.</span>
+            </p>
+        </div>
+
+        <!-- Results -->
+        <div id="track-results" class="hidden p-6 max-h-[60vh] overflow-y-auto flex flex-col gap-4">
+            <!-- Timeline -->
+            <div>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">Estado del Pedido</p>
+                <div id="track-timeline" class="flex flex-col gap-0"></div>
+            </div>
+            <!-- Items -->
+            <div>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">Artículos</p>
+                <ul id="track-items" class="flex flex-col gap-2"></ul>
+            </div>
+            <!-- CT Folio -->
+            <div id="track-ct-container" class="hidden">
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Folio de Envío (CT)</p>
+                <div id="track-ct-folios" class="flex flex-col gap-1.5"></div>
+            </div>
+            <!-- WhatsApp -->
+            <a id="track-wa-link" href="#" target="_blank"
+                class="inline-flex items-center gap-2 text-green-400 hover:text-green-300 text-xs font-bold transition mt-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                ¿Necesitas ayuda? Escríbenos por WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <!-- Floating Track Order Button -->
+    <button onclick="openTrackModal()"
+        class="fixed bottom-24 right-6 z-[200] flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs px-5 py-3 rounded-full shadow-[0_4px_20px_rgba(99,102,241,0.5)] transition-all hover:scale-105 uppercase tracking-widest">
+        <i data-lucide="package-search" class="w-4 h-4"></i>
+        Rastrear Pedido
+    </button>
+
+    <!-- ═══════════════════════════════════════
          CART DRAWER
     ═══════════════════════════════════════ -->
     <div id="cart-backdrop" class="fixed inset-0 z-[300] hidden bg-slate-950/80 backdrop-blur-sm"
@@ -1087,6 +1162,135 @@
 
         /* ─── INIT ─── */
         fetchProducts(true);
+
+        /* ─── ORDER TRACK MODAL ─── */
+        function openTrackModal() {
+            document.getElementById('track-backdrop').classList.remove('hidden');
+            const modal = document.getElementById('track-modal');
+            // Mobile: slide up; Desktop: fade+scale in
+            if (window.innerWidth < 768) {
+                modal.style.transform = 'translateY(0)';
+            } else {
+                modal.style.transform = 'translateY(-50%) translateX(-50%) scale(1)';
+                modal.style.opacity = '1';
+            }
+            lucide.createIcons();
+        }
+
+        function closeTrackModal() {
+            document.getElementById('track-backdrop').classList.add('hidden');
+            const modal = document.getElementById('track-modal');
+            if (window.innerWidth < 768) {
+                modal.style.transform = 'translateY(100%)';
+            } else {
+                modal.style.transform = 'translateY(-50%) translateX(-50%) scale(0.95)';
+                modal.style.opacity = '0';
+            }
+            document.getElementById('track-results').classList.add('hidden');
+            document.getElementById('track-error').classList.add('hidden');
+            document.getElementById('track-order-input').value = '';
+        }
+
+        async function trackOrder() {
+            const orderId = document.getElementById('track-order-input').value.trim();
+            const errEl = document.getElementById('track-error');
+            const errText = document.getElementById('track-error-text');
+            const resultsEl = document.getElementById('track-results');
+            const btn = document.getElementById('track-search-btn');
+
+            errEl.classList.add('hidden');
+            resultsEl.classList.add('hidden');
+
+            if (!orderId) {
+                errText.textContent = 'Ingresa el número de pedido.';
+                errEl.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i>';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                const res = await fetch(`${API_BASE}/getOrderStatus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.orders || data.orders.length === 0) {
+                    errText.textContent = data.error || 'Pedido no encontrado. Verifica el ID.';
+                    errEl.classList.remove('hidden');
+                } else {
+                    renderTrackResults(data.orders[0]);
+                }
+            } catch (e) {
+                errText.textContent = 'Error de conexión. Intenta de nuevo.';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = '<i data-lucide="search" class="w-4 h-4"></i> Buscar';
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        function renderTrackResults(order) {
+            const statusSteps = [
+                { label: 'Pedido Recibido' },
+                { label: 'Pago Confirmado' },
+                { label: 'En Preparación CT' },
+                { label: 'Enviado' }
+            ];
+            const progress = { 'pending_payment': 0, 'processing': 2, 'paid': 3, 'shipped': 4 };
+            const level = progress[order.status] ?? 0;
+
+            const timelineEl = document.getElementById('track-timeline');
+            timelineEl.innerHTML = statusSteps.map((step, i) => {
+                const isDone = i < level;
+                const isActive = i === level;
+                const color = isDone ? 'text-green-400' : isActive ? 'text-indigo-300' : 'text-slate-600';
+                const dot = isDone
+                    ? `<span class="w-3.5 h-3.5 rounded-full bg-green-500 flex-shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>`
+                    : isActive
+                        ? `<span class="w-3.5 h-3.5 rounded-full bg-indigo-500 flex-shrink-0 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>`
+                        : `<span class="w-3.5 h-3.5 rounded-full border border-slate-700 flex-shrink-0"></span>`;
+                return `<div class="flex items-center gap-3 py-2 ${i < statusSteps.length - 1 ? 'border-b border-white/5' : ''}">
+                    ${dot}<span class="text-sm font-bold ${color}">${step.label}</span>
+                </div>`;
+            }).join('');
+
+            const itemsEl = document.getElementById('track-items');
+            itemsEl.innerHTML = (order.items || []).map(item =>
+                `<li class="flex items-center gap-2 text-sm text-slate-300">
+                    <i data-lucide="box" class="w-3.5 h-3.5 text-slate-600 flex-shrink-0"></i>
+                    <span class="font-semibold">${item.name || item.sku}</span>
+                    <span class="text-slate-500 ml-auto">× ${item.quantity}</span>
+                </li>`
+            ).join('') || '<li class="text-slate-600 text-sm">Sin detalle disponible</li>';
+
+            const ctFolios = (order.ctOrders || []).filter(c => c.pedidoWeb);
+            const ctContainer = document.getElementById('track-ct-container');
+            if (ctFolios.length > 0) {
+                document.getElementById('track-ct-folios').innerHTML = ctFolios.map(ct =>
+                    `<div class="flex items-center gap-2 text-xs">
+                        <i data-lucide="truck" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span class="text-slate-400">Folio CT:</span>
+                        <span class="text-indigo-300 font-mono font-bold">${ct.pedidoWeb}</span>
+                    </div>`
+                ).join('');
+                ctContainer.classList.remove('hidden');
+            } else {
+                ctContainer.classList.add('hidden');
+            }
+
+            document.getElementById('track-wa-link').href =
+                `https://wa.me/525662580512?text=Hola%2C%20necesito%20ayuda%20con%20mi%20pedido%20%23${order.orderId?.slice(-8)}`;
+
+            document.getElementById('track-results').classList.remove('hidden');
+            lucide.createIcons();
+        }
 
     </script>
 </body>
