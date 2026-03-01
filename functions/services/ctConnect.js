@@ -194,5 +194,69 @@ async function getCTFreight({ items, destinoCP, almacen, token }) {
     }
 }
 
-module.exports = { generateCTToken, getCTItemStock, createCTOrder, confirmCTOrder, getCTFreight };
+async function getCTVolumetry(codigo, token) {
+    try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+
+        const response = await axios.get(`${baseUrl}/paqueteria/volumetria/${codigo}`, {
+            headers: { 'x-auth': token },
+            timeout: 10000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
+        });
+        // Returns: { peso, largo, alto, ancho, UPC, EAN }
+        return response.data;
+    } catch (error) {
+        console.error(`[CT Volumetry] Error for SKU ${codigo}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
+/**
+ * Subir guía de SkydropX a CT para que procesen el envío.
+ * POST /pedido/guias
+ * @param {string} pedidoWeb - CT order folio (e.g. "W01-000001")
+ * @param {string} trackingNumber - SkydropX tracking number
+ * @param {string} paqueteria - Carrier name (e.g. "estafeta", "fedex")
+ * @param {string} labelBase64 - Optional base64-encoded PDF label
+ * @param {string} token - CT auth token
+ */
+async function uploadLabelToCT(pedidoWeb, trackingNumber, paqueteria, labelBase64, token) {
+    try {
+        const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+        const proxyUrl = process.env.PROXY_URL;
+        const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
+        const baseUrl = process.env.CT_API_CONNECT || 'http://connect.ctonline.mx:3001';
+
+        const payload = {
+            folio: pedidoWeb,
+            guias: [{
+                guia: trackingNumber,
+                paqueteria: (paqueteria || 'estafeta').toLowerCase(),
+                archivo: labelBase64 || ''
+            }]
+        };
+
+        console.log(`[CT Guias] Uploading label for folio ${pedidoWeb}:`, JSON.stringify(payload));
+
+        const response = await axios.post(`${baseUrl}/pedido/guias`, payload, {
+            headers: { 'x-auth': token, 'Content-Type': 'application/json' },
+            timeout: 15000,
+            httpAgent: proxyAgent,
+            httpsAgent: proxyAgent
+        });
+
+        console.log(`[CT Guias] Response:`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`[CT Guias] Error uploading label for ${pedidoWeb}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
+module.exports = { generateCTToken, getCTItemStock, createCTOrder, confirmCTOrder, getCTFreight, getCTVolumetry, uploadLabelToCT };
+
 

@@ -63,6 +63,12 @@
             color: #a5b4fc;
         }
 
+        .status-shipped {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #86efac;
+        }
+
         .status-failed {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.4);
@@ -312,19 +318,21 @@
         }
 
         function isPaid(order) {
-            return order.status === 'paid' || (order.mpPaymentId && order.status !== 'failed');
+            return ['paid', 'shipped', 'paid_pending_fulfillment'].includes(order.status) || (order.mpPaymentId && order.status !== 'failed');
         }
 
         function statusClass(order) {
-            if (order.status === 'paid') return 'status-badge status-paid';
-            if (order.mpPaymentId) return 'status-badge status-paid'; // MP confirmed payment
+            if (order.status === 'shipped') return 'status-badge status-shipped';
+            if (order.status === 'paid' || order.status === 'paid_pending_fulfillment') return 'status-badge status-paid';
+            if (order.mpPaymentId) return 'status-badge status-paid';
             if (order.status === 'processing') return 'status-badge status-processing';
             if (order.status === 'pending_payment') return 'status-badge status-pending';
             return 'status-badge status-failed';
         }
 
         function statusLabel(order) {
-            if (order.status === 'paid') return '✅ Pagado';
+            if (order.status === 'shipped') return '🚚 Enviado';
+            if (order.status === 'paid' || order.status === 'paid_pending_fulfillment') return '✅ Pagado';
             if (order.mpPaymentId) return '✅ Pagado (MP)';
             if (order.status === 'processing') return '⏳ Procesando';
             if (order.status === 'pending_payment') return '🕐 Pago Pendiente';
@@ -406,6 +414,13 @@
                                 <p class="text-xs text-slate-400">CP: ${order.shippingInfo?.zipCode || '—'}</p>
                                 <p class="text-xs text-slate-400">Proveedor: ${order.shippingInfo?.provider || 'CT'}</p>
                                 ${ctNums ? `<p class="text-xs text-indigo-400 mt-2">CT Folio(s): ${ctNums}</p>` : ''}
+                                ${order.tracking?.number ? `
+                                <div class="mt-3 p-2 bg-green-500/10 border border-green-500/20 rounded-xl">
+                                    <p class="text-[10px] text-green-400 font-bold uppercase tracking-widest mb-1">📦 Guía SkydropX</p>
+                                    <p class="font-mono text-xs text-white font-bold">${order.tracking.number}</p>
+                                    <p class="text-[10px] text-slate-400">${order.tracking.carrier || ''}</p>
+                                    ${order.tracking.label_url ? `<a href="${order.tracking.label_url}" target="_blank" class="text-[10px] text-indigo-400 underline">Ver etiqueta</a>` : ''}
+                                </div>` : ''}
                             </div>
                             <div>
                                 <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">ID Completo</p>

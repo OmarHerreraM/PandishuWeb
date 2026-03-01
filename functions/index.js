@@ -119,7 +119,197 @@ async function enviarCorreoConfirmacion(toEmail, customerName, orderId, cartItem
     } catch (e) { console.error('Email error:', e); }
 }
 
-// ─── MERCADO PAGO CONFIG ──────────────────────────────────────────────────────
+// ─── TRACKING EMAIL ────────────────────────────────────────────────────────────
+async function enviarCorreoEnvio(toEmail, customerName, orderId, tracking) {
+    const transporter = getMailTransporter();
+    if (!transporter) return;
+
+    const trackingUrl = `https://track.aftership.com/${tracking.number}`;
+
+    const emailHtml = `
+    <div style="font-family: sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; padding: 30px;">
+            <h1 style="color: #a855f7; text-align: center;">PANDISHÚ</h1>
+            <h2 style="color: #4ade80;">🚚 ¡Tu pedido está en camino!</h2>
+            <p>Hola <strong>${customerName}</strong>, tu orden <strong>#${orderId.slice(-8)}</strong> fue despachada.</p>
+            <div style="background: #0f172a; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 6px 0; font-size: 13px; color: #94a3b8;">Paquetería</p>
+                <p style="margin: 6px 0; font-size: 18px; font-weight: 900; color: #a5b4fc; text-transform: uppercase;">${tracking.carrier || 'CT DropShipping'}</p>
+                <p style="margin: 12px 0 4px; font-size: 13px; color: #94a3b8;">Número de Guía</p>
+                <p style="margin: 6px 0; font-size: 22px; font-weight: 900; font-family: monospace; color: #ffffff; letter-spacing: 2px;">${tracking.number}</p>
+            </div>
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="${trackingUrl}" style="background: #6366f1; color: white; font-weight: 900; font-size: 14px; text-decoration: none; padding: 14px 28px; border-radius: 12px; display: inline-block; text-transform: uppercase; letter-spacing: 1px;">
+                    📍 Rastrear mi Pedido
+                </a>
+            </div>
+            <p style="text-align: center; font-size: 11px; color: #475569; margin-top: 24px;">
+                ¿Dudas? Escríbenos a <a href="mailto:pandipandishu@gmail.com" style="color: #818cf8;">pandipandishu@gmail.com</a>
+            </p>
+        </div>
+    </div>`;
+
+    try {
+        await transporter.sendMail({
+            from: '"Pandishú Tech" <' + process.env.SMTP_EMAIL + '>',
+            to: [toEmail, process.env.SMTP_EMAIL],
+            subject: `🚚 Tu pedido #${orderId.slice(-8)} fue enviado — Guía: ${tracking.number}`,
+            html: emailHtml
+        });
+        console.log(`[Email Envio] Tracking email sent to ${toEmail}`);
+    } catch (e) { console.error('[Email Envio] Error:', e); }
+}
+
+// ─── FULFILLMENT LOOP (Antigravity OS v2.0) ──────────────────────────────────
+/**
+ * Orquesta el ciclo completo post-pago:
+ * 1. CT Volumetría → dimensiones del paquete
+ * 2. SkydropX Quote → cotización de envío
+ * 3. SkydropX Shipment → guía + tracking number
+ * 4. CT Upload Guía → enlaza la guía al pedido CT
+ * 5. Firestore Update → status: 'shipped' + datos logísticos
+ * 6. Email al cliente → confirmación de envío con tracking
+ */
+async function runFulfillmentLoop(orderData, ctOrdersLog, orderRef) {
+    const { getCTVolumetry, uploadLabelToCT } = require('./services/ctConnect');
+    const { getSkydropXQuote, createSkydropXShipment } = require('./services/skydropX');
+
+    const customer = orderData.customerInfo || {};
+    const address = customer.address || {};
+    const items = orderData.items || [];
+    const destZip = (address.zip || orderData.shippingInfo?.zipCode || '06600').replace(/\D/g, '');
+
+    let fulfillmentLog = { steps: [], errors: [] };
+    let trackingResult = null;
+    let skydropxCost = 0;
+
+    try {
+        const ctToken = await getCTToken();
+
+        // ── STEP 1: CT Volumetría ──────────────────────────────────────────────
+        let totalWeight = 0, maxLength = 0, maxWidth = 0, maxHeight = 0;
+        for (const item of items) {
+            if (!item.sku) continue;
+            try {
+                const vol = await getCTVolumetry(item.sku, ctToken);
+                if (vol) {
+                    const qty = item.quantity || 1;
+                    totalWeight += (parseFloat(vol.peso) || 0.5) * qty;
+                    maxLength = Math.max(maxLength, parseFloat(vol.largo) || 20);
+                    maxWidth = Math.max(maxWidth, parseFloat(vol.ancho) || 20);
+                    maxHeight += (parseFloat(vol.alto) || 10) * qty;
+                }
+            } catch (e) { fulfillmentLog.errors.push(`Volumetry ${item.sku}: ${e.message}`); }
+        }
+        // Safety minimums
+        const parcel = {
+            weight_kg: Math.max(totalWeight, 0.3),
+            length_cm: Math.max(maxLength, 15),
+            width_cm: Math.max(maxWidth, 15),
+            height_cm: Math.max(maxHeight, 10)
+        };
+        fulfillmentLog.steps.push({ step: 'volumetry', parcel });
+        console.log('[Fulfillment] Parcel dimensions:', parcel);
+
+        // ── STEP 2: SkydropX Quote ────────────────────────────────────────────
+        // Try to get origin ZIP from CT warehouse of the first CT order
+        const ctAlmacen = ctOrdersLog?.[0]?.almacen || '01A';
+        const { warehouses } = require('./services/warehouseManager');
+        const whData = warehouses.find(w => w.id === ctAlmacen);
+        const originZip = (whData?.zipCode || '06600').toString();
+
+        const rates = await getSkydropXQuote({ fromZip: originZip, toZip: destZip, parcel });
+        if (!rates || rates.length === 0) {
+            fulfillmentLog.errors.push('No SkydropX rates available');
+        } else {
+            const selectedRate = rates[0]; // Cheapest
+            skydropxCost = parseFloat(selectedRate.total_price || selectedRate.price || 0);
+            fulfillmentLog.steps.push({ step: 'quote', rate: selectedRate.carrier, cost: skydropxCost });
+            console.log(`[Fulfillment] SkydropX rate: ${selectedRate.carrier} $${skydropxCost}`);
+
+            // ── STEP 3: SkydropX Shipment ────────────────────────────────────
+            const sender = {
+                name: 'Pandishú Tech', company: 'Pandishú',
+                email: process.env.SMTP_EMAIL, phone: '5500000000',
+                street: whData?.address || 'Almacén CT',
+                number: 'S/N', district: 'Centro',
+                city: whData?.city || 'Ciudad de Mexico',
+                state: 'CMX', zipCode: originZip
+            };
+            const recipient = {
+                name: customer.name, email: customer.email,
+                phone: customer.phone,
+                street: address.street, ext_number: address.ext_number,
+                colonia: address.colonia, city: address.city,
+                state: address.state, zipCode: destZip
+            };
+
+            const shipment = await createSkydropXShipment({
+                quotationId: selectedRate.quotation_id || selectedRate.id,
+                rateId: selectedRate.id,
+                sender, recipient, parcel,
+                reference: orderRef.id
+            });
+
+            if (shipment?.tracking_number) {
+                trackingResult = {
+                    number: shipment.tracking_number,
+                    carrier: shipment.carrier,
+                    label_url: shipment.label_url,
+                    shipment_id: shipment.shipment_id
+                };
+                fulfillmentLog.steps.push({ step: 'shipment', tracking: trackingResult });
+                console.log(`[Fulfillment] Tracking: ${shipment.tracking_number}`);
+
+                // ── STEP 4: Upload label to CT (for each CT order) ───────────
+                for (const ctOrder of (ctOrdersLog || [])) {
+                    if (ctOrder.pedidoWeb) {
+                        await uploadLabelToCT(
+                            ctOrder.pedidoWeb,
+                            shipment.tracking_number,
+                            shipment.carrier,
+                            '', // No base64 needed — CT just needs the tracking number
+                            ctToken
+                        );
+                        fulfillmentLog.steps.push({ step: 'ct_guia', folio: ctOrder.pedidoWeb });
+                    }
+                }
+            } else {
+                fulfillmentLog.errors.push('SkydropX shipment creation failed or no tracking number returned');
+            }
+        }
+
+    } catch (err) {
+        fulfillmentLog.errors.push(`FulfillmentLoop fatal: ${err.message}`);
+        console.error('[Fulfillment] Fatal error:', err);
+    }
+
+    // ── STEP 5: Firestore Update ─────────────────────────────────────────────
+    const firestoreUpdate = {
+        status: trackingResult ? 'shipped' : 'paid_pending_fulfillment',
+        shippedAt: trackingResult ? FieldValue.serverTimestamp() : null,
+        tracking: trackingResult || null,
+        skydropxCost,
+        fulfillmentLog
+    };
+    // Remove null fields
+    Object.keys(firestoreUpdate).forEach(k => firestoreUpdate[k] === null && delete firestoreUpdate[k]);
+    await orderRef.update(firestoreUpdate);
+    console.log(`[Fulfillment] Firestore updated → status: ${firestoreUpdate.status}`);
+
+    // ── STEP 6: Tracking Email ──────────────────────────────────────────────
+    if (trackingResult && orderData.customerInfo?.email) {
+        await enviarCorreoEnvio(
+            orderData.customerInfo.email,
+            orderData.customerInfo.name,
+            orderRef.id,
+            trackingResult
+        );
+    }
+
+    return { trackingResult, skydropxCost, fulfillmentLog };
+}
+
 const { MercadoPagoConfig, Preference: MPPreference, Payment: MPPayment } = require('mercadopago');
 
 const getMercadoPagoClient = () => {
@@ -267,7 +457,7 @@ exports.processPayment = functions.runWith({
 
 
 
-exports.mpWebhook = functions.https.onRequest(async (req, res) => {
+exports.mpWebhook = functions.runWith({ timeoutSeconds: 120, memory: '512MB' }).https.onRequest(async (req, res) => {
     const client = getMercadoPagoClient();
     const paymentId = req.query.id || (req.body.data && req.body.data.id);
     if (!paymentId) return res.status(200).send('OK');
@@ -375,6 +565,7 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
                     console.error("Error procesando CT Dropshipping en Webhook:", err);
                 }
 
+                // ── Mark order as PAID immediately (never lose the payment record) ──
                 await orderRef.update({
                     status: 'paid',
                     mpPaymentId: paymentId,
@@ -383,7 +574,21 @@ exports.mpWebhook = functions.https.onRequest(async (req, res) => {
                     ctOrders: ctOrdersLog
                 });
 
+                // ── Send purchase confirmation email right away ──
                 await enviarCorreoConfirmacion(data.customerInfo.email, data.customerInfo.name, orderId, resolvedItems, data.amountTotal);
+
+                // ── Launch Antigravity OS v2.0 Fulfillment Loop ────────────────
+                // (volumetry → SkydropX label → CT guias → shipped status → tracking email)
+                console.log('[Webhook] Starting Antigravity OS v2.0 fulfillment loop...');
+                runFulfillmentLoop(
+                    { ...data, items: resolvedItems },
+                    ctOrdersLog,
+                    orderRef
+                ).then(result => {
+                    console.log('[Webhook] Fulfillment loop completed:', result?.trackingResult?.number || 'no tracking');
+                }).catch(err => {
+                    console.error('[Webhook] Fulfillment loop error (order already saved):', err.message);
+                });
             }
         }
         return res.status(200).send('OK');
