@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Privacy Control Engine (GA4) -->
     <script src="analytics.js"></script>
-    <title>¡Pago Exitoso! | Pandishú</title>
+    <title>Â¡Pago Exitoso! | PandishÃº</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;900&display=swap"
         rel="stylesheet">
@@ -85,10 +86,10 @@
             <i data-lucide="check" class="w-14 h-14 text-green-400"></i>
         </div>
 
-        <h1 class="fadeUp delay-1 text-4xl font-black text-white mb-3">¡Pago Aprobado!</h1>
+        <h1 class="fadeUp delay-1 text-4xl font-black text-white mb-3">Â¡Pago Aprobado!</h1>
         <p class="fadeUp delay-1 text-slate-400 text-lg mb-2">Tu pedido ha sido confirmado.</p>
-        <p class="fadeUp delay-1 text-slate-500 text-sm mb-8">Recibirás un correo de confirmación en breve con los
-            detalles de tu pedido y guía de rastreo.</p>
+        <p class="fadeUp delay-1 text-slate-500 text-sm mb-8">RecibirÃ¡s un correo de confirmaciÃ³n en breve con los
+            detalles de tu pedido y guÃ­a de rastreo.</p>
 
         <!-- Order details from URL params -->
         <div id="order-details"
@@ -98,7 +99,7 @@
                 <div class="flex justify-between"><span class="text-slate-400">ID de Pago</span><span id="payment-id"
                         class="text-white font-mono font-bold"></span></div>
                 <div class="flex justify-between"><span class="text-slate-400">Estado</span><span
-                        class="text-green-400 font-bold">✓ Aprobado</span></div>
+                        class="text-green-400 font-bold">âœ“ Aprobado</span></div>
                 <div class="flex justify-between"><span class="text-slate-400">Referencia</span><span
                         id="merchant-order" class="text-slate-300 font-mono text-xs"></span></div>
             </div>
@@ -109,7 +110,7 @@
                 class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
                 <i data-lucide="shopping-bag" class="w-4 h-4"></i> Seguir Comprando
             </a>
-            <a href="https://wa.me/5216442041543?text=Hola!+Realicé+un+pedido+en+pandishu.com" target="_blank"
+            <a href="https://wa.me/5216442041543?text=Hola!+RealicÃ©+un+pedido+en+pandishu.com" target="_blank"
                 onclick="if(typeof window.pandishuTrack === 'function') window.pandishuTrack('contact_whatsapp');"
                 class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
                 <i data-lucide="message-circle" class="w-4 h-4"></i> Contactar Soporte
@@ -117,14 +118,14 @@
         </div>
 
         <p class="mt-8 text-slate-600 text-xs">
-            <a href="index.html" class="hover:text-indigo-400 transition-colors">― Pandishú · Inicio ―</a>
+            <a href="index.html" class="hover:text-indigo-400 transition-colors">â€• PandishÃº Â· Inicio â€•</a>
         </p>
     </div>
 
     <script>
         lucide.createIcons();
 
-        // Extraer parámetros de la URL que Mercado Pago agrega al redirigir
+        // Extraer parÃ¡metros de la URL que Mercado Pago agrega al redirigir
         const params = new URLSearchParams(window.location.search);
         const paymentId = params.get('payment_id');
         const merchantOrderId = params.get('merchant_order_id');
@@ -132,7 +133,7 @@
 
         if (paymentId) {
             document.getElementById('payment-id').textContent = '#' + paymentId;
-            document.getElementById('merchant-order').textContent = merchantOrderId || '—';
+            document.getElementById('merchant-order').textContent = merchantOrderId || 'â€”';
             document.getElementById('order-details').classList.remove('hidden');
         }
 

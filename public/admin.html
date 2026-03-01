@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Pandishú</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Fonts -->
@@ -310,18 +311,24 @@
             }
         }
 
-        function statusClass(status) {
-            if (status === 'paid') return 'status-badge status-paid';
-            if (status === 'processing') return 'status-badge status-processing';
-            if (status === 'pending_payment') return 'status-badge status-pending';
+        function isPaid(order) {
+            return order.status === 'paid' || (order.mpPaymentId && order.status !== 'failed');
+        }
+
+        function statusClass(order) {
+            if (order.status === 'paid') return 'status-badge status-paid';
+            if (order.mpPaymentId) return 'status-badge status-paid'; // MP confirmed payment
+            if (order.status === 'processing') return 'status-badge status-processing';
+            if (order.status === 'pending_payment') return 'status-badge status-pending';
             return 'status-badge status-failed';
         }
 
-        function statusLabel(status) {
-            if (status === 'paid') return '✅ Pagado';
-            if (status === 'processing') return '⏳ Procesando';
-            if (status === 'pending_payment') return '🕐 Pago Pendiente';
-            return '❌ ' + status;
+        function statusLabel(order) {
+            if (order.status === 'paid') return '✅ Pagado';
+            if (order.mpPaymentId) return '✅ Pagado (MP)';
+            if (order.status === 'processing') return '⏳ Procesando';
+            if (order.status === 'pending_payment') return '🕐 Pago Pendiente';
+            return '❌ ' + order.status;
         }
 
         function formatDate(ts) {
@@ -345,8 +352,8 @@
             }
 
             // Summary
-            const paid = pedidos.filter(p => p.status === 'paid');
-            const pending = pedidos.filter(p => p.status !== 'paid');
+            const paid = pedidos.filter(p => isPaid(p));
+            const pending = pedidos.filter(p => !isPaid(p));
             const revenue = paid.reduce((s, p) => s + (p.amountTotal || 0), 0);
 
             document.getElementById('stat-total').textContent = pedidos.length;
@@ -373,7 +380,7 @@
                         <p class="text-slate-500 text-[11px]">${order.customerInfo?.email || '—'}</p>
                     </td>
                     <td class="px-5 py-4 text-slate-400 text-xs whitespace-nowrap">${formatDate(order.createdAt)}</td>
-                    <td class="px-5 py-4"><span class="${statusClass(order.status)}">${statusLabel(order.status)}</span></td>
+                    <td class="px-5 py-4"><span class="${statusClass(order)}">${statusLabel(order)}</span></td>
                     <td class="px-5 py-4 text-right font-black text-indigo-300">${formatMoney(order.amountTotal)}</td>
                 `;
                 mainRow.onclick = () => {

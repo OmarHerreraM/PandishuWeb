@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rastrear Mi Pedido | Pandishú</title>
-    <meta name="description" content="Consulta el estado de tu pedido Pandishú ingresando tu correo electrónico.">
+    <title>Rastrear Mi Pedido | PandishÃº</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <meta name="description" content="Consulta el estado de tu pedido PandishÃº ingresando tu correo electrÃ³nico.">
 
     <!-- Fonts -->
     <link
@@ -124,11 +125,11 @@
     <nav class="sticky top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3">
         <div class="max-w-5xl mx-auto flex justify-between items-center px-6">
             <a href="index" class="flex items-center gap-3">
-                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                <img src="Pandishu-Logo-26.png" alt="PandishÃº Logo"
                     class="h-9 w-9 rounded-xl object-cover ring-1 ring-white/10"
                     onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
                 <div class="flex flex-col leading-none">
-                    <span class="text-lg font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-lg font-black tracking-tight text-white uppercase italic">PandishÃº</span>
                     <span class="text-[9px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Tech Solutions</span>
                 </div>
             </a>
@@ -158,7 +159,7 @@
                 Rastreo de Pedidos
             </div>
             <h1 class="text-4xl md:text-5xl font-black tracking-tight uppercase italic mb-4 leading-none">
-                ¿Dónde está<br><span class="gradient-text">mi pedido?</span>
+                Â¿DÃ³nde estÃ¡<br><span class="gradient-text">mi pedido?</span>
             </h1>
             <p class="text-slate-400 text-lg font-light">
                 Ingresa el correo con el que realizaste tu compra para consultar el estado.
@@ -207,11 +208,11 @@
     <!-- Footer -->
     <footer class="bg-slate-950 border-t border-slate-800 py-8 px-6">
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <span class="text-slate-600 text-xs font-bold uppercase">© 2026 Pandishu E-Commerce</span>
+            <span class="text-slate-600 text-xs font-bold uppercase">Â© 2026 Pandishu E-Commerce</span>
             <a href="https://wa.me/525662580512?text=Hola%2C%20necesito%20ayuda%20con%20mi%20pedido" target="_blank"
                 class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/25 hover:bg-green-500/20 text-green-400 font-bold text-xs px-5 py-2.5 rounded-full transition">
                 <i data-lucide="message-circle" class="w-4 h-4"></i>
-                ¿Necesitas ayuda? Escríbenos por WhatsApp
+                Â¿Necesitas ayuda? EscrÃ­benos por WhatsApp
             </a>
         </div>
     </footer>
@@ -225,7 +226,7 @@
             const steps = [
                 { key: 'received', label: 'Pedido Recibido', icon: 'check' },
                 { key: 'paid', label: 'Pago Confirmado', icon: 'credit-card' },
-                { key: 'processing', label: 'En Preparación en CT', icon: 'package' },
+                { key: 'processing', label: 'En PreparaciÃ³n en CT', icon: 'package' },
                 { key: 'shipped', label: 'Enviado', icon: 'truck' }
             ];
 
@@ -255,7 +256,7 @@
         }
 
         function formatDate(ts) {
-            if (!ts) return '—';
+            if (!ts) return 'â€”';
             const ms = ts._seconds ? ts._seconds * 1000 : ts;
             return new Date(ms).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
@@ -273,7 +274,7 @@
             document.getElementById('results-container').classList.add('hidden');
 
             if (!email || !email.includes('@')) {
-                document.getElementById('error-text').textContent = 'Por favor ingresa un correo electrónico válido.';
+                document.getElementById('error-text').textContent = 'Por favor ingresa un correo electrÃ³nico vÃ¡lido.';
                 errorMsg.classList.remove('hidden');
                 lucide.createIcons();
                 return;
@@ -300,7 +301,7 @@
                 }
 
             } catch (e) {
-                document.getElementById('error-text').textContent = 'Error de conexión. Intenta de nuevo.';
+                document.getElementById('error-text').textContent = 'Error de conexiÃ³n. Intenta de nuevo.';
                 errorMsg.classList.remove('hidden');
             } finally {
                 btn.innerHTML = `<i data-lucide="search" class="w-5 h-5"></i> Consultar mis pedidos`;
@@ -317,7 +318,7 @@
                     `<li class="flex items-center gap-2 text-slate-300 text-sm">
                         <i data-lucide="package" class="w-3.5 h-3.5 text-slate-600 flex-shrink-0"></i>
                         <span class="font-semibold">${item.name || item.sku}</span>
-                        <span class="text-slate-500">× ${item.quantity}</span>
+                        <span class="text-slate-500">Ã— ${item.quantity}</span>
                     </li>`
                 ).join('');
 
@@ -334,7 +335,7 @@
                     <div class="flex items-start justify-between gap-4 mb-5">
                         <div>
                             <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-0.5">Pedido</p>
-                            <p class="font-mono text-xs text-slate-300">#${order.orderId?.slice(-10) || '—'}</p>
+                            <p class="font-mono text-xs text-slate-300">#${order.orderId?.slice(-10) || 'â€”'}</p>
                             <p class="text-slate-500 text-xs mt-1">${formatDate(order.createdAt)}</p>
                         </div>
                         <div class="text-right">
@@ -352,7 +353,7 @@
 
                         <!-- Items -->
                         <div class="flex-1">
-                            <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">Artículos</p>
+                            <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">ArtÃ­culos</p>
                             <ul class="flex flex-col gap-2">${itemsHtml || '<li class="text-slate-600 text-sm">Sin detalle disponible</li>'}</ul>
 
                             ${ctHtml ? `<div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-2">${ctHtml}</div>` : ''}

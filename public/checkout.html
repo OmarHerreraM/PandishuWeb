@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -16,7 +16,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Privacy Control Engine (GA4) -->
     <script src="analytics.js"></script>
-    <title>Checkout Seguro | Pandishú</title>
+    <title>Checkout Seguro | PandishÃº</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Tailwind CSS -->
@@ -61,15 +62,15 @@
 
 <body class="bg-slate-950 text-slate-300 leading-relaxed antialiased min-h-screen flex flex-col">
 
-    <!-- NAVEGACIÓN SIMPLE (Sin enlaces de escape para enfocar al checkout) -->
+    <!-- NAVEGACIÃ“N SIMPLE (Sin enlaces de escape para enfocar al checkout) -->
     <nav class="w-full z-50 bg-slate-900 border-b border-white/5 py-3">
         <div class="max-w-7xl mx-auto flex justify-center md:justify-between items-center px-6">
             <a href="tienda" class="flex items-center gap-3">
-                <img src="Pandishu-Logo-26.png" alt="Pandishú Logo"
+                <img src="Pandishu-Logo-26.png" alt="PandishÃº Logo"
                     class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10"
                     onerror="this.src='https://ui-avatars.com/api/?name=P&background=6366f1&color=fff'">
                 <div class="flex flex-col leading-none">
-                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishú</span>
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">PandishÃº</span>
                     <span class="text-[10px] text-indigo-400 font-bold tracking-[0.2em] uppercase">Checkout
                         Seguro</span>
                 </div>
@@ -90,7 +91,7 @@
                     <div
                         class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/30">
                         1</div>
-                    <h2 class="text-2xl font-black text-white uppercase italic">Datos de Envío</h2>
+                    <h2 class="text-2xl font-black text-white uppercase italic">Datos de EnvÃ­o</h2>
                 </div>
 
                 <form id="checkout-form" class="space-y-8 glass-panel p-6 md:p-8 rounded-3xl">
@@ -106,12 +107,12 @@
                                 <label
                                     class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Nombre
                                     Completo</label>
-                                <input type="text" id="billing_name" required placeholder="Ej. Juan Pérez"
+                                <input type="text" id="billing_name" required placeholder="Ej. Juan PÃ©rez"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Teléfono
+                                    class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">TelÃ©fono
                                     Celular</label>
                                 <input type="tel" id="billing_phone" required placeholder="55 1234 5678"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
@@ -119,16 +120,16 @@
                             <div class="md:col-span-2">
                                 <label
                                     class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Correo
-                                    Electrónico</label>
+                                    ElectrÃ³nico</label>
                                 <input type="email" id="billing_email" required placeholder="juan@empresa.com"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
                                 <p class="text-[10px] text-slate-300 mt-1 flex items-center gap-1"><i data-lucide="info"
-                                        class="w-3 h-3"></i> A este correo enviaremos la guía de rastreo y factura.</p>
+                                        class="w-3 h-3"></i> A este correo enviaremos la guÃ­a de rastreo y factura.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dirección de Envío -->
+                    <!-- DirecciÃ³n de EnvÃ­o -->
                     <div class="space-y-4">
                         <h3
                             class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-2">
@@ -139,7 +140,7 @@
                             <div class="md:col-span-2">
                                 <label
                                     class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Calle y
-                                    Número</label>
+                                    NÃºmero</label>
                                 <input type="text" id="shipping_street" required
                                     placeholder="Ej. Av. Reforma 222, Int 4"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
@@ -148,12 +149,12 @@
                                 <label
                                     class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Colonia
                                     / Barrio</label>
-                                <input type="text" id="shipping_colonia" required placeholder="Ej. Juárez"
+                                <input type="text" id="shipping_colonia" required placeholder="Ej. JuÃ¡rez"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Código
+                                    class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">CÃ³digo
                                     Postal (CP)</label>
                                 <input type="text" id="shipping_zip" required placeholder="06600"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm"
@@ -163,7 +164,7 @@
                                 <label
                                     class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Ciudad
                                     o Municipio</label>
-                                <input type="text" id="shipping_city" required placeholder="Ciudad de México"
+                                <input type="text" id="shipping_city" required placeholder="Ciudad de MÃ©xico"
                                     class="w-full input-glass rounded-xl px-4 py-3 text-sm">
                             </div>
                             <div>
@@ -179,7 +180,7 @@
                                     <option value="CAM">Campeche</option>
                                     <option value="CHP">Chiapas</option>
                                     <option value="CHH">Chihuahua</option>
-                                    <option value="CDMX">Ciudad de México</option>
+                                    <option value="CDMX">Ciudad de MÃ©xico</option>
                                     <option value="COA">Coahuila</option>
                                     <option value="COL">Colima</option>
                                     <option value="DGO">Durango</option>
@@ -187,23 +188,23 @@
                                     <option value="GRO">Guerrero</option>
                                     <option value="HGO">Hidalgo</option>
                                     <option value="JAL">Jalisco</option>
-                                    <option value="MEX">Estado de México</option>
-                                    <option value="MIC">Michoacán</option>
+                                    <option value="MEX">Estado de MÃ©xico</option>
+                                    <option value="MIC">MichoacÃ¡n</option>
                                     <option value="MOR">Morelos</option>
                                     <option value="NAY">Nayarit</option>
-                                    <option value="NLE">Nuevo León</option>
+                                    <option value="NLE">Nuevo LeÃ³n</option>
                                     <option value="OAX">Oaxaca</option>
                                     <option value="PUE">Puebla</option>
-                                    <option value="QRO">Querétaro</option>
+                                    <option value="QRO">QuerÃ©taro</option>
                                     <option value="ROO">Quintana Roo</option>
-                                    <option value="SLP">San Luis Potosí</option>
+                                    <option value="SLP">San Luis PotosÃ­</option>
                                     <option value="SIN">Sinaloa</option>
                                     <option value="SON">Sonora</option>
                                     <option value="TAB">Tabasco</option>
                                     <option value="TAM">Tamaulipas</option>
                                     <option value="TLA">Tlaxcala</option>
                                     <option value="VER">Veracruz</option>
-                                    <option value="YUC">Yucatán</option>
+                                    <option value="YUC">YucatÃ¡n</option>
                                     <option value="ZAC">Zacatecas</option>
                                 </select>
                             </div>
@@ -222,18 +223,18 @@
                     <div class="space-y-4">
                         <h3
                             class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-2">
-                            <i data-lucide="credit-card" class="w-4 h-4 text-indigo-400"></i> Método de Pago
+                            <i data-lucide="credit-card" class="w-4 h-4 text-indigo-400"></i> MÃ©todo de Pago
                         </h3>
 
 
-                        <!-- Opción Única: Checkout Pro (Wallet Brick) -->
+                        <!-- OpciÃ³n Ãšnica: Checkout Pro (Wallet Brick) -->
                         <div class="p-6 border border-[#009EE3]/30 rounded-3xl bg-[#009EE3]/5 space-y-4 text-center">
                             <h4 class="text-white font-black text-lg mb-1 flex items-center justify-center gap-2">
                                 <i data-lucide="shield-check" class="text-emerald-400 w-5 h-5"></i>
                                 Pago Seguro 100% Encriptado
                             </h4>
                             <p class="text-sm text-slate-400 mb-4 px-4">Paga con total seguridad usando tarjetas de
-                                crédito/débito, efectivo en OXXO, transferencias o saldo en cuenta.</p>
+                                crÃ©dito/dÃ©bito, efectivo en OXXO, transferencias o saldo en cuenta.</p>
                             <button type="button" id="btn-wallet-init" onclick="injectWalletBrick()"
                                 class="w-full bg-[#009EE3] hover:bg-[#008ACB] text-white font-black uppercase tracking-widest text-sm py-4 rounded-2xl shadow-[0_8px_30px_rgba(0,158,227,0.3)] transition-all hover:scale-[1.02] flex justify-center items-center gap-3">
                                 <i data-lucide="lock" class="w-5 h-5"></i> Pagar con Mercado Pago
@@ -260,11 +261,11 @@
                             <span id="checkout-subtotal" class="font-bold text-white">$0.00</span>
                         </div>
 
-                        <!-- ENVÍO -->
+                        <!-- ENVÃO -->
                         <div class="flex items-center justify-between text-sm mt-3">
                             <span class="flex items-center gap-2 text-white">
                                 <i data-lucide="truck" class="w-4 h-4 text-indigo-400"></i>
-                                Envío
+                                EnvÃ­o
                             </span>
                             <span id="checkout-shipping"
                                 class="font-bold text-emerald-400 text-xs uppercase tracking-widest">Gestionado por
@@ -281,7 +282,7 @@
                         class="flex flex-col gap-4 text-xs font-bold text-slate-500 items-center justify-center text-center">
                         <p class="flex items-center gap-2"><i data-lucide="shield-check"
                                 class="w-4 h-4 text-emerald-500"></i> Pagos encriptados con seguridad de nivel bancario
-                            a través de Mercado Pago.</p>
+                            a travÃ©s de Mercado Pago.</p>
                     </div>
                 </div>
             </div>
@@ -291,13 +292,13 @@
 
     <!-- Footer Simple -->
     <footer class="py-8 px-6 border-t border-white/5 text-center bg-slate-900 mt-auto">
-        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">Pandishú Seguro</p>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">PandishÃº Seguro</p>
         <div class="flex flex-wrap justify-center gap-4 text-slate-600 text-[10px] font-bold uppercase tracking-widest">
             <a href="tienda" class="hover:text-indigo-400 transition-colors">Volver a la tienda</a>
-            <span>•</span>
+            <span>â€¢</span>
             <a href="privacidad" target="_blank" class="hover:text-indigo-400 transition-colors">Privacidad</a>
-            <span>•</span>
-            <a href="devoluciones" target="_blank" class="hover:text-indigo-400 transition-colors">Garantía /
+            <span>â€¢</span>
+            <a href="devoluciones" target="_blank" class="hover:text-indigo-400 transition-colors">GarantÃ­a /
                 Devoluciones</a>
         </div>
     </footer>
@@ -316,9 +317,9 @@
                 const configRes = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/getConfig');
                 const configData = await configRes.json();
                 window.MP_PUBLIC_KEY = configData.MP_PUBLIC_KEY;
-                console.log('✅ Configuración de Mercado Pago cargada');
+                console.log('âœ… ConfiguraciÃ³n de Mercado Pago cargada');
             } catch (e) {
-                console.warn('⚠️ No se pudo cargar la configuración de MP, usando TEST key por defecto');
+                console.warn('âš ï¸ No se pudo cargar la configuraciÃ³n de MP, usando TEST key por defecto');
             }
 
             // 2. Load Cart
@@ -360,7 +361,7 @@
                 </div>`;
             }).join('');
 
-            const SHIPPING_COST = 0; // Se calculará con app de envíos mañana
+            const SHIPPING_COST = 0; // Se calcularÃ¡ con app de envÃ­os maÃ±ana
             window._cartSubtotal = subtotal;
             window._shippingCost = SHIPPING_COST;
             orderTotal = subtotal + SHIPPING_COST;
@@ -385,16 +386,16 @@
         }
 
         async function calculateShippingCost() {
-            // Ya no calculamos con SkydropX,CT gestionará el envío interno
-            // Mantenemos la función para no romper referencias de "onblur" si las hubiera, 
-            // pero sólo recargamos el total standard.
+            // Ya no calculamos con SkydropX,CT gestionarÃ¡ el envÃ­o interno
+            // Mantenemos la funciÃ³n para no romper referencias de "onblur" si las hubiera, 
+            // pero sÃ³lo recargamos el total standard.
             refreshTotal();
         }
 
         function initializeCardForm() {
             if (cardFormInstance) return; // Prevent double init
 
-            // Usa la llave de producción cargada desde el servidor si existe
+            // Usa la llave de producciÃ³n cargada desde el servidor si existe
             const mp = new MercadoPago(window.MP_PUBLIC_KEY || 'TEST-2f0becf0-afe4-4c79-bea8-317ccc152d84');
 
             cardFormInstance = mp.cardForm({
@@ -479,7 +480,7 @@
                             const data = await response.json();
 
                             if (data.status === 'approved') {
-                                // Limpiar carrito y redirigir a página de éxito
+                                // Limpiar carrito y redirigir a pÃ¡gina de Ã©xito
                                 localStorage.removeItem('pandishu_cart');
                                 window.location.href = 'success.html?payment_id=' + data.id + '&status=approved';
                             } else if (data.status === 'in_process') {
@@ -489,10 +490,10 @@
                                 console.warn('Payment failed', data);
 
                                 const errorMap = {
-                                    'cc_rejected_bad_filled_card_number': 'Revisa el número de tarjeta.',
+                                    'cc_rejected_bad_filled_card_number': 'Revisa el nÃºmero de tarjeta.',
                                     'cc_rejected_bad_filled_date': 'Revisa la fecha de vencimiento.',
                                     'cc_rejected_bad_filled_other': 'Revisa los datos ingresados.',
-                                    'cc_rejected_bad_filled_security_code': 'Revisa el código de seguridad.',
+                                    'cc_rejected_bad_filled_security_code': 'Revisa el cÃ³digo de seguridad.',
                                     'cc_rejected_blacklist': 'No pudimos procesar tu pago. Intenta con otro medio.',
                                     'cc_rejected_call_for_authorize': 'Debes autorizar el pago ante tu banco.',
                                     'cc_rejected_card_disabled': 'Llama a tu banco para activar tu tarjeta o usa otro medio.',
@@ -501,16 +502,16 @@
                                     'cc_rejected_high_risk': 'Tu pago fue rechazado por seguridad. Intenta con otro medio de pago.',
                                     'cc_rejected_insufficient_amount': 'Tu tarjeta no tiene fondos suficientes.',
                                     'cc_rejected_invalid_installments': 'Tu medio de pago no procesa cuotas para este monto.',
-                                    'cc_rejected_max_attempts': 'Llegaste al límite de intentos permitidos. Elige otra tarjeta.',
-                                    'cc_amount_rate_limit_exceeded': 'El pago fue rechazado por superar el límite de la tarjeta.',
+                                    'cc_rejected_max_attempts': 'Llegaste al lÃ­mite de intentos permitidos. Elige otra tarjeta.',
+                                    'cc_amount_rate_limit_exceeded': 'El pago fue rechazado por superar el lÃ­mite de la tarjeta.',
                                     'rejected_insufficient_data': 'Pago rechazado por falta de datos.',
-                                    'rejected_by_bank': 'Operación rechazada por el banco.',
+                                    'rejected_by_bank': 'OperaciÃ³n rechazada por el banco.',
                                     'rejected_by_regulations': 'Pago rechazado por regulaciones.',
                                     'insufficient_amount': 'Pago rechazado por montos insuficientes.'
                                 };
 
                                 const userMessage = errorMap[data.status_detail] || ("El pago no pudo ser procesado (" + (data.status_detail || data.status || "Rechazado") + "). Intenta con otra tarjeta.");
-                                alert("⚠️ " + userMessage);
+                                alert("âš ï¸ " + userMessage);
 
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = 'Pagar con Tarjeta <i data-lucide="arrow-right" class="w-4 h-4"></i>';
@@ -519,7 +520,7 @@
 
                         } catch (e) {
                             console.error(e);
-                            alert("Ocurrió un error de conexión con el banco. Intenta nuevamente.");
+                            alert("OcurriÃ³ un error de conexiÃ³n con el banco. Intenta nuevamente.");
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = 'Pagar con Tarjeta <i data-lucide="arrow-right" class="w-4 h-4"></i>';
                             lucide.createIcons();
@@ -577,9 +578,9 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert("Ocurrió un error al preparar Mercado Pago. " + e.message);
+                alert("OcurriÃ³ un error al preparar Mercado Pago. " + e.message);
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="wallet" class="w-4 h-4"></i> Iniciar sesión y pagar';
+                btn.innerHTML = '<i data-lucide="wallet" class="w-4 h-4"></i> Iniciar sesiÃ³n y pagar';
                 lucide.createIcons();
             }
         }
