@@ -671,3 +671,67 @@ exports.onLeadCreated = functions.firestore
             console.error(`Fallo al enviar el correo a ${lead.correo}:`, error);
         }
     });
+
+// ─── CUSTOMER ORDER LOOKUP (PUBLIC) ───────────────────────────────────────────
+exports.getOrderStatus = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        try {
+            const { email } = req.body;
+            if (!email || typeof email !== 'string') {
+                return res.status(400).json({ error: 'Se requiere el correo electrónico.' });
+            }
+
+            const db = admin.firestore();
+            const normalizedEmail = email.toLowerCase().trim();
+            const now = new Date();
+            const foundOrders = [];
+
+            // Scan last 6 months to find matching orders
+            for (let i = 0; i < 6; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const year = d.getFullYear().toString();
+                const month = (d.getMonth() + 1).toString().padStart(2, '0');
+
+                try {
+                    const snap = await db.collection('orders').doc(year).collection(month)
+                        .where('customerInfo.email', '==', normalizedEmail)
+                        .orderBy('createdAt', 'desc')
+                        .limit(10)
+                        .get();
+
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        foundOrders.push({
+                            orderId: doc.id,
+                            status: data.status,
+                            createdAt: data.createdAt,
+                            paidAt: data.paidAt || null,
+                            amountTotal: data.amountTotal,
+                            items: (data.items || []).map(item => ({
+                                name: item.name,
+                                quantity: item.quantity,
+                                sku: item.sku
+                            })),
+                            ctOrders: (data.ctOrders || []).map(ct => ({
+                                pedidoWeb: ct.pedidoWeb,
+                                status: ct.status,
+                                almacen: ct.almacen
+                            }))
+                        });
+                    });
+                } catch (queryErr) {
+                    // Skip months with no data / missing index
+                    console.warn(`Skipping ${year}/${month}:`, queryErr.message);
+                }
+            }
+
+            if (foundOrders.length === 0) {
+                return res.status(404).json({ error: 'No se encontraron pedidos para este correo.' });
+            }
+
+            return res.status(200).json({ orders: foundOrders });
+        } catch (e) {
+            return res.status(500).json({ error: e.message });
+        }
+    });
+});

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Pandishú</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind + Lucide -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: #020617;
+            color: #f8fafc;
+        }
+
+        .status-badge {
+            border-radius: 999px;
+            padding: 3px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .status-paid {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #4ade80;
+        }
+
+        .status-pending {
+            background: rgba(234, 179, 8, 0.15);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #facc15;
+        }
+
+        .status-processing {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
+        }
+
+        .status-failed {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+        }
+
+        .order-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .order-row:hover {
+            background: rgba(99, 102, 241, 0.07);
+        }
+
+        .detail-panel {
+            display: none;
+        }
+
+        .detail-panel.open {
+            display: table-row;
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen font-sans">
+
+    <!-- ═══ LOGIN SCREEN ═══ -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="card p-10 w-full max-w-md">
+            <div class="text-center mb-8">
+                <span class="text-4xl font-black text-white uppercase italic tracking-tighter">Pandishú</span>
+                <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mt-2">Panel Administrativo</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div class="bg-slate-950/60 border border-slate-700 rounded-xl px-5 py-4 flex items-center gap-3">
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
+                    <input id="admin-key-input" type="password" placeholder="Contraseña de administrador"
+                        class="w-full bg-transparent text-white placeholder-slate-600 outline-none text-sm"
+                        onkeydown="if(event.key==='Enter') doLogin()">
+                </div>
+                <p id="login-error" class="text-red-400 text-xs font-bold text-center hidden">Acceso denegado. Clave
+                    incorrecta.</p>
+                <button onclick="doLogin()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm py-4 rounded-xl transition-all uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Ingresar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="dashboard" class="hidden min-h-screen">
+
+        <!-- Nav -->
+        <nav
+            class="bg-slate-900/90 backdrop-blur border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <span class="text-xl font-black text-white uppercase italic">Pandishú</span>
+                <span
+                    class="text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">Admin</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="tienda"
+                    class="text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest transition flex items-center gap-1.5">
+                    <i data-lucide="store" class="w-4 h-4"></i> Tienda
+                </a>
+                <button onclick="doLogout()"
+                    class="text-slate-500 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition flex items-center gap-1.5">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+                </button>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-6 py-10">
+
+            <!-- Month Picker -->
+            <div class="card p-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="flex items-center gap-3 flex-1">
+                    <i data-lucide="calendar" class="w-5 h-5 text-indigo-400 flex-shrink-0"></i>
+                    <h2 class="text-white font-black text-lg uppercase italic">Pedidos del Mes</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <select id="month-select"
+                        class="bg-slate-800 border border-white/10 text-white text-sm font-bold rounded-xl px-4 py-2 outline-none">
+                        <option value="01">Enero</option>
+                        <option value="02">Febrero</option>
+                        <option value="03">Marzo</option>
+                        <option value="04">Abril</option>
+                        <option value="05">Mayo</option>
+                        <option value="06">Junio</option>
+                        <option value="07">Julio</option>
+                        <option value="08">Agosto</option>
+                        <option value="09">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                    <select id="year-select"
+                        class="bg-slate-800 border border-white/10 text-white text-sm font-bold rounded-xl px-4 py-2 outline-none">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                    <button onclick="loadOrders()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs px-6 py-2 rounded-xl transition uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Cargar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div id="summary-cards" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="card p-5">
+                    <p class="text-slate-500 text-xs uppercase tracking-wider font-bold mb-1">Total Pedidos</p>
+                    <p id="stat-total" class="text-3xl font-black text-white">0</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-slate-500 text-xs uppercase tracking-wider font-bold mb-1">Pagados</p>
+                    <p id="stat-paid" class="text-3xl font-black text-green-400">0</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-slate-500 text-xs uppercase tracking-wider font-bold mb-1">Pendientes</p>
+                    <p id="stat-pending" class="text-3xl font-black text-yellow-400">0</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-slate-500 text-xs uppercase tracking-wider font-bold mb-1">Ingresos MXN</p>
+                    <p id="stat-revenue" class="text-2xl font-black text-indigo-300">$0</p>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading-indicator" class="hidden text-center py-20 text-slate-500">
+                <i data-lucide="loader" class="w-10 h-10 mx-auto mb-3 animate-spin text-indigo-500"></i>
+                <p class="text-sm font-bold uppercase tracking-widest">Cargando pedidos...</p>
+            </div>
+
+            <!-- Empty -->
+            <div id="empty-state" class="hidden text-center py-20 text-slate-500">
+                <i data-lucide="package-x" class="w-12 h-12 mx-auto mb-4 opacity-40"></i>
+                <p class="font-bold">No hay pedidos para este período.</p>
+            </div>
+
+            <!-- Orders Table -->
+            <div id="orders-table-container" class="hidden card overflow-hidden">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-900/80 border-b border-white/5">
+                        <tr>
+                            <th class="px-5 py-4 text-slate-400 font-bold uppercase tracking-wider text-xs">Pedido ID
+                            </th>
+                            <th class="px-5 py-4 text-slate-400 font-bold uppercase tracking-wider text-xs">Cliente</th>
+                            <th class="px-5 py-4 text-slate-400 font-bold uppercase tracking-wider text-xs">Fecha</th>
+                            <th class="px-5 py-4 text-slate-400 font-bold uppercase tracking-wider text-xs">Status</th>
+                            <th class="px-5 py-4 text-slate-400 font-bold uppercase tracking-wider text-xs text-right">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body"></tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const API_BASE = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net';
+        let adminKey = '';
+
+        // Pre-select current month
+        const now = new Date();
+        document.getElementById('month-select').value = String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('year-select').value = String(now.getFullYear());
+
+        function doLogin() {
+            const key = document.getElementById('admin-key-input').value.trim();
+            if (!key) return;
+            adminKey = key;
+            sessionStorage.setItem('pandishu_admin_key', key);
+            verifyAndEnter();
+        }
+
+        async function verifyAndEnter() {
+            // Try to load current month as verification
+            const year = document.getElementById('year-select').value;
+            const month = document.getElementById('month-select').value;
+
+            const res = await fetch(`${API_BASE}/getPedidos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminKey, year: parseInt(year), month: parseInt(month) })
+            });
+
+            if (res.status === 401) {
+                document.getElementById('login-error').classList.remove('hidden');
+                adminKey = '';
+                return;
+            }
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            lucide.createIcons();
+
+            const data = await res.json();
+            renderOrders(data.pedidos || []);
+        }
+
+        function doLogout() {
+            adminKey = '';
+            sessionStorage.removeItem('pandishu_admin_key');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-key-input').value = '';
+            lucide.createIcons();
+        }
+
+        async function loadOrders() {
+            const year = document.getElementById('year-select').value;
+            const month = document.getElementById('month-select').value;
+
+            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('orders-table-container').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('summary-cards').classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_BASE}/getPedidos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminKey, year: parseInt(year), month: parseInt(month) })
+                });
+                const data = await res.json();
+                renderOrders(data.pedidos || []);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                document.getElementById('loading-indicator').classList.add('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        function statusClass(status) {
+            if (status === 'paid') return 'status-badge status-paid';
+            if (status === 'processing') return 'status-badge status-processing';
+            if (status === 'pending_payment') return 'status-badge status-pending';
+            return 'status-badge status-failed';
+        }
+
+        function statusLabel(status) {
+            if (status === 'paid') return '✅ Pagado';
+            if (status === 'processing') return '⏳ Procesando';
+            if (status === 'pending_payment') return '🕐 Pago Pendiente';
+            return '❌ ' + status;
+        }
+
+        function formatDate(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts._seconds * 1000);
+            return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatMoney(amount) {
+            return '$' + Number(amount || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderOrders(pedidos) {
+            const tbody = document.getElementById('orders-table-body');
+
+            if (!pedidos || pedidos.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+                document.getElementById('orders-table-container').classList.add('hidden');
+                document.getElementById('summary-cards').classList.add('hidden');
+                return;
+            }
+
+            // Summary
+            const paid = pedidos.filter(p => p.status === 'paid');
+            const pending = pedidos.filter(p => p.status !== 'paid');
+            const revenue = paid.reduce((s, p) => s + (p.amountTotal || 0), 0);
+
+            document.getElementById('stat-total').textContent = pedidos.length;
+            document.getElementById('stat-paid').textContent = paid.length;
+            document.getElementById('stat-pending').textContent = pending.length;
+            document.getElementById('stat-revenue').textContent = formatMoney(revenue);
+            document.getElementById('summary-cards').classList.remove('hidden');
+
+            tbody.innerHTML = '';
+            pedidos.forEach(order => {
+                const items = (order.items || []);
+                const ctNums = (order.ctOrders || []).map(c => c.pedidoWeb).filter(Boolean).join(', ');
+
+                // Main row
+                const mainRow = document.createElement('tr');
+                mainRow.className = 'order-row border-b border-white/5';
+                mainRow.innerHTML = `
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs text-slate-300">${order.id?.slice(-8) || '—'}</span>
+                        ${ctNums ? `<br><span class="text-[10px] text-indigo-400 font-mono">CT: ${ctNums}</span>` : ''}
+                    </td>
+                    <td class="px-5 py-4">
+                        <p class="font-bold text-white text-xs">${order.customerInfo?.name || '—'}</p>
+                        <p class="text-slate-500 text-[11px]">${order.customerInfo?.email || '—'}</p>
+                    </td>
+                    <td class="px-5 py-4 text-slate-400 text-xs whitespace-nowrap">${formatDate(order.createdAt)}</td>
+                    <td class="px-5 py-4"><span class="${statusClass(order.status)}">${statusLabel(order.status)}</span></td>
+                    <td class="px-5 py-4 text-right font-black text-indigo-300">${formatMoney(order.amountTotal)}</td>
+                `;
+                mainRow.onclick = () => {
+                    const detail = document.getElementById(`detail-${order.id}`);
+                    if (detail) detail.classList.toggle('open');
+                };
+                tbody.appendChild(mainRow);
+
+                // Detail expandable row
+                const detailRow = document.createElement('tr');
+                detailRow.id = `detail-${order.id}`;
+                detailRow.className = 'detail-panel bg-slate-950/60';
+                const itemsList = items.map(i => `<li class="text-slate-300 text-xs">• <strong>${i.name || i.sku}</strong> × ${i.quantity}</li>`).join('');
+                detailRow.innerHTML = `
+                    <td colspan="5" class="px-8 py-5">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-1">
+                                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">Artículos</p>
+                                <ul class="flex flex-col gap-1">${itemsList || '<li class="text-slate-600 text-xs">Sin información de artículos</li>'}</ul>
+                            </div>
+                            <div>
+                                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">Envío</p>
+                                <p class="text-xs text-slate-400">CP: ${order.shippingInfo?.zipCode || '—'}</p>
+                                <p class="text-xs text-slate-400">Proveedor: ${order.shippingInfo?.provider || 'CT'}</p>
+                                ${ctNums ? `<p class="text-xs text-indigo-400 mt-2">CT Folio(s): ${ctNums}</p>` : ''}
+                            </div>
+                            <div>
+                                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-3">ID Completo</p>
+                                <p class="font-mono text-[11px] text-slate-400 break-all">${order.id}</p>
+                                ${order.mpPaymentId ? `<p class="text-[11px] text-slate-500 mt-1">MP: ${order.mpPaymentId}</p>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailRow);
+            });
+
+            document.getElementById('orders-table-container').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Auto-login if key is in sessionStorage
+        const savedKey = sessionStorage.getItem('pandishu_admin_key');
+        if (savedKey) {
+            adminKey = savedKey;
+            document.getElementById('admin-key-input').value = savedKey;
+            verifyAndEnter();
+        }
+    </script>
+</body>
+
+</html>
