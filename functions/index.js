@@ -705,77 +705,114 @@ exports.getPriceAndAvailability = functions.https.onRequest((req, res) => {
     });
 });
 
+// ─── HELPER: CT FTP catalog ingestion (used by HTTP endpoint + scheduled function) ─
+async function runCTCatalogSync() {
+    const ftp = require('basic-ftp');
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    const localPath = path.join(os.tmpdir(), 'ct_catalog.json');
+
+    const client = new ftp.Client();
+    // client.ftp.verbose = true; // Uncomment to debug FTP protocol
+
+    try {
+        console.log('[CT Sync] Conectando al FTP de CT Internacional...');
+        await client.access({
+            host: '216.70.82.104',
+            user: process.env.CT_FTP_USER || 'DFP2631',
+            password: process.env.CT_FTP_PASSWORD || 'hMlrhbEAvy0ungi3UxsvFkQtHmHtYyy5',
+            port: 21,
+            secure: false
+        });
+
+        // CT FTP always puts the catalog at this fixed path
+        const remotePath = '/catalogo_xml/productos.json';
+        console.log(`[CT Sync] Descargando ${remotePath}...`);
+        await client.downloadTo(localPath, remotePath);
+        console.log('[CT Sync] Descarga completa.');
+    } finally {
+        client.close();
+    }
+
+    const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+    const productArray = Array.isArray(raw) ? raw : (raw.productos || []);
+    console.log(`[CT Sync] ${productArray.length} productos en el feed.`);
+
+    const mapped = productArray.map(p => {
+        let totalStock = 0;
+        let almacenesStock = {};
+
+        if (typeof p.existencia === 'object' && p.existencia !== null) {
+            almacenesStock = p.existencia;
+            totalStock = Object.values(p.existencia).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
+        } else {
+            totalStock = parseInt(p.existencia || p.disponible || 0, 10) || 0;
+        }
+
+        let promoPrice = null;
+        if (p.promocion && p.promocion.precio) {
+            promoPrice = parseFloat(p.promocion.precio) * (p.moneda === 'USD' ? MXN_RATE : 1);
+        }
+
+        return {
+            ingramPartNumber: String(p.clave || p.codigo || ''),
+            description: p.nombre || '',
+            price: parseFloat(p.precio || 0) * (p.moneda === 'USD' ? MXN_RATE : 1),
+            precioPromocion: promoPrice,
+            currency: 'MXN',
+            image: p.imagen || '',
+            vendorName: p.marca || p.fabricante || p.brand || '',
+            existencia: totalStock,
+            almacenes: almacenesStock,
+            availability: { availableQuantity: totalStock }
+        };
+    }).filter(p => p.ingramPartNumber);
+
+    console.log(`[CT Sync] ${mapped.length} productos válidos. Guardando en Firestore...`);
+    const db = admin.firestore();
+    for (let i = 0; i < mapped.length; i += 400) {
+        const batch = db.batch();
+        mapped.slice(i, i + 400).forEach(p => batch.set(db.collection('ct_catalog').doc(p.ingramPartNumber), p, { merge: true }));
+        await batch.commit();
+    }
+
+    // Invalidate in-memory cache so next API call reloads fresh data
+    cachedCTCatalog = null;
+    lastCatalogFetch = 0;
+
+    console.log(`[CT Sync] ✅ Sync completo. ${mapped.length} productos sincronizados.`);
+    return { count: mapped.length };
+}
+
+// ─── HTTP ENDPOINT (manual trigger) ───────────────────────────────────────────
 exports.syncCTCatalog = functions.runWith({ timeoutSeconds: 540, memory: '512MB' }).https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const { execSync } = require('child_process');
-        const fs = require('fs');
-        const path = require('path');
-        const os = require('os');
-        const localPath = path.join(os.tmpdir(), 'ct_stock.json');
-
         try {
-            // Usar PROXY_URL de env vars, fallback a string vacía si no existe para no fallar el comando cat/curl sin auth
-            const proxyUrl = process.env.PROXY_URL || '';
-            const proxyCmd = proxyUrl ? `-x ${proxyUrl}` : '';
-            const authStr = `${process.env.CT_FTP_USER}:${process.env.CT_FTP_PASSWORD}`;
-            const ftpBase = `ftp://${authStr}@216.70.82.104/catalogo_xml/`;
-
-            // 1. Obtener listado de archivos (Squid retorna HTML)
-            console.log('Listando directorio FTP via Proxy Squid...');
-            const listHtml = execSync(`curl -s ${proxyCmd} "${ftpBase}"`).toString();
-
-            // 2. Extraer nomrbes de archivo JSON .json y tomar el ultimo
-            const matches = [...listHtml.matchAll(/href="([^"]+\.json)"/g)].map(m => m[1]);
-            const targetFile = matches.sort().pop();
-
-            if (!targetFile) throw new Error("No se encontraron archivos .json en el catalogo_xml");
-
-            // 3. Descargar el archivo
-            console.log(`Descargando ${targetFile} via Proxy...`);
-            execSync(`curl -s ${proxyCmd} "${ftpBase}${targetFile}" -o ${localPath}`, { stdio: 'ignore' });
-
-            const products = JSON.parse(fs.readFileSync(localPath, 'utf8'));
-            const productArray = Array.isArray(products) ? products : (products.productos || []);
-            const mapped = productArray.map(p => {
-                let totalStock = 0;
-                let almacenesStock = {};
-
-                if (typeof p.existencia === 'object' && p.existencia !== null) {
-                    almacenesStock = p.existencia;
-                    totalStock = Object.values(p.existencia).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
-                } else {
-                    totalStock = parseInt(p.existencia || p.disponible || 0, 10) || 0;
-                }
-
-                // Parseo de promociones del feed de CT (garantía de mostrar mejor precio)
-                let promoPrice = null;
-                if (p.promocion && p.promocion.precio) {
-                    promoPrice = parseFloat(p.promocion.precio) * (p.moneda === 'USD' ? MXN_RATE : 1);
-                }
-
-                return {
-                    ingramPartNumber: String(p.clave || p.codigo || ''),
-                    description: p.nombre || '',
-                    price: parseFloat(p.precio) * (p.moneda === 'USD' ? MXN_RATE : 1),
-                    precioPromocion: promoPrice,
-                    currency: 'MXN',
-                    image: p.imagen || '',
-                    existencia: totalStock,
-                    almacenes: almacenesStock,
-                    availability: { availableQuantity: totalStock }
-                };
-            }).filter(p => p.ingramPartNumber);
-
-            const db = admin.firestore();
-            for (let i = 0; i < mapped.length; i += 400) {
-                const batch = db.batch();
-                mapped.slice(i, i + 400).forEach(p => batch.set(db.collection('ct_catalog').doc(p.ingramPartNumber), p));
-                await batch.commit();
-            }
-            return res.status(200).json({ success: true, count: mapped.length });
-        } catch (e) { return res.status(500).json({ error: e.message }); }
+            const result = await runCTCatalogSync();
+            return res.status(200).json({ success: true, ...result });
+        } catch (e) {
+            console.error('[CT Sync] Error:', e.message);
+            return res.status(500).json({ error: e.message });
+        }
     });
 });
+
+// ─── SCHEDULED FUNCTION: Sync CT catalog every day at 2 AM Mexico City ────────
+exports.scheduledCTCatalogSync = functions.runWith({ timeoutSeconds: 540, memory: '512MB' })
+    .pubsub.schedule('0 2 * * *')
+    .timeZone('America/Mexico_City')
+    .onRun(async (context) => {
+        console.log('[CT Sync Scheduled] Iniciando sync diario del catálogo CT...');
+        try {
+            const result = await runCTCatalogSync();
+            console.log(`[CT Sync Scheduled] ✅ Completado: ${result.count} productos.`);
+        } catch (e) {
+            console.error('[CT Sync Scheduled] ❌ Error:', e.message);
+        }
+        return null;
+    });
+
 
 // Eliminado syncIngramCatalog para dar paso exclusivo a CT Connect
 
