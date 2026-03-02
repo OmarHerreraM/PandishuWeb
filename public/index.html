@@ -513,18 +513,16 @@
                 // CT Price Logic (Backend computed final price passed as p.price to prevent duplicate fees)
                 const finalPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
-                // Imagen fallback con logo corporativo (CT requires HTTPS prefix logic)
-                let imgSrc = p.image || 'Pandishu-Logo-26.png';
-                if (imgSrc !== 'Pandishu-Logo-26.png') {
-                    imgSrc = imgSrc.replace('http://', 'https://');
-                }
+                // Imagen fallback con logo corporativo
+                // NOTA: No se fuerza https:// porque los servidores de catálogo de CT no siempre soportan SSL
+                const imgSrc = p.image || 'Pandishu-Logo-26.png';
                 const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
 
                 const card = `
                     <div class="glass-panel p-5 rounded-3xl flex flex-col group relative hover:border-brand-cyan/40 transition-all shadow-xl bg-slate-900 border border-slate-800">
                         <div class="bg-slate-800 rounded-2xl mb-3 overflow-hidden h-36 flex items-center justify-center p-2 relative">
                             <span class="text-slate-300 font-bold tracking-widest text-[9px] uppercase block absolute top-4 left-4 z-10 bg-slate-900/90 px-2 py-1 border border-slate-700 rounded">${p.vendorName || p.brand || 'Original'}</span>
-                            <img src="${imgSrc}" alt="${(p.description || p.name || '').replace(/"/g, '')}" class="w-full h-full ${isPlaceholder} rounded-xl transition-transform duration-500" loading="lazy" referrerpolicy="no-referrer" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='Pandishu-Logo-26.png'; this.className='w-16 h-16 opacity-20 object-contain';">
+                            <img src="${imgSrc}" alt="${(p.description || p.name || '').replace(/"/g, '')}" class="w-full h-full ${isPlaceholder} rounded-xl transition-transform duration-500" loading="lazy" onerror="this.onerror=null; this.src='Pandishu-Logo-26.png'; this.className='w-16 h-16 opacity-20 object-contain';">
                         </div>
                         
                         ${badgeHtml}
