@@ -515,7 +515,8 @@
 
                 // Imagen fallback con logo corporativo
                 // NOTA: No se fuerza https:// porque los servidores de catálogo de CT no siempre soportan SSL
-                const imgSrc = p.image || 'Pandishu-Logo-26.png';
+                const rawImg = p.image || p.imagenUrl || p.imagen || '';
+                const imgSrc = rawImg.trim() !== '' ? rawImg : 'Pandishu-Logo-26.png';
                 const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
 
                 const card = `
