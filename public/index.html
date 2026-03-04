@@ -460,7 +460,7 @@
 
         let allProducts = [];
 
-        async function fetchDynamicCatalog(keyword = '') {
+        async function fetchDynamicCatalog(keyword = '', brandFilter = '', topVentas = false) {
             const grid = document.getElementById('product-grid');
             const loader = document.getElementById('loading-spinner');
 
@@ -468,10 +468,14 @@
             loader.classList.remove('hidden');
 
             try {
+                const body = { keyword };
+                if (brandFilter) body.brands = [brandFilter];
+                if (topVentas) body.topVentas = true;
+
                 const response = await fetch('https://us-central1-pandishu-web-1d860.cloudfunctions.net/searchProducts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ keyword })
+                    body: JSON.stringify(body)
                 });
 
                 if (!response.ok) throw new Error('Network error');
@@ -563,8 +567,8 @@
             lucide.createIcons();
         }
 
-        // Boot
-        fetchDynamicCatalog();
+        // Boot: load top sellers (high stock + high value + amazon boost)
+        fetchDynamicCatalog('', '', true);
 
         // Buscador Pro Logic
         document.getElementById('hero-search-form').addEventListener('submit', (e) => {
@@ -580,10 +584,11 @@
             document.querySelector('[data-filter="all"]').classList.add('bg-brand-cyan', 'text-slate-950');
             document.querySelector('[data-filter="all"]').classList.remove('bg-slate-800', 'text-slate-400');
 
-            fetchDynamicCatalog(val);
+            // Search mode: no topVentas filter, user is looking for something specific
+            fetchDynamicCatalog(val, '', false);
         });
 
-        // Quick Filters Logic (Client Side Filtering over the fetched subset)
+        // Quick Filters Logic - refetch from server with brand + topVentas
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-btn').forEach(b => {
@@ -596,15 +601,15 @@
                 target.classList.remove('bg-slate-800', 'text-slate-400');
 
                 const filter = target.dataset.filter;
-                // Para home, el filtro busca keywords genéricas en el set cargado (ej. Access Point, NVR, Antivirus)
+                // All filters use topVentas scoring from backend
                 if (filter === 'all') {
-                    renderProducts(allProducts);
+                    fetchDynamicCatalog('', '', true);
                 } else if (filter === 'asus') {
-                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('asus')) || ((p.description || '').toLowerCase().includes('asus'))));
+                    fetchDynamicCatalog('', 'ASUS', true);
                 } else if (filter === 'corsair') {
-                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('corsair')) || ((p.description || '').toLowerCase().includes('corsair'))));
+                    fetchDynamicCatalog('', 'Corsair', true);
                 } else if (filter === 'tplink') {
-                    renderProducts(allProducts.filter(p => ((p.vendorName || p.brand || '').toLowerCase().includes('tp-link')) || ((p.vendorName || p.brand || '').toLowerCase().includes('tplink')) || ((p.description || '').toLowerCase().includes('tp-link'))));
+                    fetchDynamicCatalog('', 'TP-LINK', true);
                 }
             });
         });

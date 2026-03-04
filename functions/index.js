@@ -6,8 +6,74 @@ const { FieldValue } = require('firebase-admin/firestore');
 const cors = require('cors')({ origin: true });
 const XiSdk = require('xi_sdk_resellers');
 const nodemailer = require('nodemailer');
+const https = require('https');
 
 admin.initializeApp();
+
+// ─── AMAZON BEST SELLERS: Keyword list cached from Firestore ─────────────────
+let amazonTopKeywords = new Set();
+let amazonKeywordsLoaded = false;
+
+async function loadAmazonTopKeywords() {
+    try {
+        const db = admin.firestore();
+        const snap = await db.collection('top_sellers_index').get();
+        amazonTopKeywords = new Set();
+        snap.docs.forEach(d => {
+            const data = d.data();
+            if (Array.isArray(data.keywords)) {
+                data.keywords.forEach(k => amazonTopKeywords.add(k.toLowerCase()));
+            }
+        });
+        amazonKeywordsLoaded = true;
+        console.log(`[AmazonIndex] Loaded ${amazonTopKeywords.size} top seller keywords from Firestore.`);
+    } catch (e) {
+        console.warn('[AmazonIndex] Could not load top seller keywords:', e.message);
+    }
+}
+
+function matchesAmazonTopSeller(product) {
+    if (!amazonKeywordsLoaded || amazonTopKeywords.size === 0) return false;
+    const searchText = [
+        product.description || '',
+        product.vendorName || '',
+        product.ingramPartNumber || '',
+        product.sku || ''
+    ].join(' ').toLowerCase();
+    for (const kw of amazonTopKeywords) {
+        if (searchText.includes(kw)) return true;
+    }
+    return false;
+}
+
+/**
+ * Calculates a relevance score for a product.
+ * Score favors: high stock, high price (main product not accessory), and Amazon top-seller match.
+ * Score is used for default "Relevancia" sort in tienda and topVentas in index.
+ */
+function calcProductScore(p) {
+    const stock = Math.min(p.stock || 0, 200); // Cap at 200 to not skew too much
+    const price = parseFloat(p.price) || 0;
+
+    // Category weight: boost products priced above MXN $500 (accessories are usually below)
+    const priceBoost = price > 10000 ? 4.0
+        : price > 3000 ? 2.5
+            : price > 1000 ? 1.5
+                : price > 500 ? 1.0
+                    : 0.3; // cheap accessories get suppressed
+
+    // Stock boost: products with good availability
+    const stockBoost = stock > 50 ? 2.0
+        : stock > 10 ? 1.5
+            : stock > 3 ? 1.0
+                : stock > 0 ? 0.5
+                    : 0; // zero stock products get zeroed out on score
+
+    // Amazon match adds a major boost
+    const amazonBoost = matchesAmazonTopSeller(p) ? 3.0 : 1.0;
+
+    return priceBoost * stockBoost * amazonBoost * Math.log10(price + 1);
+}
 
 // ─── CT CONNECT CONFIG ────────────────────────────────────────────────────────
 const CT_API_BASE = process.env.CT_API_BASE || 'https://api.ctonline.mx';
@@ -608,6 +674,11 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
             const FX_BUFFER = 1.05;
             const UTILITY_MARGIN = 1.15;
 
+            // Ensure Amazon keywords are loaded for scoring
+            if (!amazonKeywordsLoaded) {
+                await loadAmazonTopKeywords();
+            }
+
             if (!cachedCTCatalog || Date.now() - lastCatalogFetch > CACHE_TTL) {
                 console.log('Fetching ct_catalog from Firestore to build memory cache...');
                 const ctSnap = await db.collection('ct_catalog').get();
@@ -645,7 +716,8 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
 
             const products = cachedCTCatalog;
             const keyword = (req.body.keyword || '').toLowerCase();
-            const brandFilters = req.body.brands || []; // Array of selected brands
+            const brandFilters = req.body.brands || [];
+            const topVentas = req.body.topVentas === true; // Flag from homepage
 
             // 1. Filter phase
             let filtered = products;
@@ -662,26 +734,32 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
                 );
             }
 
-            // Push out-of-stock items to the bottom in the backend too
-            filtered.sort((a, b) => {
-                const stockA = a.stock > 0 ? 1 : 0;
-                const stockB = b.stock > 0 ? 1 : 0;
-                return stockB - stockA; // 1 (in stock) comes before 0 (out of stock)
-            });
+            // 2. Score-based sort (Relevancia = Stock + Price + Amazon Boost)
+            // Pre-compute scores to avoid redundant calls in sort comparator
+            const withScores = filtered.map(p => ({ p, score: calcProductScore(p) }));
+            withScores.sort((a, b) => b.score - a.score);
+            const sorted = withScores.map(x => x.p);
 
-            // Pagination defaults to 48 items
-            const limit = parseInt(req.body.limit) || 48;
+            // 3. topVentas mode: for the Index homepage, only return products with good availability
+            //    and a meaningful price (not cheap accessories), limit to top 12
+            let finalFiltered = sorted;
+            if (topVentas) {
+                finalFiltered = sorted.filter(p => p.stock > 5 && (p.price || 0) > 500);
+            }
+
+            // Pagination defaults to 48 items (12 for topVentas)
+            const limit = topVentas ? 12 : (parseInt(req.body.limit) || 48);
             const page = parseInt(req.body.page) || 1;
             const startIndex = (page - 1) * limit;
 
-            const finalResults = filtered.slice(startIndex, startIndex + limit);
+            const finalResults = finalFiltered.slice(startIndex, startIndex + limit);
 
             return res.status(200).json({
-                recordsFound: filtered.length,
+                recordsFound: finalFiltered.length,
                 catalog: finalResults,
                 brands: cachedBrands,
                 page,
-                totalPages: Math.ceil(filtered.length / limit)
+                totalPages: Math.ceil(finalFiltered.length / limit)
             });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     });
@@ -812,6 +890,151 @@ exports.scheduledCTCatalogSync = functions.runWith({ timeoutSeconds: 540, memory
         }
         return null;
     });
+
+// ─── AMAZON TOP SELLERS SCRAPER ───────────────────────────────────────────────
+/**
+ * Scrapes Amazon Mexico Best Sellers pages (Electronics + Computing).
+ * Extracts product titles and brands, builds keyword list.
+ * Stores in Firestore 'top_sellers_index' collection.
+ * Runs every Monday at 3 AM Mexico City time.
+ */
+async function runAmazonTopSellersScrape() {
+    const axios = require('axios');
+    const db = admin.firestore();
+
+    const AMAZON_CATEGORIES = [
+        { id: 'laptops', url: 'https://www.amazon.com.mx/gp/bestsellers/computers/3380503011' },
+        { id: 'networking', url: 'https://www.amazon.com.mx/gp/bestsellers/computers/3380512011' },
+        { id: 'monitors', url: 'https://www.amazon.com.mx/gp/bestsellers/computers/3380561011' },
+        { id: 'tablets', url: 'https://www.amazon.com.mx/gp/bestsellers/electronics/13786801' },
+        { id: 'cameras', url: 'https://www.amazon.com.mx/gp/bestsellers/electronics/3380530011' },
+        { id: 'printers', url: 'https://www.amazon.com.mx/gp/bestsellers/computers/3380525011' },
+        { id: 'storage', url: 'https://www.amazon.com.mx/gp/bestsellers/computers/3380546011' },
+    ];
+
+    // Known tech brands for cross-referencing with CT catalog
+    const TECH_BRANDS = [
+        'hp', 'dell', 'lenovo', 'asus', 'acer', 'apple', 'samsung', 'lg',
+        'tp-link', 'tplink', 'ubiquiti', 'cisco', 'netgear', 'dlink', 'd-link',
+        'corsair', 'kingston', 'seagate', 'western digital', 'wd', 'sandisk',
+        'epson', 'canon', 'brother', 'hikvision', 'logitech', 'intel', 'amd',
+        'nvidia', 'msi', 'gigabyte', 'microsoft', 'xerox', 'toshiba', 'viewsonic',
+        'benq', 'anker', 'belkin', 'razer'
+    ];
+
+    const extractedKeywords = new Set();
+    let successCount = 0;
+
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'es-MX,es;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Cache-Control': 'no-cache'
+    };
+
+    for (const category of AMAZON_CATEGORIES) {
+        try {
+            console.log(`[AmazonScraper] Scraping: ${category.id}...`);
+            const response = await axios.get(category.url, { headers, timeout: 15000 });
+            const html = response.data;
+
+            // Extract product titles from Amazon bestsellers grid
+            // Pattern matches the title spans in best seller cards
+            const titleMatches = html.match(/class="[^"]*p13n-sc-truncate[^"]*"[^>]*>([^<]{3,80})</g) || [];
+            const altMatches = html.match(/aria-label="([^"]{5,100})"/g) || [];
+
+            const allTitles = [
+                ...titleMatches.map(m => m.replace(/.*>/, '').trim()),
+                ...altMatches.map(m => m.replace('aria-label="', '').replace('"', '').trim())
+            ];
+
+            allTitles.forEach(title => {
+                const lowerTitle = title.toLowerCase();
+                // Add known brand names found in titles
+                TECH_BRANDS.forEach(brand => {
+                    if (lowerTitle.includes(brand)) {
+                        extractedKeywords.add(brand);
+                    }
+                });
+                // Extract meaningful model keywords (uppercase words, likely model numbers)
+                const modelWords = title.match(/\b[A-Z][A-Z0-9-]{2,}\b/g) || [];
+                modelWords.forEach(word => {
+                    if (word.length >= 3 && word.length <= 15) {
+                        extractedKeywords.add(word.toLowerCase());
+                    }
+                });
+                // Extract full product category terms (2-4 word phrases)
+                const catTerms = [
+                    'laptop', 'notebook', 'router', 'switch', 'monitor', 'teclado', 'mouse',
+                    'impresora', 'disco duro', 'ssd', 'cámara ip', 'nvr', 'servidor', 'tablet',
+                    'access point', 'disco ssd', 'ram', 'memoria', 'pantalla', 'webcam',
+                    'auriculares', 'headset', 'ups', 'no break', 'proyector', 'scanner'
+                ];
+                catTerms.forEach(term => {
+                    if (lowerTitle.includes(term)) extractedKeywords.add(term);
+                });
+            });
+
+            successCount++;
+            console.log(`[AmazonScraper] ✅ ${category.id}: ${allTitles.length} titles scraped.`);
+
+            // Be polite to Amazon's servers
+            await new Promise(r => setTimeout(r, 1500));
+
+        } catch (err) {
+            console.warn(`[AmazonScraper] ⚠️ Failed ${category.id}: ${err.message}`);
+        }
+    }
+
+    // Save to Firestore top_sellers_index collection
+    const keywords = Array.from(extractedKeywords);
+    console.log(`[AmazonScraper] Saving ${keywords.length} keywords from ${successCount} categories...`);
+
+    await db.collection('top_sellers_index').doc('amazon_mx').set({
+        keywords,
+        updatedAt: FieldValue.serverTimestamp(),
+        successCategories: successCount,
+        totalCategories: AMAZON_CATEGORIES.length
+    });
+
+    // Invalidate in-memory Amazon keywords cache so next search uses fresh data
+    amazonKeywordsLoaded = false;
+
+    console.log(`[AmazonScraper] ✅ Done. ${keywords.length} keywords saved.`);
+    return { keywords: keywords.length, successCount };
+}
+
+// Scheduled: every Monday at 3 AM Mexico City
+exports.scheduledAmazonTopSellers = functions.runWith({ timeoutSeconds: 300, memory: '256MB' })
+    .pubsub.schedule('0 3 * * 1')
+    .timeZone('America/Mexico_City')
+    .onRun(async (context) => {
+        console.log('[AmazonScraper] Iniciando scrape semanal de Amazon Top Sellers...');
+        try {
+            const result = await runAmazonTopSellersScrape();
+            console.log(`[AmazonScraper] ✅ Scrape completado: ${result.keywords} keywords.`);
+        } catch (e) {
+            console.error('[AmazonScraper] ❌ Error:', e.message);
+        }
+        return null;
+    });
+
+// HTTP endpoint to trigger Amazon scrape manually (admin only)
+exports.triggerAmazonScrape = functions.runWith({ timeoutSeconds: 300, memory: '256MB' }).https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const adminKey = req.headers['x-admin-key'] || req.body?.adminKey;
+        const masterKey = process.env.ADMIN_SECRET_KEY;
+        if (!adminKey || adminKey !== masterKey) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        try {
+            const result = await runAmazonTopSellersScrape();
+            return res.status(200).json({ success: true, ...result });
+        } catch (e) {
+            return res.status(500).json({ error: e.message });
+        }
+    });
+});
 
 
 // Eliminado syncIngramCatalog para dar paso exclusivo a CT Connect
