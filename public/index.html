@@ -517,13 +517,12 @@
                 // CT Price Logic (Backend computed final price passed as p.price to prevent duplicate fees)
                 const finalPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
-                // Imagen: CT images — use weserv.nl image proxy to handle HTTP/HTTPS + CDN caching
                 const rawImg = (p.image || p.imagenUrl || p.imagen || p.foto || p.imageUrl || '').trim();
-                // Use weserv.nl as universal proxy: handles http/https, resizes, CDN-cached
-                const imgSrc = rawImg !== ''
-                    ? `https://images.weserv.nl/?url=${encodeURIComponent(rawImg.replace(/^https?:\/\//, ''))}&w=200&h=150&fit=contain&bg=1e293b`
-                    : 'Pandishu-Logo-26.png';
-                const isPlaceholder = rawImg === '' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
+                let imgSrc = 'Pandishu-Logo-26.png';
+                if (rawImg !== '') {
+                    imgSrc = rawImg.startsWith('http://') ? rawImg.replace('http://', 'https://') : rawImg;
+                }
+                const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
 
                 const card = `
                     <div class="glass-panel p-5 rounded-3xl flex flex-col group relative hover:border-brand-cyan/40 transition-all shadow-xl bg-slate-900 border border-slate-800">
