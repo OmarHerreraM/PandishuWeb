@@ -308,6 +308,23 @@
     </header>
 
     <!-- ---------------------------------------
+          FEATURED CAROUSEL (ALTO STOCK)
+    --------------------------------------- -->
+    <section class="max-w-7xl mx-auto px-6 mt-8 mb-2" style="display: none;">
+        <div class="flex items-center gap-3 mb-4">
+            <i data-lucide="zap" class="w-6 h-6 text-brand-cyan"></i>
+            <h2 class="text-2xl font-black text-white uppercase italic tracking-tight">Destacados Inmediatos</h2>
+            <span
+                class="bg-green-500/20 text-green-400 text-[10px] font-black uppercase px-2 py-1 rounded-full border border-green-500/30 ml-2">Alto
+                Stock</span>
+        </div>
+        <div id="featured-carousel"
+            class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-slate-800/50">
+            <!-- Rendered by JS -->
+        </div>
+    </section>
+
+    <!-- ---------------------------------------
           LIVE API STATUS
     --------------------------------------- -->
     <div class="max-w-7xl mx-auto px-6 mt-6">
@@ -846,6 +863,58 @@
             fetchProducts(false);
         }
 
+        function renderFeaturedCarousel(products) {
+            const carousel = document.getElementById('featured-carousel');
+            if (!carousel) return;
+
+            // Filtrar productos con stock >= 10 y que tengan precio válido
+            const highStockProducts = products.filter(p => {
+                const stock = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
+                const price = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
+                return stock >= 10 && price > 0;
+            }).slice(0, 8); // Mostrar hasta 8 productos destacados
+
+            if (highStockProducts.length === 0) {
+                carousel.parentElement.style.display = 'none';
+                return;
+            } else {
+                carousel.parentElement.style.display = 'block';
+            }
+
+            carousel.innerHTML = highStockProducts.map(p => {
+                const retailPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
+                const stockCount = parseInt(p.availability?.availableQuantity || p.stock || p.existencia || 0, 10);
+
+                let productImageUrl = 'Pandishu-Logo-26.png';
+                const rawImage = (p.image || p.imagenUrl || p.imagen || p.foto || p.imageUrl || '').trim();
+                if (rawImage !== '') {
+                    productImageUrl = rawImage.startsWith('http://') ? rawImage.replace('http://', 'https://') : rawImage;
+                }
+                return `
+            <div class="snap-start shrink-0 w-[280px] bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 rounded-2xl p-5 flex flex-col gap-4 hover:border-brand-cyan/50 hover:-translate-y-1 transition-all shadow-xl">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${p.vendorName || 'Marca'}</span>
+                    <span class="text-green-400 text-[10px] font-black flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ${stockCount} disp.</span>
+                </div>
+                <div class="h-32 flex items-center justify-center p-2 bg-transparent mix-blend-screen rounded-xl relative">
+                    <img src="${productImageUrl}" alt="${p.description}" class="max-h-full object-contain" onerror="this.src='Pandishu-Logo-26.png'; this.className='w-16 h-16 opacity-30 object-contain grayscale';">
+                </div>
+                <h3 class="text-white text-xs font-bold line-clamp-2 leading-snug" title="${p.description}">${p.description}</h3>
+                <div class="mt-auto flex items-center justify-between pt-3 border-t border-white/5">
+                    <div>
+                        <p class="text-lg font-black text-indigo-300">$${retailPrice.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                    <button onclick="addToCart('${p.ingramPartNumber}')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/30">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            `;
+            }).join('');
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         /* --- API CALL  SERVER-SIDE SEARCH --- */
         async function fetchProducts(resetPage = false) {
             if (isLoading) return;
@@ -871,6 +940,11 @@
 
                 if (data.catalog) {
                     filteredProducts = resetPage ? data.catalog : [...filteredProducts, ...data.catalog];
+
+                    // Renderizar el carrusel de destacados solo en la primera carga
+                    if (resetPage) {
+                        renderFeaturedCarousel(data.catalog);
+                    }
                 }
 
                 if (currentSearch === '' && selectedBrands.size === 0 && currentPage === 1 && data.brands) {
