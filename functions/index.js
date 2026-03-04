@@ -62,32 +62,46 @@ function normalizeSearch(str) {
 }
 
 /**
- * Resolve search terms: expand aliases and split into tokens.
- * Returns an array of normalized strings to match against.
+ * Resolve search terms: expand brand aliases and split into tokens.
+ * Returns an array of token-arrays to try. Any token-array that fully
+ * matches the product is a hit.
  */
 function resolveSearchTerms(rawKeyword) {
     const norm = normalizeSearch(rawKeyword);
-    const terms = [norm];
+    const termSets = [];
 
-    // Check if the whole query maps to a canonical brand
-    if (BRAND_ALIASES[norm]) terms.push(BRAND_ALIASES[norm]);
+    // Helper to add a token-set (split into words)
+    const addTokenSet = (str) => {
+        const tokens = str.split(' ').filter(w => w.length >= 1);
+        if (tokens.length > 0) termSets.push(tokens);
+    };
 
-    // Also check each word individually
+    // Original normalized query as tokens
+    addTokenSet(norm);
+
+    // Replace brand aliases in the query
+    let aliasExpanded = norm;
     const words = norm.split(' ');
-    words.forEach(w => { if (BRAND_ALIASES[w]) terms.push(BRAND_ALIASES[w]); });
+    words.forEach(w => {
+        if (BRAND_ALIASES[w]) aliasExpanded = aliasExpanded.replace(w, BRAND_ALIASES[w]);
+    });
+    if (BRAND_ALIASES[norm]) aliasExpanded = BRAND_ALIASES[norm];
+    if (aliasExpanded !== norm) addTokenSet(aliasExpanded);
 
-    // Always include without hyphens and with hyphens
-    terms.push(norm.replace(/-/g, ' '));
-    terms.push(norm.replace(/\s/g, '-'));
+    // Add hyphen-stripped and hyphen-joined variants
+    addTokenSet(norm.replace(/-/g, ' '));
+    addTokenSet(norm.replace(/\s/g, '-'));
 
-    return [...new Set(terms)]; // deduplicate
+    return termSets; // array of token-arrays
 }
 
 /**
- * Check if a product matches a set of search terms (any term = match).
- * Matches against normalized description, vendor, sku, clave.
+ * Check if a product matches a set of search terms.
+ * Uses token-based matching: ALL tokens in a term-set must appear
+ * in the product text. Uses prefix matching (min 3 chars), so
+ * 'lapto' finds 'laptop', 'serv' finds 'servidor'.
  */
-function productMatchesSearch(p, searchTerms) {
+function productMatchesSearch(p, termSets) {
     const haystack = normalizeSearch([
         p.description || '',
         p.vendorName || '',
@@ -96,7 +110,31 @@ function productMatchesSearch(p, searchTerms) {
         p.brand || ''
     ].join(' '));
 
-    return searchTerms.some(term => haystack.includes(term));
+    // Tokenize haystack into individual words for prefix matching
+    const haystackWords = haystack.split(' ').filter(w => w.length > 0);
+
+    // Check if a single token matches the haystack (substring or prefix on any word)
+    const tokenMatches = (token) => {
+        if (haystack.includes(token)) return true; // direct substring match
+        if (token.length >= 3) {
+            // Prefix match: does any word in haystack start with this token?
+            return haystackWords.some(hw => hw.startsWith(token) || token.startsWith(hw));
+        }
+        return false;
+    };
+
+    // A term-set matches if ALL its tokens match
+    const termSetMatches = (tokens) => {
+        if (tokens.length === 0) return false;
+        const matched = tokens.filter(t => tokenMatches(t));
+        // Strict: all tokens must match, but allow 1 miss if query is 3+ tokens (typo tolerance)
+        if (tokens.length >= 3) {
+            return matched.length >= tokens.length - 1; // allow 1 miss
+        }
+        return matched.length === tokens.length;
+    };
+
+    return termSets.some(termSetMatches);
 }
 
 // ─── AMAZON BEST SELLERS: Keyword list cached from Firestore ─────────────────
