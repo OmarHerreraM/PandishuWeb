@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Pedidos Interno | PandishÃº</title>
+    <title>Dashboard de Pedidos Interno | Pandishú</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,7 +95,7 @@
                     <i data-lucide="shield-lock" class="w-10 h-10 text-indigo-400"></i>
                 </div>
                 <h2 class="text-2xl font-black text-white italic uppercase tracking-tight">Acceso Restringido</h2>
-                <p class="text-slate-400 text-sm mt-2 font-bold uppercase tracking-widest">PandishÃº Admin Central</p>
+                <p class="text-slate-400 text-sm mt-2 font-bold uppercase tracking-widest">Pandishú Admin Central</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -104,7 +104,7 @@
                         Maestra</label>
                     <input type="password" id="admin-pass" required
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors font-mono"
-                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+                        placeholder="••••••••••••">
                 </div>
                 <button type="submit"
                     class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.98]">
@@ -193,10 +193,10 @@
                         <tr>
                             <th scope="col" class="px-6 py-5">Orden e Info</th>
                             <th scope="col" class="px-6 py-5">Cliente</th>
-                            <th scope="col" class="px-6 py-5">ArtÃ­culos</th>
+                            <th scope="col" class="px-6 py-5">Artículos</th>
                             <th scope="col" class="px-6 py-5">Monto Total</th>
                             <th scope="col" class="px-6 py-5 text-center">Estatus</th>
-                            <th scope="col" class="px-6 py-5 text-right">AcciÃ³n</th>
+                            <th scope="col" class="px-6 py-5 text-right">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="orders-body" class="divide-y divide-slate-800">
@@ -232,22 +232,22 @@
                 <!-- Customer Section -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">InformaciÃ³n del
+                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Información del
                             Cliente</p>
                         <p class="text-white font-bold" id="modal-cust-name">-</p>
                         <p class="text-xs text-slate-400" id="modal-cust-email">-</p>
                         <p class="text-xs text-slate-400" id="modal-cust-phone">-</p>
                     </div>
                     <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                        <p class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-2">DirecciÃ³n de
-                            EnvÃ­o</p>
+                        <p class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-2">Dirección de
+                            Envío</p>
                         <p class="text-xs text-slate-300 leading-relaxed" id="modal-address">-</p>
                     </div>
                 </div>
 
                 <!-- Products -->
                 <div>
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">ArtÃ­culos del
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Artículos del
                         Carrito</p>
                     <div id="modal-items-list" class="space-y-2">
                         <!-- Items injecteds here -->
@@ -348,7 +348,7 @@
                 let stats = { total: 0, paid: 0, pending: 0, ct: 0 };
 
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-600 font-bold italic">No se encontraron Ã³rdenes para este periodo.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-600 font-bold italic">No se encontraron órdenes para este periodo.</td></tr>`;
                 } else {
                     const html = orders.map(o => {
                         const itemsCount = (o.items || []).length;
@@ -452,7 +452,7 @@
                 document.getElementById('modal-ct-orders').innerHTML = order.ctOrders.map(ct => `
                     <div class="bg-indigo-950/20 border border-indigo-500/30 p-4 rounded-xl">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase">AlmacÃ©n: ${ct.almacen}</span>
+                            <span class="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase">Almacén: ${ct.almacen}</span>
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Folio: <span class="text-white">${ct.folio || 'N/A'}</span></span>
                         </div>
                         <p class="text-[10px] text-slate-400 italic">Estatus CT: <strong class="${ct.status === 'confirmed' ? 'text-green-400' : 'text-yellow-400'}">${ct.status.toUpperCase()}</strong></p>
@@ -480,12 +480,12 @@
             const addr = document.getElementById('modal-address').innerText;
             const total = document.getElementById('modal-total').innerText;
 
-            const textToCopy = `Orden: ${id}\nCliente: ${name}\nDirecciÃ³n: ${addr}\nTotal: ${total}`;
+            const textToCopy = `Orden: ${id}\nCliente: ${name}\nDirección: ${addr}\nTotal: ${total}`;
 
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const btn = document.getElementById('btn-copy-info');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Â¡Copiado!';
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> ¡Copiado!';
                 lucide.createIcons();
                 setTimeout(() => {
                     btn.innerHTML = originalText;

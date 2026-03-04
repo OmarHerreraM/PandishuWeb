@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Privacy Control Engine (GA4) -->
     <script src="analytics.js"></script>
-    <title>Pago Rechazado | PandishÃº</title>
+    <title>Pago Rechazado | Pandishú</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;900&display=swap"
@@ -96,24 +96,24 @@
 
         <h1 class="fadeUp d1 text-4xl font-black text-white mb-3">Pago Rechazado</h1>
         <p class="fadeUp d1 text-slate-400 text-lg mb-2">No pudimos procesar tu pago.</p>
-        <p id="error-msg" class="fadeUp d1 text-slate-500 text-sm mb-8">Por favor intenta con otra tarjeta o mÃ©todo de
+        <p id="error-msg" class="fadeUp d1 text-slate-500 text-sm mb-8">Por favor intenta con otra tarjeta o método de
             pago.</p>
 
         <!-- Helpful tips -->
         <div class="fadeUp d2 bg-slate-800/60 border border-white/5 rounded-2xl p-5 mb-8 text-left">
-            <p class="text-sm font-bold text-slate-300 mb-3">Â¿QuÃ© puedo hacer?</p>
+            <p class="text-sm font-bold text-slate-300 mb-3">¿Qué puedo hacer?</p>
             <ul class="space-y-2 text-sm text-slate-400">
                 <li class="flex items-start gap-2"><i data-lucide="check-circle"
                         class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>Verifica que los datos de tu tarjeta
                     sean correctos</li>
                 <li class="flex items-start gap-2"><i data-lucide="check-circle"
-                        class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>AsegÃºrate de tener fondos suficientes
+                        class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>Asegúrate de tener fondos suficientes
                 </li>
                 <li class="flex items-start gap-2"><i data-lucide="check-circle"
                         class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>Intenta con una tarjeta distinta o pago
                     en OXXO</li>
                 <li class="flex items-start gap-2"><i data-lucide="check-circle"
-                        class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>Contacta a tu banco para autorizaciÃ³n
+                        class="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5"></i>Contacta a tu banco para autorización
                 </li>
             </ul>
         </div>
@@ -140,15 +140,15 @@
         const params = new URLSearchParams(window.location.search);
         const statusDetail = params.get('status_detail');
         const errorMessages = {
-            'cc_rejected_bad_filled_card_number': 'El nÃºmero de tarjeta ingresado es incorrecto.',
-            'cc_rejected_bad_filled_date': 'La fecha de vencimiento es invÃ¡lida.',
-            'cc_rejected_bad_filled_security_code': 'El cÃ³digo de seguridad es incorrecto.',
+            'cc_rejected_bad_filled_card_number': 'El número de tarjeta ingresado es incorrecto.',
+            'cc_rejected_bad_filled_date': 'La fecha de vencimiento es inválida.',
+            'cc_rejected_bad_filled_security_code': 'El código de seguridad es incorrecto.',
             'cc_rejected_insufficient_amount': 'Tu tarjeta no tiene fondos suficientes.',
-            'cc_rejected_card_disabled': 'Tu tarjeta estÃ¡ inactiva. Contacta a tu banco.',
+            'cc_rejected_card_disabled': 'Tu tarjeta está inactiva. Contacta a tu banco.',
             'cc_rejected_high_risk': 'Pago rechazado por seguridad. Intenta con otro medio.',
             'cc_rejected_call_for_authorize': 'Debes autorizar el pago ante tu banco.',
             'cc_rejected_blacklist': 'No pudimos procesar tu pago. Intenta con otro medio.',
-            'cc_rejected_max_attempts': 'Alcanzaste el lÃ­mite de intentos. Usa otra tarjeta.',
+            'cc_rejected_max_attempts': 'Alcanzaste el límite de intentos. Usa otra tarjeta.',
         };
         if (statusDetail && errorMessages[statusDetail]) {
             document.getElementById('error-msg').textContent = errorMessages[statusDetail];
