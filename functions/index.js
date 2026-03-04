@@ -10,6 +10,95 @@ const https = require('https');
 
 admin.initializeApp();
 
+// ─── SMART SEARCH UTILITIES ───────────────────────────────────────────────────
+/**
+ * Brand aliases: maps all known misspellings/variations to a canonical form.
+ * When user types any of the keys, the search expands to the canonical value.
+ */
+const BRAND_ALIASES = {
+    // TP-Link
+    'tplink': 'tp-link', 'tp link': 'tp-link', 'tepelinc': 'tp-link', 'tplinck': 'tp-link',
+    'tp_link': 'tp-link', 'tplink1': 'tp-link', 'teplink': 'tp-link', 'tep-link': 'tp-link',
+    // Ubiquiti
+    'ubiquiti': 'ubiquiti', 'ubnt': 'ubiquiti', 'ubiquit': 'ubiquiti', 'unifi': 'ubiquiti',
+    // Cisco
+    'sisco': 'cisco', 'sisco': 'cisco',
+    // HP
+    'hewlett': 'hp', 'hewlett packard': 'hp',
+    // Logitech
+    'logi': 'logitech', 'logitec': 'logitech', 'lojitec': 'logitech',
+    // Samsung
+    'samsunh': 'samsung', 'samsun': 'samsung',
+    // Kingston
+    'kingstone': 'kingston', 'kignston': 'kingston',
+    // Epson
+    'epzon': 'epson', 'apson': 'epson',
+    // Hikvision
+    'hikvizion': 'hikvision', 'hik': 'hikvision', 'hkvision': 'hikvision',
+    // D-Link
+    'dlink': 'd-link', 'd link': 'd-link',
+    // Western Digital
+    'wd': 'western digital', 'western digital': 'western digital', 'wdc': 'western digital',
+    // ASUS
+    'azus': 'asus', 'assus': 'asus',
+    // Lenovo
+    'lenovvo': 'lenovo', 'lenovio': 'lenovo',
+};
+
+/**
+ * Normalize a string for fuzzy matching:
+ * - Lowercase
+ * - Remove accents/diacritics (á→a, é→e, ñ→n, etc.)
+ * - Collapse whitespace
+ */
+function normalizeSearch(str) {
+    return (str || '')
+        .toLowerCase()
+        .normalize('NFD')               // decompose accented chars
+        .replace(/[\u0300-\u036f]/g, '') // strip diacritics
+        .replace(/[^a-z0-9\s\-]/g, ' ') // keep only alphanum + hyphen
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+/**
+ * Resolve search terms: expand aliases and split into tokens.
+ * Returns an array of normalized strings to match against.
+ */
+function resolveSearchTerms(rawKeyword) {
+    const norm = normalizeSearch(rawKeyword);
+    const terms = [norm];
+
+    // Check if the whole query maps to a canonical brand
+    if (BRAND_ALIASES[norm]) terms.push(BRAND_ALIASES[norm]);
+
+    // Also check each word individually
+    const words = norm.split(' ');
+    words.forEach(w => { if (BRAND_ALIASES[w]) terms.push(BRAND_ALIASES[w]); });
+
+    // Always include without hyphens and with hyphens
+    terms.push(norm.replace(/-/g, ' '));
+    terms.push(norm.replace(/\s/g, '-'));
+
+    return [...new Set(terms)]; // deduplicate
+}
+
+/**
+ * Check if a product matches a set of search terms (any term = match).
+ * Matches against normalized description, vendor, sku, clave.
+ */
+function productMatchesSearch(p, searchTerms) {
+    const haystack = normalizeSearch([
+        p.description || '',
+        p.vendorName || '',
+        p.ingramPartNumber || '',
+        p.sku || '',
+        p.brand || ''
+    ].join(' '));
+
+    return searchTerms.some(term => haystack.includes(term));
+}
+
 // ─── AMAZON BEST SELLERS: Keyword list cached from Firestore ─────────────────
 let amazonTopKeywords = new Set();
 let amazonKeywordsLoaded = false;
@@ -727,11 +816,9 @@ exports.searchProducts = functions.runWith({ timeoutSeconds: 60, memory: '1GB' }
             }
 
             if (keyword) {
-                filtered = filtered.filter(p =>
-                    (p.description || '').toLowerCase().includes(keyword) ||
-                    (p.sku || p.ingramPartNumber || '').toLowerCase().includes(keyword) ||
-                    (p.vendorName || '').toLowerCase().includes(keyword)
-                );
+                // Smart fuzzy search: normalize input, expand brand aliases, strip accents
+                const searchTerms = resolveSearchTerms(keyword);
+                filtered = filtered.filter(p => productMatchesSearch(p, searchTerms));
             }
 
             // 2. Score-based sort (Relevancia = Stock + Price + Amazon Boost)
