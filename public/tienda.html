@@ -661,7 +661,7 @@
         }
 
         // Brand emoji map  add more brands here as needed
-                const BRAND_EMOJIS = {
+        const BRAND_EMOJIS = {
             'asus': '🖥️', 'acer': '💻', 'apple': '🍎', 'amd': '⚡',
             'corsair': '🌊', 'cisco': '🔗', 'canon': '📷',
             'd-link': '📡', 'dell': '🖥️',
@@ -781,9 +781,9 @@
 
                 // Image Selection Priority  preserve original protocol (CT image servers may not support HTTPS)
                 let productImageUrl = 'Pandishu-Logo-26.png'; // Fallback
-                const rawImage = p.image || p.imagenUrl || p.imagen || '';
-                if (rawImage.trim() !== '') {
-                    productImageUrl = rawImage; // Use URL as-is, no http?https replacement
+                const rawImage = (p.image || p.imagenUrl || p.imagen || p.foto || p.imageUrl || '').trim();
+                if (rawImage !== '') {
+                    productImageUrl = rawImage.startsWith('http://') ? rawImage.replace('http://', 'https://') : rawImage;
                 }
 
                 return `

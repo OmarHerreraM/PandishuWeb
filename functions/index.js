@@ -839,7 +839,7 @@ async function runCTCatalogSync() {
             price: parseFloat(p.precio || 0) * (p.moneda === 'USD' ? MXN_RATE : 1),
             precioPromocion: promoPrice,
             currency: 'MXN',
-            image: p.imagen || '',
+            image: (p.imagen || '').replace(/^http:\/\//i, 'https://'),
             vendorName: p.marca || p.fabricante || p.brand || '',
             existencia: totalStock,
             almacenes: almacenesStock,

@@ -517,10 +517,11 @@
                 // CT Price Logic (Backend computed final price passed as p.price to prevent duplicate fees)
                 const finalPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
 
-                // Imagen fallback con logo corporativo
-                // NOTA: No se fuerza https:// porque los servidores de catálogo de CT no siempre soportan SSL
-                const rawImg = p.image || p.imagenUrl || p.imagen || '';
-                const imgSrc = rawImg.trim() !== '' ? rawImg : 'Pandishu-Logo-26.png';
+                // Imagen: CT serves HTTP urls — force HTTPS to avoid mixed-content blocks
+                const rawImg = (p.image || p.imagenUrl || p.imagen || p.foto || p.imageUrl || '').trim();
+                // Upgrade http → https for mixed-content safety (CT/Ingram image CDNs support https)
+                const secureImg = rawImg.startsWith('http://') ? rawImg.replace('http://', 'https://') : rawImg;
+                const imgSrc = secureImg !== '' ? secureImg : 'Pandishu-Logo-26.png';
                 const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
 
                 const card = `
