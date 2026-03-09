@@ -2,27 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.pandishu.com/</loc>
-    <lastmod>2026-02-24</lastmod>
+    <lastmod>2026-03-09</lastmod>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://www.pandishu.com/tienda</loc>
-    <lastmod>2026-02-24</lastmod>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.pandishu.com/hardware</loc>
-    <lastmod>2026-02-24</lastmod>
+    <loc>https://www.pandishu.com/soluciones</loc>
+    <lastmod>2026-03-09</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://www.pandishu.com/proyectos</loc>
-    <lastmod>2026-02-24</lastmod>
+    <lastmod>2026-03-09</lastmod>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://www.pandishu.com/privacidad</loc>
     <lastmod>2026-02-24</lastmod>
     <priority>0.30</priority>
+  </url>
+  <url>
+    <loc>https://www.pandishu.com/cookies</loc>
+    <lastmod>2026-02-24</lastmod>
+    <priority>0.20</priority>
+  </url>
+  <url>
+    <loc>https://www.pandishu.com/devoluciones</loc>
+    <lastmod>2026-02-24</lastmod>
+    <priority>0.20</priority>
   </url>
 </urlset>

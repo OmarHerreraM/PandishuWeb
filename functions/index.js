@@ -1336,3 +1336,109 @@ exports.getOrderStatus = functions.https.onRequest((req, res) => {
         }
     });
 });
+
+// ─── B2B QUOTE REQUEST (LEAD CAPTURE + TELEGRAM) ────────────────────────────
+exports.submitQuote = functions
+    .runWith({ timeoutSeconds: 30, memory: '256MB' })
+    .https.onRequest((req, res) => {
+        cors(req, res, async () => {
+            if (req.method !== 'POST') {
+                return res.status(405).json({ error: 'Method not allowed' });
+            }
+
+            try {
+                const {
+                    empresa, contacto, email, telefono,
+                    solucion, cantidadEquipos, presupuesto,
+                    descripcion, aceptaAviso
+                } = req.body;
+
+                // Validation
+                if (!empresa || !contacto || !email || !telefono || !solucion) {
+                    return res.status(400).json({ error: 'Campos obligatorios: empresa, contacto, email, telefono, solucion.' });
+                }
+
+                if (!aceptaAviso) {
+                    return res.status(400).json({ error: 'Debes aceptar el aviso de privacidad.' });
+                }
+
+                const db = admin.firestore();
+
+                // Save lead to Firestore
+                const leadData = {
+                    empresa: empresa.trim(),
+                    contacto: contacto.trim(),
+                    email: email.toLowerCase().trim(),
+                    telefono: telefono.trim(),
+                    solucion,
+                    cantidadEquipos: cantidadEquipos || '',
+                    presupuesto: presupuesto || '',
+                    descripcion: (descripcion || '').trim(),
+                    aceptaAviso: true,
+                    status: 'new',
+                    source: 'landing_b2b',
+                    createdAt: FieldValue.serverTimestamp()
+                };
+
+                const docRef = await db.collection('b2b_leads').add(leadData);
+
+                // ─── Telegram Notification ───────────────────────────────
+                const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || functions.config().telegram?.bot_token;
+                const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || functions.config().telegram?.chat_id;
+
+                if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+                    const solutionLabels = {
+                        'pos-restaurantes': 'Punto de Venta Restaurantes',
+                        'oficinas': 'Infraestructura Oficinas',
+                        'seguridad': 'Seguridad Corporativa',
+                        'redes': 'Redes Empresariales',
+                        'retail': 'Equipamiento Retail',
+                        'desarrollo': 'Desarrollo Web & Sistemas',
+                        'integral': 'Proyecto Integral'
+                    };
+
+                    const message = [
+                        `🔔 *NUEVO LEAD B2B*`,
+                        ``,
+                        `🏢 *Empresa:* ${leadData.empresa}`,
+                        `👤 *Contacto:* ${leadData.contacto}`,
+                        `📧 *Email:* ${leadData.email}`,
+                        `📱 *Tel:* ${leadData.telefono}`,
+                        ``,
+                        `🎯 *Solucion:* ${solutionLabels[solucion] || solucion}`,
+                        `📦 *Equipos:* ${cantidadEquipos || 'No especificado'}`,
+                        `💰 *Presupuesto:* ${presupuesto || 'No especificado'}`,
+                        descripcion ? `📝 *Descripcion:* ${descripcion}` : '',
+                        ``,
+                        `🆔 Lead ID: \`${docRef.id}\``
+                    ].filter(Boolean).join('\n');
+
+                    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+                    try {
+                        const axios = require('axios');
+                        await axios.post(telegramUrl, {
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'Markdown'
+                        });
+                    } catch (tgErr) {
+                        console.error('Telegram notification failed:', tgErr.message);
+                        // Non-blocking: lead is already saved
+                    }
+                } else {
+                    console.warn('Telegram credentials not configured. Skipping notification.');
+                }
+
+                return res.status(200).json({
+                    success: true,
+                    leadId: docRef.id,
+                    message: 'Solicitud de cotizacion recibida exitosamente.'
+                });
+
+            } catch (e) {
+                console.error('submitQuote error:', e);
+                return res.status(500).json({ error: 'Error interno del servidor.' });
+            }
+        });
+    });

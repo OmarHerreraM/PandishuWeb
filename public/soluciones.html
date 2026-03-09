@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="analytics.js"></script>
+
+    <title>Soluciones IT por Industria | Pandishu - Equipamiento Tecnologico Empresarial</title>
+    <meta name="description"
+        content="Catalogo de soluciones tecnologicas para restaurantes, oficinas, retail y seguridad corporativa. Equipos de grado empresarial con stock en tiempo real. Cotiza tu proyecto.">
+    <meta name="keywords"
+        content="punto de venta restaurante CDMX, equipos de computo oficina, camaras seguridad empresa, redes empresariales, proveedor IT Mexico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                        brand: { cyan: '#0891b2', indigo: '#4f46e5', accent: '#06b6d4' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium:hover {
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-brand-cyan selection:text-white">
+
+    <!-- NAVEGACION -->
+    <nav class="sticky top-0 w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/5 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
+            <a href="/" class="flex items-center gap-3">
+                <img src="Pandishu-Logo-26.png" alt="Pandishu Logo"
+                    class="h-10 w-10 rounded-xl object-cover ring-1 ring-white/10" onerror="this.style.display='none'">
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-white uppercase italic">Pandishu</span>
+                    <span class="text-[10px] text-brand-cyan font-bold tracking-[0.2em] uppercase">Soluciones IT</span>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="/" class="hover:text-white transition-colors">Inicio</a>
+                <a href="#catalogo-soluciones" class="hover:text-white transition-colors">Catalogo</a>
+                <a href="/proyectos" class="hover:text-white transition-colors">Proyectos</a>
+                <a href="/#cotizar" class="btn-premium px-5 py-2.5 rounded-xl text-white flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Cotizar
+                </a>
+            </div>
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                class="md:hidden text-white p-2 rounded-xl bg-slate-800">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="mobile-menu"
+            class="hidden px-6 pb-6 pt-4 bg-slate-900 border-b border-white/5 absolute w-full flex flex-col gap-4 text-sm font-bold uppercase text-slate-300">
+            <a href="/">Inicio</a>
+            <a href="#catalogo-soluciones">Catalogo</a>
+            <a href="/proyectos">Proyectos</a>
+            <a href="/#cotizar" class="text-brand-cyan">Cotizar Proyecto</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="pt-16 pb-12 px-6 bg-slate-950 border-b border-white/5">
+        <div class="max-w-7xl mx-auto text-center">
+            <span class="text-brand-cyan font-bold tracking-widest uppercase text-xs mb-2 block">Catalogo B2B</span>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight uppercase italic">Soluciones por
+                Industria</h1>
+            <p class="text-slate-400 max-w-2xl mx-auto font-light text-lg">
+                Selecciona una vertical para explorar los productos disponibles con stock en tiempo real desde nuestros
+                41+ centros de distribucion CT.
+            </p>
+        </div>
+    </header>
+
+    <!-- FILTRO DE SOLUCIONES -->
+    <div class="bg-slate-900 border-b border-white/5 py-6 px-6 sticky top-[72px] z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap gap-3 justify-center" id="solution-filters">
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-brand-cyan text-slate-950 text-xs font-bold uppercase tracking-widest rounded-full"
+                data-solution="all">Todas</button>
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition"
+                data-solution="pos-restaurantes">Punto de Venta</button>
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition"
+                data-solution="oficinas">Oficinas</button>
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition"
+                data-solution="seguridad">Seguridad</button>
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition"
+                data-solution="redes">Redes</button>
+            <button
+                class="sol-filter-btn px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold uppercase tracking-widest rounded-full transition"
+                data-solution="retail">Retail</button>
+        </div>
+    </div>
+
+    <!-- CATALOGO DINAMICO -->
+    <section id="catalogo-soluciones" class="py-16 px-6 bg-slate-950">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Seccion: POS Restaurantes -->
+            <div id="pos-restaurantes" class="solution-section mb-20 scroll-mt-40">
+                <div class="flex items-center gap-4 mb-8 border-b border-slate-800 pb-6">
+                    <div
+                        class="w-12 h-12 bg-orange-900/30 text-orange-400 rounded-xl flex items-center justify-center border border-orange-500/30">
+                        <i data-lucide="utensils" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">Punto de
+                            Venta para Restaurantes</h2>
+                        <p class="text-slate-400 text-sm">Terminales POS, impresoras termicas, cajones, tablets y
+                            perifericos</p>
+                    </div>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                    data-keywords="pos terminal impresora termica cajon dinero tablet punto venta lector codigo barras epson"
+                    data-color="orange"></div>
+                <div class="loader-section py-10 text-center">
+                    <div
+                        class="w-10 h-10 border-4 border-slate-800 border-t-orange-400 rounded-full animate-spin mx-auto">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seccion: Oficinas -->
+            <div id="oficinas" class="solution-section mb-20 scroll-mt-40">
+                <div class="flex items-center gap-4 mb-8 border-b border-slate-800 pb-6">
+                    <div
+                        class="w-12 h-12 bg-blue-900/30 text-blue-400 rounded-xl flex items-center justify-center border border-blue-500/30">
+                        <i data-lucide="building-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">
+                            Infraestructura para Oficinas</h2>
+                        <p class="text-slate-400 text-sm">Computadoras, monitores, perifericos, almacenamiento y UPS</p>
+                    </div>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                    data-keywords="computadora escritorio desktop monitor teclado mouse ups respaldo energia laptop workstation lenovo hp dell"
+                    data-color="blue"></div>
+                <div class="loader-section py-10 text-center">
+                    <div
+                        class="w-10 h-10 border-4 border-slate-800 border-t-blue-400 rounded-full animate-spin mx-auto">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seccion: Seguridad -->
+            <div id="seguridad" class="solution-section mb-20 scroll-mt-40">
+                <div class="flex items-center gap-4 mb-8 border-b border-slate-800 pb-6">
+                    <div
+                        class="w-12 h-12 bg-red-900/30 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30">
+                        <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">Seguridad
+                            Corporativa</h2>
+                        <p class="text-slate-400 text-sm">Camaras IP, NVR, switches PoE, control de acceso</p>
+                    </div>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                    data-keywords="camara ip cctv nvr dvr hikvision seguridad vigilancia poe control acceso"
+                    data-color="red"></div>
+                <div class="loader-section py-10 text-center">
+                    <div class="w-10 h-10 border-4 border-slate-800 border-t-red-400 rounded-full animate-spin mx-auto">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seccion: Redes -->
+            <div id="redes" class="solution-section mb-20 scroll-mt-40">
+                <div class="flex items-center gap-4 mb-8 border-b border-slate-800 pb-6">
+                    <div
+                        class="w-12 h-12 bg-cyan-900/30 text-cyan-400 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                        <i data-lucide="network" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">Redes
+                            Empresariales</h2>
+                        <p class="text-slate-400 text-sm">Access Points, switches, routers, firewalls, cableado</p>
+                    </div>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                    data-keywords="access point switch router firewall tp-link ubiquiti cisco red wireless mesh cable cat6"
+                    data-color="cyan"></div>
+                <div class="loader-section py-10 text-center">
+                    <div
+                        class="w-10 h-10 border-4 border-slate-800 border-t-cyan-400 rounded-full animate-spin mx-auto">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seccion: Retail -->
+            <div id="retail" class="solution-section mb-20 scroll-mt-40">
+                <div class="flex items-center gap-4 mb-8 border-b border-slate-800 pb-6">
+                    <div
+                        class="w-12 h-12 bg-purple-900/30 text-purple-400 rounded-xl flex items-center justify-center border border-purple-500/30">
+                        <i data-lucide="store" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">
+                            Equipamiento Retail</h2>
+                        <p class="text-slate-400 text-sm">Lectores de codigo, impresoras de etiquetas, terminales
+                            moviles</p>
+                    </div>
+                </div>
+                <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                    data-keywords="lector codigo barras impresora etiqueta terminal movil inventario display signage scanner"
+                    data-color="purple"></div>
+                <div class="loader-section py-10 text-center">
+                    <div
+                        class="w-10 h-10 border-4 border-slate-800 border-t-purple-400 rounded-full animate-spin mx-auto">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CTA COTIZAR -->
+    <section class="py-20 px-6 bg-slate-900 border-t border-white/5 text-center">
+        <div class="max-w-2xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-4 uppercase italic tracking-tight">Arma tu Proyecto
+                Integral</h2>
+            <p class="text-slate-400 mb-8 font-light">Selecciona los productos que necesitas y solicita una cotizacion
+                personalizada con precios por volumen.</p>
+
+            <!-- Cotizacion Drawer -->
+            <div id="quote-drawer" class="glass-panel rounded-3xl p-6 mb-8 text-left hidden">
+                <h3 class="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-4 h-4 text-brand-cyan"></i>
+                    Productos Seleccionados (<span id="quote-count">0</span>)
+                </h3>
+                <div id="quote-items" class="space-y-2 max-h-60 overflow-y-auto mb-4"></div>
+                <a href="/#cotizar" id="send-quote-btn"
+                    class="btn-premium w-full py-3 rounded-xl font-bold text-sm text-white uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> Solicitar Cotizacion de estos Productos
+                </a>
+            </div>
+
+            <a href="/#cotizar"
+                class="btn-premium inline-flex items-center gap-2 px-8 py-4 rounded-xl font-black text-lg text-white uppercase tracking-wide">
+                <i data-lucide="file-text" class="w-5 h-5"></i> Ir al Formulario de Cotizacion
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 pt-12 pb-8 px-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <span class="text-2xl font-black text-white uppercase italic tracking-tighter">Pandishu</span>
+            <div
+                class="flex flex-wrap gap-4 md:gap-6 text-xs font-bold text-slate-500 uppercase tracking-widest justify-center">
+                <a href="privacidad" class="hover:text-white transition-colors">Aviso de Privacidad</a>
+                <a href="terminos" class="hover:text-white transition-colors">Terminos</a>
+                <a href="devoluciones" class="hover:text-white transition-colors">Garantias CT</a>
+            </div>
+            <p class="text-slate-600 text-xs font-bold uppercase">&copy; 2026 Pandishu Soluciones IT.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const FUNCTIONS_BASE = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net';
+        const quoteList = [];
+
+        // ─── PRODUCT CARD RENDERER ──────────────────────────────────────────────────
+        function renderProductCard(p, accentColor) {
+            const stock = parseInt(p.stock) || 0;
+            const finalPrice = parseFloat(p.retailPrice) || parseFloat(p.price) || 0;
+            const rawImg = (p.image || p.imagenUrl || p.imagen || p.foto || p.imageUrl || '').trim();
+            let imgSrc = 'Pandishu-Logo-26.png';
+            if (rawImg !== '') {
+                imgSrc = rawImg.startsWith('http://') ? rawImg.replace('http://', 'https://') : rawImg;
+            }
+            const isPlaceholder = imgSrc === 'Pandishu-Logo-26.png' ? 'object-contain p-4 opacity-50' : 'object-contain p-2 group-hover:scale-110';
+
+            let stockBadge = '';
+            if (stock > 5) {
+                stockBadge = `<span class="bg-emerald-900/80 text-emerald-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ${stock} en stock</span>`;
+            } else if (stock > 0) {
+                stockBadge = `<span class="bg-orange-900/80 text-orange-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1 animate-pulse"><i data-lucide="alert-circle" class="w-3 h-3"></i> Ultimas ${stock}</span>`;
+            } else {
+                stockBadge = `<span class="bg-red-900/80 text-red-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3 h-3"></i> Sobre pedido</span>`;
+            }
+
+            const sku = p.sku || p.ingramPartNumber || 'N/A';
+            const name = p.description || p.name || '';
+
+            return `
+                <div class="glass-panel p-5 rounded-3xl flex flex-col group relative hover:border-${accentColor}-500/40 transition-all shadow-xl bg-slate-900 border border-slate-800">
+                    <div class="bg-slate-800 rounded-2xl mb-3 overflow-hidden h-36 flex items-center justify-center p-2 relative">
+                        <span class="text-slate-300 font-bold tracking-widest text-[9px] uppercase block absolute top-4 left-4 z-10 bg-slate-900/90 px-2 py-1 border border-slate-700 rounded">${p.vendorName || p.brand || 'Original'}</span>
+                        <img src="${imgSrc}" alt="${name.replace(/"/g, '')}" loading="lazy" class="w-full h-full ${isPlaceholder} rounded-xl transition-transform duration-500" onerror="this.onerror=null; this.src='Pandishu-Logo-26.png'; this.className='w-16 h-16 opacity-20 object-contain';">
+                    </div>
+
+                    ${stockBadge}
+
+                    <h3 class="text-slate-200 font-semibold text-xs leading-tight mb-2 flex-grow line-clamp-2 mt-2" title="${name}">${name}</h3>
+
+                    <div class="mt-auto pt-2 border-t border-slate-800 border-dashed">
+                        <span class="text-slate-500 text-[10px] block mb-1">SKU: ${sku}</span>
+                        <p class="text-brand-cyan font-black text-xl mb-3">$${finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="text-[10px] text-slate-500 font-normal">MXN + IVA</span></p>
+
+                        <a href="/#cotizar"
+                            class="w-full py-3 bg-slate-800 hover:bg-${accentColor}-500 hover:text-white text-slate-300 font-bold rounded-xl text-xs uppercase tracking-widest text-center transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="file-text" class="w-3 h-3"></i> Cotizar este Equipo
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ─── QUOTE LIST MANAGEMENT ──────────────────────────────────────────────────
+        function addToQuote(sku, name, price) {
+            const existing = quoteList.find(i => i.sku === sku);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                quoteList.push({ sku, name, price, qty: 1 });
+            }
+            renderQuoteDrawer();
+
+            if (typeof window.pandishuTrack === 'function') {
+                window.pandishuTrack('add_to_cart', {
+                    currency: 'MXN', value: price,
+                    items: [{ item_id: sku, item_name: name, price, quantity: 1 }]
+                });
+            }
+        }
+
+        function removeFromQuote(sku) {
+            const idx = quoteList.findIndex(i => i.sku === sku);
+            if (idx > -1) quoteList.splice(idx, 1);
+            renderQuoteDrawer();
+        }
+
+        function renderQuoteDrawer() {
+            const drawer = document.getElementById('quote-drawer');
+            const itemsEl = document.getElementById('quote-items');
+            const countEl = document.getElementById('quote-count');
+
+            if (quoteList.length === 0) {
+                drawer.classList.add('hidden');
+                return;
+            }
+
+            drawer.classList.remove('hidden');
+            countEl.textContent = quoteList.reduce((sum, i) => sum + i.qty, 0);
+
+            itemsEl.innerHTML = quoteList.map(i => `
+                <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-xs font-medium truncate">${i.name}</p>
+                        <p class="text-slate-500 text-[10px]">SKU: ${i.sku} | Qty: ${i.qty} | $${(i.price * i.qty).toLocaleString('es-MX')}</p>
+                    </div>
+                    <button onclick="removeFromQuote('${i.sku}')" class="text-red-400 hover:text-red-300 ml-2">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+
+            // Encode quote items into the CTA link
+            const desc = quoteList.map(i => `${i.qty}x ${i.name} (${i.sku})`).join('\n');
+            document.getElementById('send-quote-btn').href = `/#cotizar`;
+            localStorage.setItem('pandishu_quote_items', desc);
+        }
+
+        // ─── FETCH PRODUCTS PER SOLUTION ────────────────────────────────────────────
+        async function loadSolution(section) {
+            const grid = section.querySelector('.product-grid');
+            const loader = section.querySelector('.loader-section');
+            const keywords = grid.dataset.keywords;
+            const color = grid.dataset.color;
+
+            try {
+                // Search for each keyword group and merge results
+                const keywordList = keywords.split(' ');
+                const searchQuery = keywordList.slice(0, 3).join(' ');
+
+                const response = await fetch(`${FUNCTIONS_BASE}/searchProducts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keyword: searchQuery, limit: 8 })
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                const data = await response.json();
+                const products = data.catalog || [];
+
+                if (products.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-8 text-slate-500 text-sm">No se encontraron productos para esta categoria. Contactanos para cotizar.</div>';
+                } else {
+                    grid.innerHTML = products.map(p => renderProductCard(p, color)).join('');
+                }
+                lucide.createIcons();
+            } catch (err) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-red-400 text-sm">Error cargando productos. Intenta recargar la pagina.</div>';
+            } finally {
+                if (loader) loader.remove();
+            }
+        }
+
+        // ─── FILTER LOGIC ───────────────────────────────────────────────────────────
+        document.querySelectorAll('.sol-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.sol-filter-btn').forEach(b => {
+                    b.classList.remove('bg-brand-cyan', 'text-slate-950');
+                    b.classList.add('bg-slate-800', 'text-slate-400');
+                });
+                btn.classList.add('bg-brand-cyan', 'text-slate-950');
+                btn.classList.remove('bg-slate-800', 'text-slate-400');
+
+                const sol = btn.dataset.solution;
+                document.querySelectorAll('.solution-section').forEach(s => {
+                    if (sol === 'all' || s.id === sol) {
+                        s.classList.remove('hidden');
+                    } else {
+                        s.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // ─── BOOT: LOAD ALL SOLUTIONS ───────────────────────────────────────────────
+        document.querySelectorAll('.solution-section').forEach(section => {
+            loadSolution(section);
+        });
+
+        // Handle hash navigation
+        if (window.location.hash) {
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 500);
+                // Activate the corresponding filter
+                const filterId = window.location.hash.replace('#', '');
+                const filterBtn = document.querySelector(`[data-solution="${filterId}"]`);
+                if (filterBtn) filterBtn.click();
+            }
+        }
+    </script>
+</body>
+
+</html>

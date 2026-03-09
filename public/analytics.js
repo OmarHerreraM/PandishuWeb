@@ -106,7 +106,7 @@ const renderCookieBanner = () => {
     banner.innerHTML = `
         <div class="cookie-container">
             <div class="cookie-text">
-                En <strong>Pandishú</strong> utilizamos cookies estrictamente necesarias para el carrito de compras, así como Google Analytics 4 para mejorar tu experiencia de navegación, analizar el tráfico y personalizar nuestro catálogo de hardware y soluciones. Puedes consultar los detalles en nuestra <a href="cookies.html">Política de Cookies</a>.
+                En <strong>Pandishú</strong> utilizamos cookies estrictamente necesarias para el funcionamiento del sitio, así como Google Analytics 4 para mejorar tu experiencia de navegación, analizar el tráfico y personalizar nuestras soluciones tecnológicas empresariales. Puedes consultar los detalles en nuestra <a href="cookies.html">Política de Cookies</a>.
             </div>
             <div class="cookie-actions">
                 <button id="btn-cookie-deny" class="btn-cookie btn-cookie-config">Rechazar Analytics</button>

@@ -1,11 +1,8 @@
-# Bienvenido a Pandishu.com
 User-agent: *
 Allow: /
 
-# Evitar que Google indexe carpetas de sistema o logs en S3
-Disallow: /config/
-Disallow: /logs/
-Disallow: /private/
+Disallow: /admin
+Disallow: /checkout
+Disallow: /pedidos
 
-# Enlace al Sitemap para facilitar el rastreo
 Sitemap: https://www.pandishu.com/sitemap.xml
