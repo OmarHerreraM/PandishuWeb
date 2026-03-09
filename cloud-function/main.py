@@ -18,6 +18,7 @@ Deployment:
 import os
 import json
 import urllib.request
+import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
 
@@ -38,10 +39,9 @@ ALLOWED_ORIGINS = [
 
 
 def _cors_headers(origin: str) -> dict:
-    """Return CORS headers if origin is allowed."""
-    allowed = origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+    """Return CORS headers. Uses wildcard * for public form endpoint."""
     return {
-        "Access-Control-Allow-Origin": allowed,
+        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Max-Age": "3600",
@@ -55,11 +55,16 @@ def _escape_md(text: str) -> str:
     return text
 
 
-def _send_telegram(text: str) -> bool:
-    """Send message via Telegram Bot API using only stdlib."""
+def _send_telegram(text: str) -> dict:
+    """Send message via Telegram Bot API. Returns {"ok": bool, "detail": str}."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("WARN: Telegram credentials not set, skipping notification.")
-        return False
+        msg = (
+            f"TELEGRAM CONFIG MISSING — "
+            f"TOKEN={'SET' if TELEGRAM_BOT_TOKEN else 'EMPTY'}, "
+            f"CHAT_ID={'SET' if TELEGRAM_CHAT_ID else 'EMPTY'}"
+        )
+        print(f"ERROR: {msg}")
+        return {"ok": False, "detail": msg}
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = json.dumps({
@@ -77,10 +82,18 @@ def _send_telegram(text: str) -> bool:
 
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
-            return resp.status == 200
+            body = resp.read().decode("utf-8")
+            print(f"Telegram API {resp.status}: {body}")
+            if resp.status == 200:
+                return {"ok": True, "detail": "sent"}
+            return {"ok": False, "detail": f"HTTP {resp.status}: {body}"}
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="replace")
+        print(f"ERROR Telegram HTTP {e.code}: {error_body}")
+        return {"ok": False, "detail": f"HTTP {e.code}: {error_body}"}
     except Exception as e:
-        print(f"ERROR Telegram: {e}")
-        return False
+        print(f"ERROR Telegram exception: {e}")
+        return {"ok": False, "detail": str(e)}
 
 
 @functions_framework.http
@@ -138,13 +151,23 @@ def contact_form(request):
         f"🕐 {ts}"
     )
 
-    tg_ok = _send_telegram(tg_text)
+    result = _send_telegram(tg_text)
 
     # ── Response ─────────────────────────────────────────────────────────
+    if not result["ok"]:
+        print(f"LEAD LOST — {nombre} / {email} — Telegram failed: {result['detail']}")
+        return (
+            json.dumps({
+                "success": False,
+                "error": "No se pudo enviar la notificación. Intenta de nuevo o escríbenos por WhatsApp.",
+            }),
+            500,
+            headers,
+        )
+
     return (
         json.dumps({
             "success": True,
-            "telegram_sent": tg_ok,
             "message": "Solicitud recibida. Te contactaremos pronto.",
         }),
         200,
