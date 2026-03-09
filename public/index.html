@@ -119,6 +119,44 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* ── Logo Carousel ──────────────────────────────────────── */
+        .logo-track {
+            display: flex;
+            width: max-content;
+            animation: scroll-logos 30s linear infinite;
+        }
+
+        .logo-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-logos {
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .logo-track img {
+            height: 36px;
+            margin: 0 2.5rem;
+            filter: grayscale(100%) opacity(70%);
+            transition: filter 0.3s ease;
+        }
+
+        .logo-track img:hover {
+            filter: grayscale(0%) opacity(100%);
+        }
+
+        @media (max-width: 768px) {
+            .logo-track img {
+                height: 26px;
+                margin: 0 1.25rem;
+            }
+            .logo-track {
+                animation-duration: 20s;
+            }
+        }
     </style>
 </head>
 
@@ -231,6 +269,38 @@
             </div>
         </div>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+     PARTNERS TECNOLÓGICOS — Carrusel de logos
+     ═══════════════════════════════════════════════════════════════════════════ -->
+    <section class="py-12 px-6 border-b border-white/5 bg-navy-900/60">
+        <p class="text-center text-steel-500 text-xs font-semibold uppercase tracking-widest mb-8">
+            Soluciones integradas con tecnología de clase mundial
+        </p>
+        <div class="overflow-hidden max-w-6xl mx-auto"
+            style="-webkit-mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);">
+            <div class="logo-track" aria-label="Marcas aliadas">
+                <!-- Set 1 -->
+                <img src="assets/logos/dell.svg" alt="Dell" loading="lazy">
+                <img src="assets/logos/lenovo.svg" alt="Lenovo" loading="lazy">
+                <img src="assets/logos/hp.svg" alt="HP" loading="lazy">
+                <img src="assets/logos/cisco.svg" alt="Cisco" loading="lazy">
+                <img src="assets/logos/apc.svg" alt="APC" loading="lazy">
+                <img src="assets/logos/synology.svg" alt="Synology" loading="lazy">
+                <img src="assets/logos/tplink.svg" alt="TP-Link" loading="lazy">
+                <img src="assets/logos/microsoft.svg" alt="Microsoft" loading="lazy">
+                <!-- Set 2 (duplicado para loop infinito) -->
+                <img src="assets/logos/dell.svg" alt="Dell" loading="lazy">
+                <img src="assets/logos/lenovo.svg" alt="Lenovo" loading="lazy">
+                <img src="assets/logos/hp.svg" alt="HP" loading="lazy">
+                <img src="assets/logos/cisco.svg" alt="Cisco" loading="lazy">
+                <img src="assets/logos/apc.svg" alt="APC" loading="lazy">
+                <img src="assets/logos/synology.svg" alt="Synology" loading="lazy">
+                <img src="assets/logos/tplink.svg" alt="TP-Link" loading="lazy">
+                <img src="assets/logos/microsoft.svg" alt="Microsoft" loading="lazy">
+            </div>
+        </div>
+    </section>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════
      SERVICIOS / PILARES
