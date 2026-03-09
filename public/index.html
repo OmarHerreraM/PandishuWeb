@@ -508,7 +508,7 @@
      ═══════════════════════════════════════════════════════════════════════════ -->
     <script>
             (function () {
-                const FUNCTION_URL = 'https://us-central1-pandishu-web-1d860.cloudfunctions.net/contact_form';
+                const FUNCTION_URL = 'https://us-central1-pandishu-dropshipping-ct-prod.cloudfunctions.net/contact_form';
 
                 const form = document.getElementById('lead-form');
                 const btn = document.getElementById('submit-btn');
@@ -541,7 +541,10 @@
                             body: JSON.stringify(data)
                         });
 
-                        if (!res.ok) throw new Error('Error del servidor');
+                        if (!res.ok) {
+                            const errData = await res.json().catch(() => ({}));
+                            throw new Error(errData.error || 'Error del servidor');
+                        }
 
                         showMsg('Solicitud enviada. Te contactaremos en menos de 24 horas.', true);
                         form.reset();
@@ -556,7 +559,7 @@
                         }
 
                     } catch (err) {
-                        showMsg('Error al enviar. Intenta de nuevo o escribenos por WhatsApp.', false);
+                        showMsg(err.message || 'Error al enviar. Intenta de nuevo o escribenos por WhatsApp.', false);
                     } finally {
                         btn.disabled = false;
                         btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Enviar Solicitud de Cotizacion';
